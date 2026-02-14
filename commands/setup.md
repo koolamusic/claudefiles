@@ -86,13 +86,5 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 
-### Step 8: Cleanup (optional)
 
-Ask the user if they want to remove `.resources/` from the repo (only relevant if running from the repo itself, not from a deployed copy).
 
-## Constraints
-
-- COPY files, do not symlink
-- Always back up existing settings.json before overwriting
-- Do not modify the source repo files — only copy to target
-- Preserve directory structure within skills (each skill is its own subdirectory)
