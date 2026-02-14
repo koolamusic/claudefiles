@@ -1,0 +1,39 @@
+# claudefiles.yaml
+name: koolamusic/claudefiles
+description: Portable Claude Code configuration
+
+install:
+  # Where to copy files — "global" = ~/.claude/, "local" = ./.claude/ in current project
+  targets:
+    skills: skills/        # copy all skill dirs into <target>/skills/
+    commands: commands/     # copy all .md files into <target>/commands/
+    sounds: sounds/        # copy all files into <target>/sounds/
+
+settings:
+  # These get smart-merged into the target settings.json
+  hooks:
+    SessionStart:
+      - matcher: startup
+        command: 'nohup {{sound_player}} $HOME/.claude/sounds/good-to-go-sir.wav >/dev/null 2>&1 &'
+    UserPromptSubmit:
+      - matcher: '.*'
+        command: 'sounds=($HOME/.claude/sounds/orders-received.wav $HOME/.claude/sounds/affirmative.wav $HOME/.claude/sounds/right-away-sir.wav $HOME/.claude/sounds/read-you.wav $HOME/.claude/sounds/cant-believe.wav $HOME/.claude/sounds/this-too.wav $HOME/.claude/sounds/claudrophobic.wav); nohup {{sound_player}} "${sounds[$RANDOM % ${#sounds[@]}]}" >/dev/null 2>&1 &'
+    Stop:
+      - matcher: '.*'
+        command: 'sounds=($HOME/.claude/sounds/jobs-finished.wav $HOME/.claude/sounds/orders-captain.wav $HOME/.claude/sounds/reporting-for-duty.wav); nohup {{sound_player}} "${sounds[$RANDOM % ${#sounds[@]}]}" >/dev/null 2>&1 &'
+  plugins:
+    - frontend-design@claude-plugins-official
+    - feature-dev@claude-plugins-official
+    - ralph-loop@claude-plugins-official
+  preferences:
+    alwaysThinkingEnabled: true
+
+platform:
+  macos:
+    sound_player: afplay
+  linux:
+    sound_player: aplay
+
+cleanup:
+  # Files/dirs to remove after extraction is done (in the repo itself during development)
+  - .resources/
