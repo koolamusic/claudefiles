@@ -34,6 +34,7 @@ uname -s
 mkdir -p <target>/skills
 mkdir -p <target>/commands
 mkdir -p <target>/sounds
+mkdir -p <target>/hooks
 ```
 
 ### Step 5: Copy files
@@ -49,6 +50,10 @@ cp commands/*.md <target>/commands/
 
 # Sounds — copy all files
 cp sounds/* <target>/sounds/
+
+# Hooks — copy all hook scripts and make executable
+cp hooks/* <target>/hooks/
+chmod +x <target>/hooks/*
 ```
 
 ### Step 6: Smart-merge settings.json
@@ -82,6 +87,7 @@ List what was installed:
 - Number of skills copied
 - Number of commands copied
 - Number of sound files copied
+- Number of hooks copied
 - Settings merged (or created fresh)
 - Whether a backup was made
 - The target directory
