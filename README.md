@@ -31,7 +31,7 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 
 ## What's included
 
-### Skills (14)
+### Skills (13)
 
 | Skill | Description | Source |
 |-------|-------------|--------|
@@ -47,7 +47,6 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 | rust-best-practices | Idiomatic Rust, ownership, error handling, testing | [apollographql/skills](https://github.com/apollographql/skills) |
 | shaping | Shape Up project shaping | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | skill-creator | Create and test new skills (TDD methodology) | [anthropics/skills](https://github.com/anthropics/skills) + [obra/superpowers](https://github.com/obra/superpowers) |
-| webapp-testing | Web application testing | [anthropics/skills](https://github.com/anthropics/skills) |
 | xlsx | Excel spreadsheet processing | [anthropics/skills](https://github.com/anthropics/skills) |
 
 ### Commands
@@ -89,6 +88,7 @@ Great skills that didn't make the bootstrap cut — either too project-specific,
 | terraform-engineer | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | Infrastructure as code with Terraform |
 | apollo-client | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL client with caching, suspense, codegen |
 | apollo-federation | [apollographql/skills](https://github.com/apollographql/skills) | Federated GraphQL schema composition |
+| webapp-testing | [anthropics/skills](https://github.com/anthropics/skills) | Web app testing with Playwright |
 
 ## Directory structure
 
