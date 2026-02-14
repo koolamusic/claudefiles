@@ -1,1 +1,10 @@
 .DS_Store
+.resource/
+.gfm-preview.html
+*.backup
+*.bak
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
