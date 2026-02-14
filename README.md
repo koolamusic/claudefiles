@@ -66,6 +66,12 @@ Opinionated git configuration inspired by [thoughtbot/dotfiles](https://github.c
 - **gitmessage** — commit message template prompting for why, how, and side effects
 - **templates/hooks/** — ctags regeneration on commit/merge/checkout/rewrite, local hook delegation
 
+### Hooks
+
+| Hook | Trigger | Description |
+|------|---------|-------------|
+| shaping-ripple | PostToolUse (Write\|Edit) | When editing a file with `shaping: true` frontmatter, reminds you to maintain consistency — update tables before Mermaid, sync requirements, etc. Silent for all other files. |
+
 ### Sounds
 
 SCV-themed audio cues for Claude Code hooks — startup, prompt submission, and task completion.
@@ -103,6 +109,7 @@ claudefiles/
 │   ├── gitignore
 │   ├── gitmessage
 │   └── templates/hooks/
+├── hooks/                # Claude Code hook scripts
 ├── sounds/               # Audio files (.wav)
 └── skills/               # Skill directories (SKILL.md + resources)
 ```
