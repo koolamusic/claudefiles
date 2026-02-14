@@ -1,10 +1,18 @@
 # claudefiles
 
-Portable Claude Code configuration — like dotfiles, but for Claude. Skills, commands, sounds, and settings that deploy to `~/.claude/` on any machine.
+Portable Claude Code configuration — like dotfiles, but for Claude.
 
-I use Claude mostly to manage my Tesla knowledge system (Obsidian, wiki links, interconnected notes) and to write backends in Rust, Golang, and Node.js. This repo is a minimal, portable setup — it helps me bootstrap new systems, VMs, and servers where I want to run Claude. Clone, run Claude, done.
+## Why dotfiles matter
 
-The design assumes Claude is smart enough to read a YAML manifest and use it to install and configure itself. No complex bash installers, no dependency chains. The `/setup` command reads `claudefiles.yaml` and does the right thing — copies files, merges settings, resolves platform differences. Agentic setup over imperative scripting.
+Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig` — these tiny files define how your tools behave. Clone them onto a new machine and you're home. [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles) is one of the best examples: a clean, opinionated set of shell, git, and editor configs that thousands of developers fork and customize. The git templates and config in this repo are inspired by theirs.
+
+Claudefiles applies the same idea to Claude Code. Skills, commands, sounds, hooks, and settings — versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
+
+## Why this exists
+
+I use Claude primarily for two things: managing my personal knowledge system (Obsidian — wiki links, interconnected notes, structured writing) and writing backends in Rust, Golang, and Node.js. This repo is a minimal, portable setup that helps me bootstrap new systems — VMs, servers, side projects, multi-agent architectures where Claude runs not just on my personal machine but across environments. Clone, run Claude, done.
+
+The design assumes Claude is smart enough to read a YAML manifest and configure itself. No complex bash installers. The `/setup` command reads `claudefiles.yaml` and does the right thing — copies files, merges settings, resolves platform differences. Agentic setup over imperative scripting. You should have your own claudefiles too.
 
 ## Quick install
 
@@ -23,7 +31,7 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 
 ## What's included
 
-### Skills (12)
+### Skills (14)
 
 | Skill | Description | Source |
 |-------|-------------|--------|
@@ -31,10 +39,12 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 | brainstorming | Structured brainstorming sessions | [obra/superpowers](https://github.com/obra/superpowers) |
 | breadboarding | UI breadboarding (Shape Up) | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | docx | Word document creation and editing | [anthropics/skills](https://github.com/anthropics/skills) |
+| golang-best-practices | Go concurrency, microservices, gRPC, generics | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
 | nestjs-best-practices | NestJS architecture and patterns | [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) |
 | pdf | PDF processing and manipulation | [anthropics/skills](https://github.com/anthropics/skills) |
 | pptx | PowerPoint creation | [anthropics/skills](https://github.com/anthropics/skills) |
 | react-best-practices | React/Next.js performance patterns | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) |
+| rust-best-practices | Idiomatic Rust, ownership, error handling, testing | [apollographql/skills](https://github.com/apollographql/skills) |
 | shaping | Shape Up project shaping | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | skill-creator | Create and test new skills (TDD methodology) | [anthropics/skills](https://github.com/anthropics/skills) + [obra/superpowers](https://github.com/obra/superpowers) |
 | webapp-testing | Web application testing | [anthropics/skills](https://github.com/anthropics/skills) |
@@ -45,8 +55,17 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 | Command | Description |
 |---------|-------------|
 | `/gcw` | Git commit with conventional commit format |
-| `/gitconfig` | Configure per-repo SSH key (multi-account GitHub) |
+| `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) |
 | `/setup` | Install claudefiles to ~/.claude/ |
+
+### Git templates
+
+Opinionated git configuration inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles):
+
+- **gitconfig** — sane defaults: `push.default = current`, `merge.ff = only`, `fetch.prune = true`, useful aliases, commit template, colorMoved
+- **gitignore** — global ignores for `.DS_Store`, `.env`, `node_modules`, swap files, build artifacts
+- **gitmessage** — commit message template prompting for why, how, and side effects
+- **templates/hooks/** — ctags regeneration on commit/merge/checkout/rewrite, local hook delegation
 
 ### Sounds
 
@@ -65,6 +84,11 @@ Great skills that didn't make the bootstrap cut — either too project-specific,
 | algorithmic-art | [anthropics/skills](https://github.com/anthropics/skills) | Generate algorithmic art with JS |
 | canvas-design | [anthropics/skills](https://github.com/anthropics/skills) | Design with HTML5 Canvas |
 | brand-guidelines | [anthropics/skills](https://github.com/anthropics/skills) | Maintain brand consistency in outputs |
+| marketing-skills | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Marketing strategy and content creation |
+| cloud-architect | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | Cloud architecture patterns and best practices |
+| terraform-engineer | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | Infrastructure as code with Terraform |
+| apollo-client | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL client with caching, suspense, codegen |
+| apollo-federation | [apollographql/skills](https://github.com/apollographql/skills) | Federated GraphQL schema composition |
 
 ## Directory structure
 
@@ -74,6 +98,11 @@ claudefiles/
 ├── claudefiles.yaml      # Declarative manifest (source of truth)
 ├── settings.json         # Reference settings
 ├── commands/             # Slash commands (.md)
+├── dotfiles/                  # Git config, ignore, message template, hooks
+│   ├── gitconfig
+│   ├── gitignore
+│   ├── gitmessage
+│   └── templates/hooks/
 ├── sounds/               # Audio files (.wav)
 └── skills/               # Skill directories (SKILL.md + resources)
 ```
@@ -108,3 +137,6 @@ Most skills here weren't written by me. This repo curates and organizes work fro
 - [vercel-labs](https://github.com/vercel-labs) — agent-browser, react-best-practices
 - [rjs/shaping-skills](https://github.com/rjs/shaping-skills) — Shape Up shaping and breadboarding
 - [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) — NestJS best practices
+- [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles) — git config, templates, and hooks
+- [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) — golang-best-practices
+- [apollographql/skills](https://github.com/apollographql/skills) — rust-best-practices
