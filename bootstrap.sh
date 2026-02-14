@@ -13,10 +13,22 @@ NC='\033[0m' # No Color
 echo -e "${CYAN}claudefiles${NC} — portable Claude Code configuration"
 echo ""
 
-# Check for git
-if ! command -v git &>/dev/null; then
-  echo "Error: git is required but not installed."
-  exit 1
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+
+# Check required dependencies
+MISSING=0
+for cmd in git jq claude; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo -e "${RED}Error:${NC} $cmd is required but not installed."
+    MISSING=1
+  fi
+done
+[ $MISSING -eq 1 ] && exit 1
+
+# Check optional dependencies
+if ! command -v gh &>/dev/null; then
+  echo -e "${YELLOW}Note:${NC} gh (GitHub CLI) not found — preview-markdown.sh won't work without it."
 fi
 
 # Clone or update
