@@ -39,7 +39,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/shaping-ripple.sh"
+            "command": "$HOME/.claude/hooks/shaping-ripple.sh",
+            "timeout": 5000
           }
         ]
       }
@@ -50,7 +51,5 @@
     "feature-dev@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true
   },
-  "alwaysThinkingEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "medium"
+  "alwaysThinkingEnabled": true
 }
