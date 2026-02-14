@@ -11,7 +11,7 @@ This command configures git at two levels:
 - **Local** (per-repo): SSH key for multi-account GitHub setups
 - **Global** (machine-wide): aliases, commit template, ignore rules, hooks, and sane defaults
 
-The git templates in this repo (`git/`) are inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
+The git templates in this repo (`dotfiles/`) are inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
 
 ## Your task
 
@@ -72,15 +72,15 @@ ssh -o IdentitiesOnly=yes -o IdentityAgent=none -i ~/.ssh/<selected_key> -T git@
 
 ## Global mode: Machine-wide git setup
 
-Read the git templates from this repo's `git/` directory and install them system-wide.
+Read the git templates from this repo's `dotfiles/` directory and install them system-wide.
 
 ### Step 1: Install gitconfig
 
-Read `git/gitconfig` from this repo. Ask the user for their name and email, then install:
+Read `dotfiles/gitconfig` from this repo. Ask the user for their name and email, then install:
 
 ```bash
 # Copy as base config
-cp git/gitconfig ~/.gitconfig
+cp dotfiles/gitconfig ~/.gitconfig
 
 # Set user identity
 git config --global user.name "<name>"
@@ -100,7 +100,7 @@ This sets up:
 ### Step 2: Install global gitignore
 
 ```bash
-cp git/gitignore ~/.gitignore
+cp dotfiles/gitignore ~/.gitignore
 git config --global core.excludesfile ~/.gitignore
 ```
 
@@ -109,7 +109,7 @@ Ignores `.DS_Store`, `.env`, `node_modules`, swap files, build artifacts, log fi
 ### Step 3: Install commit template
 
 ```bash
-cp git/gitmessage ~/.gitmessage
+cp dotfiles/gitmessage ~/.gitmessage
 git config --global commit.template ~/.gitmessage
 ```
 
@@ -119,7 +119,7 @@ Prompts for: why the change was necessary, how it addresses the problem, side ef
 
 ```bash
 mkdir -p ~/.git_template/hooks
-cp git/templates/hooks/* ~/.git_template/hooks/
+cp dotfiles/templates/hooks/* ~/.git_template/hooks/
 chmod +x ~/.git_template/hooks/*
 git config --global init.templatedir ~/.git_template
 ```
