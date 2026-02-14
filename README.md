@@ -2,36 +2,59 @@
 
 Portable Claude Code configuration — like dotfiles, but for Claude.
 
-## Why dotfiles matter
+This repo is **opinionated toward Claude Code**. It does not support other AI coding assistants and has no plans to. If you want multi-agent compatibility, this is not the repo for you.
 
-Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig` — these tiny files define how your tools behave. Clone them onto a new machine and you're home. [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles) is one of the best examples: a clean, opinionated set of shell, git, and editor configs that thousands of developers fork and customize. The git templates and config in this repo are inspired by theirs.
+## About
 
-Claudefiles applies the same idea to Claude Code. Skills, commands, sounds, hooks, and settings — versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
+Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig` — these tiny files define how your tools behave. Clone them onto a new machine and you're home.
 
-## Why this exists
+Claudefiles applies the same idea to Claude Code. Skills, commands, hooks, sounds, and settings — versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
 
-I use Claude primarily for two things: managing my personal knowledge system (Obsidian — wiki links, interconnected notes, structured writing) and writing backends in Rust, Golang, and Node.js. This repo is a minimal, portable setup that helps me bootstrap new systems — VMs, servers, side projects, multi-agent architectures where Claude runs not just on my personal machine but across environments. Clone, run Claude, done.
+> **Note:** This is my personal configuration. I use Claude primarily for managing my knowledge system (Obsidian) and writing backends in Rust, Golang, and Node.js. The skills, hooks, and settings reflect those workflows. Fork and customize — that's what dotfiles are for.
 
-The design assumes Claude is smart enough to read a YAML manifest and configure itself. No complex bash installers. The `/setup` command reads `claudefiles.yaml` and does the right thing — copies files, merges settings, resolves platform differences. Agentic setup over imperative scripting. You should have your own claudefiles too.
+## Installing
 
-## Quick install
+### Quick install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/koolamusic/claudefiles/main/bootstrap.sh | bash
 ```
 
-Or manually:
+This clones the repo to `~/.claudefiles`. Then run Claude to deploy:
+
+```bash
+cd ~/.claudefiles && claude "/setup"
+```
+
+### Manual install
 
 ```bash
 git clone git@github.com:koolamusic/claudefiles.git ~/.claudefiles
 cd ~/.claudefiles && claude "/setup"
 ```
 
-The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command) reads `claudefiles.yaml` and copies everything into `~/.claude/`.
+### What `/setup` does
+
+The `/setup` command reads `claudefiles.yaml` (the manifest) and:
+
+1. Detects your platform (macOS or Linux)
+2. Copies skills, commands, hooks, and sounds to `~/.claude/`
+3. Smart-merges settings into `~/.claude/settings.json` (backs up existing settings first)
+4. Resolves platform-specific template variables (e.g., `afplay` vs `aplay` for sound)
+
+### Git configuration (separate step)
+
+Git templates are installed separately because they go to `~/.gitconfig`, not `~/.claude/`:
+
+```bash
+claude "/gitconfig"
+```
+
+This installs sane git defaults, a global gitignore, commit message template, and ctags hooks. Inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
 
 ## What's included
 
-### Skills (13)
+### Skills
 
 | Skill | Description | Source |
 |-------|-------------|--------|
@@ -51,34 +74,100 @@ The bootstrap script clones the repo. Then `/setup` (a Claude Code slash command
 
 ### Commands
 
-| Command | Description |
+| Command | What it does |
 |---------|-------------|
 | `/gcw` | Git commit with conventional commit format |
 | `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) |
-| `/setup` | Install claudefiles to ~/.claude/ |
-
-### Git templates
-
-Opinionated git configuration inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles):
-
-- **gitconfig** — sane defaults: `push.default = current`, `merge.ff = only`, `fetch.prune = true`, useful aliases, commit template, colorMoved
-- **gitignore** — global ignores for `.DS_Store`, `.env`, `node_modules`, swap files, build artifacts
-- **gitmessage** — commit message template prompting for why, how, and side effects
-- **templates/hooks/** — ctags regeneration on commit/merge/checkout/rewrite, local hook delegation
+| `/setup` | Install claudefiles to `~/.claude/` |
 
 ### Hooks
 
-| Hook | Trigger | Description |
+| Hook | Trigger | What it does |
 |------|---------|-------------|
-| shaping-ripple | PostToolUse (Write\|Edit) | When editing a file with `shaping: true` frontmatter, reminds you to maintain consistency — update tables before Mermaid, sync requirements, etc. Silent for all other files. |
+| shaping-ripple | PostToolUse (Write\|Edit) | When editing a file with `shaping: true` frontmatter, prints a ripple-check reminder to keep tables, diagrams, and requirements in sync. Silent for all other files. |
 
 ### Sounds
 
-SCV-themed audio cues for Claude Code hooks — startup, prompt submission, and task completion.
+SCV-themed audio cues (StarCraft). Claude plays a voice line on startup, when you submit a prompt, and when a task finishes.
+
+| Event | Sound |
+|-------|-------|
+| Session start | "SCV good to go, sir!" |
+| Prompt submit | Random acknowledgment (7 variants) |
+| Task complete | Random completion (3 variants) |
+
+### Git templates
+
+Opinionated git configuration installed via `/gitconfig`:
+
+- **gitconfig** — `push.default = current`, `merge.ff = only`, `fetch.prune = true`, useful aliases, commit template, colorMoved
+- **gitignore** — global ignores for `.DS_Store`, `.env`, `node_modules`, swap files, build artifacts
+- **gitmessage** — commit template prompting for why, how, and side effects
+- **tmux.conf** — tmux configuration
+- **templates/hooks/** — ctags regeneration on commit/merge/checkout/rewrite, local hook delegation
+
+## Configuration
+
+`claudefiles.yaml` is the source of truth. It declares:
+
+- **install.targets** — what directories to copy and where
+- **settings** — hooks, plugins, and preferences to merge into `settings.json`
+- **platform** — OS-specific values (sound player binary)
+
+```
+claudefiles/
+├── bootstrap.sh              # Clone + print setup instructions
+├── claudefiles.yaml          # Manifest (source of truth)
+├── settings.json             # Reference settings (final structure)
+├── CLAUDE.md                 # Repo architecture for Claude
+├── commands/                 # Slash commands (.md)
+│   ├── gitcommit.md
+│   ├── gitconfig.md
+│   └── setup.md
+├── dotfiles/                 # Git config, ignore, message template, hooks
+│   ├── gitconfig
+│   ├── gitignore
+│   ├── gitmessage
+│   ├── tmux.conf
+│   └── templates/hooks/
+├── hooks/                    # Claude Code hook scripts
+│   └── shaping-ripple.sh
+├── sounds/                   # SCV audio files (.wav)
+└── skills/                   # Skill directories
+    ├── agent-browser/
+    ├── brainstorming/
+    ├── breadboarding/
+    │   ├── SKILL.md
+    │   ├── references/       # Progressive-disclosure docs (8 files)
+    │   └── scripts/          # preview-markdown.sh
+    ├── ...
+    └── xlsx/
+```
+
+## Extending
+
+### Add a skill
+
+1. Create a directory under `skills/` with a `SKILL.md` file
+2. Include YAML frontmatter: `name` and `description`
+3. Use `/skill-creator` for guidance on structure and testing
+4. Run `/setup` to deploy
+
+### Add a command
+
+1. Create a `.md` file under `commands/` with YAML frontmatter (`name`, `allowed-tools`, `description`)
+2. Run `/setup` to deploy
+
+### Add a hook
+
+1. Create an executable script in `hooks/`
+2. Include a YAML-style documentation header in comments
+3. Add the corresponding trigger to `claudefiles.yaml` under `settings.hooks`
+4. Run `/setup` to deploy
 
 ## Other skills worth checking out
 
-Great skills that didn't make the bootstrap cut — either too project-specific, experimental, or you'd add them per-project rather than globally:
+Skills that didn't make the bootstrap cut — too project-specific, experimental, or better added per-project:
 
 | Skill | Source | Why it's interesting |
 |-------|--------|---------------------|
@@ -96,50 +185,27 @@ Great skills that didn't make the bootstrap cut — either too project-specific,
 | apollo-federation | [apollographql/skills](https://github.com/apollographql/skills) | Federated GraphQL schema composition |
 | webapp-testing | [anthropics/skills](https://github.com/anthropics/skills) | Web app testing with Playwright |
 
-## Directory structure
+## Contributing
 
-```
-claudefiles/
-├── bootstrap.sh          # Clone + print setup instructions
-├── claudefiles.yaml      # Declarative manifest (source of truth)
-├── settings.json         # Reference settings
-├── commands/             # Slash commands (.md)
-├── dotfiles/                  # Git config, ignore, message template, hooks
-│   ├── gitconfig
-│   ├── gitignore
-│   ├── gitmessage
-│   └── templates/hooks/
-├── hooks/                # Claude Code hook scripts
-├── sounds/               # Audio files (.wav)
-└── skills/               # Skill directories (SKILL.md + resources)
-```
+**Issues first, always.** Every contribution starts with an issue. PRs without an approved issue will be closed — no exceptions. If I agree with your issue, I'll implement it or invite you to submit a PR.
 
-## Adding new skills
+If you want to extend this for your own use, fork it. That's the whole point of dotfiles.
 
-1. Create a directory under `skills/` with a `SKILL.md` file
-2. Use `/skill-creator` for guidance on structure and testing
-3. Re-run `/setup` to deploy
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
-## Adding new commands
+## Future work
 
-1. Create a `.md` file under `commands/` with YAML frontmatter (`name`, `allowed-tools`, `description`)
-2. Re-run `/setup` to deploy
-
-## Configuration
-
-`claudefiles.yaml` is the source of truth. It declares:
-- **install.targets** — what directories to copy and where
-- **settings** — hooks, plugins, and preferences to merge into settings.json
-- **platform** — OS-specific values (sound player binary)
+**Claudefiles spec** — a formal specification for the `claudefiles.yaml` manifest format. Schema, validation, versioning, cross-repo compatibility. This would let anyone create interoperable claudefiles repos. Not tackling yet, but it's the natural next step.
 
 ## License
 
-MIT
+[MIT](./LICENSE)
 
 ## Acknowledgments
 
 Most skills here weren't written by me. This repo curates and organizes work from:
-- [Anthropic](https://github.com/anthropics/skills) — official skills (pdf, docx, xlsx, pptx, webapp-testing, skill-creator)
+
+- [Anthropic](https://github.com/anthropics/skills) — official skills (pdf, docx, xlsx, pptx, skill-creator)
 - [obra/superpowers](https://github.com/obra/superpowers) — brainstorming, writing-skills, TDD methodology
 - [vercel-labs](https://github.com/vercel-labs) — agent-browser, react-best-practices
 - [rjs/shaping-skills](https://github.com/rjs/shaping-skills) — Shape Up shaping and breadboarding
@@ -147,3 +213,4 @@ Most skills here weren't written by me. This repo curates and organizes work fro
 - [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles) — git config, templates, and hooks
 - [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) — golang-best-practices
 - [apollographql/skills](https://github.com/apollographql/skills) — rust-best-practices
+- [htjun/claude-code-hooks-scv-sounds](https://github.com/htjun/claude-code-hooks-scv-sounds) — SCV sound files
