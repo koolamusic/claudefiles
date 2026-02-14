@@ -41,4 +41,4 @@ platform:
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)
-  - .resources/
+  - .resource/
