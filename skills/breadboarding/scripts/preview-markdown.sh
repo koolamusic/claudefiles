@@ -11,7 +11,8 @@
 # output: .gfm-preview.html in the current directory
 # ---
 
-FILE="${1:-breadboarding/skill.md}"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+FILE="${1:-$SCRIPT_DIR/SKILL.md}"
 OPEN=false
 for arg in "$@"; do [[ "$arg" == "--open" ]] && OPEN=true; done
 
