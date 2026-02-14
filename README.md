@@ -1,18 +1,30 @@
 # claudefiles
 
-Portable Claude Code configuration — like dotfiles, but for Claude.
+Portable Claude Code configuration. Like dotfiles, but for Claude.
 
-This repo is **opinionated toward Claude Code**. It does not support other AI coding assistants and has no plans to. If you want multi-agent compatibility, this is not the repo for you.
+This repo is **opinionated toward Claude Code**. It does not support other AI coding assistants and has no plans to.
 
 ## About
 
-Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig` — these tiny files define how your tools behave. Clone them onto a new machine and you're home.
+Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig`. These tiny files define how your tools behave. Clone them onto a new machine and you're home.
 
-Claudefiles applies the same idea to Claude Code. Skills, commands, hooks, sounds, and settings — versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
+Claudefiles applies the same idea to Claude Code. Skills, commands, hooks, sounds, and settings, versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
 
-> **Note:** This is my personal configuration. I use Claude primarily for managing my knowledge system (Obsidian) and writing backends in Rust, Golang, and Node.js. The skills, hooks, and settings reflect those workflows. Fork and customize — that's what dotfiles are for.
+## Why this exists
+
+I use Claude primarily for two things: managing my personal knowledge system (Obsidian) and writing backends in Rust, Golang, and Node.js. This repo is a minimal, portable setup that helps me bootstrap new systems. VMs, servers, side projects, multi-agent architectures where Claude runs not just on my personal machine but across environments. Clone, run Claude, done.
+
+The design assumes Claude is smart enough to read a YAML manifest and configure itself. No complex bash installers. The `/setup` command reads `claudefiles.yaml` and does the right thing. Copies files, merges settings, resolves platform differences. Agentic setup over imperative scripting. You should have your own claudefiles too.
 
 ## Installing
+
+### Requirements
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (CLI)
+- `git`
+- `jq` — hooks parse tool input JSON
+- macOS or Linux
+- `gh` (optional) — only needed for `preview-markdown.sh`
 
 ### Quick install
 
@@ -41,16 +53,6 @@ The `/setup` command reads `claudefiles.yaml` (the manifest) and:
 2. Copies skills, commands, hooks, and sounds to `~/.claude/`
 3. Smart-merges settings into `~/.claude/settings.json` (backs up existing settings first)
 4. Resolves platform-specific template variables (e.g., `afplay` vs `aplay` for sound)
-
-### Git configuration (separate step)
-
-Git templates are installed separately because they go to `~/.gitconfig`, not `~/.claude/`:
-
-```bash
-claude "/gitconfig"
-```
-
-This installs sane git defaults, a global gitignore, commit message template, and ctags hooks. Inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
 
 ## What's included
 
@@ -98,7 +100,7 @@ SCV-themed audio cues (StarCraft). Claude plays a voice line on startup, when yo
 
 ### Git templates
 
-Opinionated git configuration installed via `/gitconfig`:
+Opinionated git configuration in `dotfiles/`, installed separately via `/gitconfig` (these go to `~/.gitconfig`, not `~/.claude/`). Inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
 
 - **gitconfig** — `push.default = current`, `merge.ff = only`, `fetch.prune = true`, useful aliases, commit template, colorMoved
 - **gitignore** — global ignores for `.DS_Store`, `.env`, `node_modules`, swap files, build artifacts
@@ -169,33 +171,27 @@ claudefiles/
 
 Skills that didn't make the bootstrap cut — too project-specific, experimental, or better added per-project:
 
-| Skill | Source | Why it's interesting |
-|-------|--------|---------------------|
+| Skill | Source | Description |
+|-------|--------|-------------|
 | systematic-debugging | [obra/superpowers](https://github.com/obra/superpowers) | Root cause tracing, defense-in-depth debugging |
-| test-driven-development | [obra/superpowers](https://github.com/obra/superpowers) | TDD cycle enforcement with anti-pattern detection |
 | subagent-driven-development | [obra/superpowers](https://github.com/obra/superpowers) | Dispatch parallel subagents for implementation tasks |
 | writing-plans | [obra/superpowers](https://github.com/obra/superpowers) | Structured planning with execution handoff |
-| algorithmic-art | [anthropics/skills](https://github.com/anthropics/skills) | Generate algorithmic art with JS |
 | canvas-design | [anthropics/skills](https://github.com/anthropics/skills) | Design with HTML5 Canvas |
 | brand-guidelines | [anthropics/skills](https://github.com/anthropics/skills) | Maintain brand consistency in outputs |
 | marketing-skills | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Marketing strategy and content creation |
-| cloud-architect | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | Cloud architecture patterns and best practices |
-| terraform-engineer | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) | Infrastructure as code with Terraform |
-| apollo-client | [apollographql/skills](https://github.com/apollographql/skills) | GraphQL client with caching, suspense, codegen |
-| apollo-federation | [apollographql/skills](https://github.com/apollographql/skills) | Federated GraphQL schema composition |
 | webapp-testing | [anthropics/skills](https://github.com/anthropics/skills) | Web app testing with Playwright |
 
 ## Contributing
 
 **Issues first, always.** Every contribution starts with an issue. PRs without an approved issue will be closed — no exceptions. If I agree with your issue, I'll implement it or invite you to submit a PR.
 
-If you want to extend this for your own use, fork it. That's the whole point of dotfiles.
+If you want to extend this for your own use, fork it.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
 ## Future work
 
-**Claudefiles spec** — a formal specification for the `claudefiles.yaml` manifest format. Schema, validation, versioning, cross-repo compatibility. This would let anyone create interoperable claudefiles repos. Not tackling yet, but it's the natural next step.
+**Claudefiles spec** — a formal specification for the `claudefiles.yaml` manifest format. Schema, validation, versioning, cross-repo compatibility. This would let anyone create interoperable claudefiles repos. Not tackling yet.
 
 ## License
 
