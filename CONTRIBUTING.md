@@ -2,19 +2,27 @@
 
 This is a personal configuration repo that I'm sharing publicly. It reflects my workflows, opinions, and the tools I actually use. It is not a community project.
 
-## Issues over PRs
+## Issues first, always
 
-**Open an issue.** Most pull requests will be rejected — not because they're bad, but because this repo is opinionated to my setup. If you have an idea, a bug report, or a suggestion, open an issue and I'll evaluate it. If I agree, I'll implement it myself or ask you to submit a PR for that specific issue.
+Every contribution starts with an issue. PRs that arrive without a corresponding approved issue will be closed.
+
+The workflow:
+
+1. **Open an issue** — describe the bug, suggestion, or correction
+2. **Wait for approval** — I'll respond with whether it fits this repo
+3. **If approved**, I'll either implement it myself or invite you to submit a PR
+
+This is opt-in. I decide what goes in because this is a personal configuration, not a community project.
 
 ## What makes a good issue
 
-- Bug reports: something in the setup command doesn't work, a skill has broken references, a sound file is missing
-- Suggestions: a skill you think belongs in the bootstrap set, a hook that would be useful, a missing convention
+- Bug reports: setup command fails, broken references, missing files
+- Suggestions: a skill that belongs in the bootstrap set, a useful hook, a missing convention
 - Corrections: wrong attribution, broken links, outdated information
 
 ## What will get closed
 
-- PRs without a corresponding issue
+- **Any PR without an approved issue** — no exceptions
 - PRs that add skills I don't use
 - PRs that change the repo's opinions (e.g., adding support for non-Claude assistants)
 - PRs that restructure things for aesthetic reasons
