@@ -80,7 +80,6 @@ The `/setup` command reads `claudefiles.yaml` (the manifest) and:
 |---------|-------------|
 | `/gcw` | Git commit with conventional commit format |
 | `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) |
-| `/setup` | Install claudefiles to `~/.claude/` |
 
 ### Hooks
 
@@ -122,10 +121,10 @@ claudefiles/
 ├── claudefiles.yaml          # Manifest (source of truth)
 ├── settings.json             # Reference settings (final structure)
 ├── CLAUDE.md                 # Repo architecture for Claude
-├── commands/                 # Slash commands (.md)
+├── .claude/commands/          # Project-level commands (setup)
+├── commands/                 # Global slash commands (.md)
 │   ├── gitcommit.md
-│   ├── gitconfig.md
-│   └── setup.md
+│   └── gitconfig.md
 ├── dotfiles/                 # Git config, ignore, message template, hooks
 │   ├── gitconfig
 │   ├── gitignore
