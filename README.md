@@ -2,19 +2,19 @@
 
 Portable Claude Code configuration. Like dotfiles, but for Claude.
 
-This repo is **opinionated toward Claude Code**. It does not support other AI coding assistants and has no plans to.
+At the moment, this repo is **opinionated toward Claude Code**. It does not support other AI coding assistants.
 
 ## About
 
-Developers have been versioning their dotfiles for decades. A `.bashrc`, `.vimrc`, `.gitconfig`. These tiny files define how your tools behave. Clone them onto a new machine and you're home.
+Developers have been versioning their [dotfiles](https://github.com/thoughtbot/dotfiles) for decades. A `.bashrc`, `.vimrc`, `.gitconfig`. These tiny files define how your tools behave. Clone them onto a new machine and it feels like your personal computer.
 
 Claudefiles applies the same idea to Claude Code. Skills, commands, hooks, sounds, and settings, versioned in a repo, deployed to `~/.claude/` on any machine. Your AI assistant, configured exactly how you want it, everywhere.
 
 ## Why this exists
 
-I use Claude primarily for two things: managing my personal knowledge system (Obsidian) and writing backends in Rust, Golang, and Node.js. This repo is a minimal, portable setup that helps me bootstrap new systems. VMs, servers, side projects, multi-agent architectures where Claude runs not just on my personal machine but across environments. Clone, run Claude, done.
+I use Claude primarily for two things: managing my personal knowledge system (Obsidian) and writing software in Node.js, Rust and Golang. This repo is a minimal, portable setup that helps me bootstrap new systems. VMs, servers, side projects, multi-agent architectures where Claude runs not just on my personal machine but across environments. Clone, run Claude, done.
 
-The design assumes Claude is smart enough to read a YAML manifest and configure itself. No complex bash installers. The `/setup` command reads `claudefiles.yaml` and does the right thing. Copies files, merges settings, resolves platform differences. Agentic setup over imperative scripting. You should have your own claudefiles too.
+The design assumes Claude is smart enough to read a YAML manifest and configure itself. No complex bash installers. The `/setup` command reads `claudefiles.yaml` and does the right thing. Copies files, merges settings, resolves platform differences. This is a shift from imperative scripting into Agentic setup.
 
 ## Installing
 
@@ -51,7 +51,7 @@ The `/setup` command reads `claudefiles.yaml` (the manifest) and:
 
 1. Detects your platform (macOS or Linux)
 2. Copies skills, commands, hooks, and sounds to `~/.claude/`
-3. Smart-merges settings into `~/.claude/settings.json` (backs up existing settings first)
+3. Smart-merges settings into global preferred `~/.claude/settings.json` (backs up existing settings first)
 4. Resolves platform-specific template variables (e.g., `afplay` vs `aplay` for sound)
 
 ## What's included
@@ -76,7 +76,7 @@ The `/setup` command reads `claudefiles.yaml` (the manifest) and:
 
 ### Commands
 
-| Command | What it does |
+| Shorthand | What it does |
 |---------|-------------|
 | `/gcw` | Git commit with conventional commit format |
 | `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) |
