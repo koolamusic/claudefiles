@@ -67,6 +67,7 @@ If no existing settings.json, create a fresh one.
 
 Generate the final `settings.json` from the manifest's `settings` section:
 - Resolve `{{sound_player}}` with the platform-appropriate player
+- **Shell compatibility**: Claude Code hooks execute via `/bin/sh` (POSIX shell), not bash. Any hook command that uses bash-specific syntax (arrays `()`, `$RANDOM`, `${#array[@]}`, `[[ ]]`) MUST be wrapped in `bash -c '...'`. Scan every resolved command string before writing it to settings.json.
 - Structure hooks in the Claude Code settings.json format:
   ```json
   {

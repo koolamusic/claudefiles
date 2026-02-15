@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sounds=($HOME/.claude/sounds/orders-received.wav $HOME/.claude/sounds/affirmative.wav $HOME/.claude/sounds/right-away-sir.wav $HOME/.claude/sounds/read-you.wav $HOME/.claude/sounds/cant-believe.wav $HOME/.claude/sounds/this-too.wav $HOME/.claude/sounds/claudrophobic.wav); nohup afplay \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &"
+            "command": "bash -c 'sounds=($HOME/.claude/sounds/orders-received.wav $HOME/.claude/sounds/affirmative.wav $HOME/.claude/sounds/right-away-sir.wav $HOME/.claude/sounds/read-you.wav $HOME/.claude/sounds/cant-believe.wav $HOME/.claude/sounds/this-too.wav $HOME/.claude/sounds/claudrophobic.wav); nohup afplay \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &'"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sounds=($HOME/.claude/sounds/jobs-finished.wav $HOME/.claude/sounds/orders-captain.wav $HOME/.claude/sounds/reporting-for-duty.wav); nohup afplay \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &"
+            "command": "bash -c 'sounds=($HOME/.claude/sounds/jobs-finished.wav $HOME/.claude/sounds/orders-captain.wav $HOME/.claude/sounds/reporting-for-duty.wav); nohup afplay \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &'"
           }
         ]
       }
