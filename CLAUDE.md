@@ -10,6 +10,10 @@ Portable configuration for Claude Code — skills, commands, hooks, sounds, and 
 
 `claudefiles.yaml` is the source of truth. It declares install targets, settings to merge, and platform-specific values. The `/setup` command reads this manifest and does the deployment. No imperative installer scripts beyond bootstrap.
 
+### Setup command
+
+`/setup` is a **project-level command** (`.claude/commands/setup.md`). It only works when Claude is running inside this repo. This solves the bootstrap chicken-and-egg: the command is available immediately after cloning, before anything is deployed globally.
+
 ### Install targets
 
 | Target | Directory | Deployed to |
@@ -18,6 +22,8 @@ Portable configuration for Claude Code — skills, commands, hooks, sounds, and 
 | commands | `commands/` | `~/.claude/commands/` |
 | sounds | `sounds/` | `~/.claude/sounds/` |
 | hooks | `hooks/` | `~/.claude/hooks/` |
+
+Note: `commands/` contains only global commands (`/gcw`, `/gitconfig`). `/setup` lives in `.claude/commands/` as a project-level command and is not deployed globally.
 
 Git configuration (`dotfiles/`) is installed separately via `/gitconfig`.
 
