@@ -47,11 +47,13 @@ cd ~/.claudefiles && claude "/setup"
 
 ### What `/setup` does
 
-The `/setup` command reads `claudefiles.yaml` (the manifest) and:
+`/setup` is a project-level command (`.claude/commands/setup.md`). It only works when Claude is running inside the claudefiles repo, which is why the install steps above `cd` into it first.
+
+The command reads `claudefiles.yaml` (the manifest) and:
 
 1. Detects your platform (macOS or Linux)
 2. Copies skills, commands, hooks, and sounds to `~/.claude/`
-3. Smart-merges settings into global preferred `~/.claude/settings.json` (backs up existing settings first)
+3. Smart-merges settings into `~/.claude/settings.json` (backs up existing settings first)
 4. Resolves platform-specific template variables (e.g., `afplay` vs `aplay` for sound)
 
 ## What's included
@@ -76,10 +78,11 @@ The `/setup` command reads `claudefiles.yaml` (the manifest) and:
 
 ### Commands
 
-| Shorthand | What it does |
-|---------|-------------|
-| `/gcw` | Git commit with conventional commit format |
-| `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) |
+| Shorthand | What it does | Scope |
+|---------|-------------|-------|
+| `/setup` | Install claudefiles to `~/.claude/` | Project-level (runs inside this repo only) |
+| `/gcw` | Git commit with conventional commit format | Global (deployed to `~/.claude/commands/`) |
+| `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) | Global (deployed to `~/.claude/commands/`) |
 
 ### Hooks
 
@@ -152,19 +155,19 @@ claudefiles/
 1. Create a directory under `skills/` with a `SKILL.md` file
 2. Include YAML frontmatter: `name` and `description`
 3. Use `/skill-creator` for guidance on structure and testing
-4. Run `/setup` to deploy
+4. Run `/setup` from inside the claudefiles repo to deploy
 
 ### Add a command
 
 1. Create a `.md` file under `commands/` with YAML frontmatter (`name`, `allowed-tools`, `description`)
-2. Run `/setup` to deploy
+2. Run `/setup` from inside the claudefiles repo to deploy
 
 ### Add a hook
 
 1. Create an executable script in `hooks/`
 2. Include a YAML-style documentation header in comments
 3. Add the corresponding trigger to `claudefiles.yaml` under `settings.hooks`
-4. Run `/setup` to deploy
+4. Run `/setup` from inside the claudefiles repo to deploy
 
 ## Other skills worth checking out
 
