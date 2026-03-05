@@ -22,8 +22,13 @@ Portable configuration for Claude Code — skills, commands, hooks, sounds, and 
 | commands | `commands/` | `~/.claude/commands/` |
 | sounds | `sounds/` | `~/.claude/sounds/` |
 | hooks | `hooks/` | `~/.claude/hooks/` |
+| plugins | `plugins/` | `~/.claude/plugins/cache/claudefiles/<name>/local/` |
 
 Note: `commands/` contains only global commands (`/gcw`, `/gitconfig`). `/setup` lives in `.claude/commands/` as a project-level command and is not deployed globally.
+
+### Plugins
+
+Local plugins in `plugins/` are deployed as `<name>@claudefiles`. Each plugin directory must contain `.claude-plugin/plugin.json`. Setup copies files to the plugin cache, registers them in `installed_plugins.json`, and enables them in `settings.json`. Requires a session restart to take effect.
 
 Git configuration (`dotfiles/`) is installed separately via `/gitconfig`.
 
