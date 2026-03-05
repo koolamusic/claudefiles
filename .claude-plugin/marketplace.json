@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claudefiles",
+  "description": "Portable Claude Code configuration plugins by koolamusic",
+  "owner": {
+    "name": "koolamusic"
+  },
+  "plugins": [
+    {
+      "name": "ux",
+      "description": "Frontend design skill with 17 steering commands for impeccable UI/UX. Based on Impeccable (https://impeccable.style).",
+      "author": {
+        "name": "koolamusic"
+      },
+      "source": "./plugins/ux",
+      "category": "development"
+    }
+  ]
+}
