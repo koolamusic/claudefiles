@@ -22,13 +22,13 @@ Portable configuration for Claude Code — skills, commands, hooks, sounds, and 
 | commands | `commands/` | `~/.claude/commands/` |
 | sounds | `sounds/` | `~/.claude/sounds/` |
 | hooks | `hooks/` | `~/.claude/hooks/` |
-| plugins | `plugins/` | `~/.claude/plugins/cache/claudefiles/<name>/local/` |
+| plugins | `plugins/` | Installed by Claude Code via marketplace |
 
 Note: `commands/` contains only global commands (`/gcw`, `/gitconfig`). `/setup` lives in `.claude/commands/` as a project-level command and is not deployed globally.
 
 ### Plugins
 
-Local plugins in `plugins/` are deployed as `<name>@claudefiles`. Each plugin directory must contain `.claude-plugin/plugin.json`. Setup copies files to the plugin cache, registers them in `installed_plugins.json`, and enables them in `settings.json`. Requires a session restart to take effect.
+This repo is a registered Claude Code plugin marketplace (`koolamusic/claudefiles`). Plugins in `plugins/` are discovered via `.claude-plugin/marketplace.json` and installed as `<name>@claudefiles`. Setup merges `extraKnownMarketplaces` and `enabledPlugins` into `settings.json` — Claude Code handles the actual plugin installation on next startup.
 
 Git configuration (`dotfiles/`) is installed separately via `/gitconfig`.
 
