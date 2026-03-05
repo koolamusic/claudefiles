@@ -9,6 +9,7 @@ install:
     commands: commands/     # copy all .md files into <target>/commands/
     sounds: sounds/        # copy all files into <target>/sounds/
     hooks: hooks/          # copy all hook scripts into <target>/hooks/
+    plugins: plugins/      # copy all plugin dirs into <target>/plugins/cache/local/
 
 settings:
   # These get smart-merged into the target settings.json
@@ -27,7 +28,6 @@ settings:
         command: '$HOME/.claude/hooks/shaping-ripple.sh'
         timeout: 5
   plugins:
-    - frontend-design@claude-plugins-official
     - feature-dev@claude-plugins-official
     - ralph-loop@claude-plugins-official
   preferences:
