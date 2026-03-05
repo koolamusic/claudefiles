@@ -9,7 +9,8 @@ install:
     commands: commands/     # copy all .md files into <target>/commands/
     sounds: sounds/        # copy all files into <target>/sounds/
     hooks: hooks/          # copy all hook scripts into <target>/hooks/
-    plugins: plugins/      # copy all plugin dirs into <target>/plugins/cache/local/
+    # plugins/ are not copied by setup — Claude Code installs them from the
+    # koolamusic/claudefiles marketplace via extraKnownMarketplaces in settings
 
 settings:
   # These get smart-merged into the target settings.json
@@ -31,6 +32,11 @@ settings:
     - feature-dev@claude-plugins-official
     - ralph-loop@claude-plugins-official
     - ux@claudefiles
+  extraKnownMarketplaces:
+    claudefiles:
+      source:
+        source: github
+        repo: koolamusic/claudefiles
   preferences:
     alwaysThinkingEnabled: true
 

@@ -56,39 +56,7 @@ cp hooks/* <target>/hooks/
 chmod +x <target>/hooks/*
 ```
 
-### Step 6: Install plugins
-
-For each directory in the `plugins/` install target:
-
-1. **Read the plugin manifest**: Read `plugins/<name>/.claude-plugin/plugin.json` to get the plugin name.
-
-2. **Copy to plugin cache**: Copy the entire plugin directory into the Claude Code plugin cache:
-   ```bash
-   mkdir -p <target>/plugins/cache/claudefiles/<name>/local
-   cp -R plugins/<name>/. <target>/plugins/cache/claudefiles/<name>/local/
-   ```
-
-3. **Register in installed_plugins.json**: Read `<target>/plugins/installed_plugins.json` (create if missing). For each local plugin, add or update its entry:
-   ```json
-   {
-     "<name>@claudefiles": [
-       {
-         "scope": "user",
-         "installPath": "<absolute_target>/plugins/cache/claudefiles/<name>/local",
-         "version": "local",
-         "installedAt": "<current ISO timestamp>",
-         "lastUpdated": "<current ISO timestamp>"
-       }
-     ]
-   }
-   ```
-   - The `installPath` MUST be an absolute path (resolve `~` to the actual home directory)
-   - Preserve any existing plugin entries (marketplace plugins, etc.)
-   - If `installed_plugins.json` doesn't exist, create it with `"version": 2`
-
-4. **Enable in settings.json**: The plugin will be enabled in Step 7 when settings are merged — the manifest's `settings.plugins` list includes `<name>@claudefiles` entries which become `enabledPlugins` keys.
-
-### Step 7: Smart-merge settings.json
+### Step 6: Smart-merge settings.json
 
 If `<target>/settings.json` already exists:
 1. Back it up: `cp <target>/settings.json <target>/settings.json.backup`
@@ -112,19 +80,20 @@ Generate the final `settings.json` from the manifest's `settings` section:
   }
   ```
 - **All plugins** from the manifest's `settings.plugins` list must appear in `enabledPlugins` set to `true` — this includes both marketplace plugins (`feature-dev@claude-plugins-official`) and local plugins (`ux@claudefiles`).
+- Include `extraKnownMarketplaces` from the manifest so Claude Code can discover the `claudefiles` marketplace on future sessions.
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 8: Print summary
+### Step 7: Print summary
 
 List what was installed:
 - Number of skills copied
 - Number of commands copied
 - Number of sound files copied
 - Number of hooks copied
-- Number of plugins installed (list each with its `<name>@claudefiles` identifier)
 - Settings merged (or created fresh)
 - Whether a backup was made
 - The target directory
+- Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
 
-**Remind the user**: If this is the first install or plugins were added, restart Claude Code for plugins to take effect.
+**Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup.
