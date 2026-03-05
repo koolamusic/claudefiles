@@ -30,6 +30,7 @@ settings:
   plugins:
     - feature-dev@claude-plugins-official
     - ralph-loop@claude-plugins-official
+    - ux@claudefiles
   preferences:
     alwaysThinkingEnabled: true
 
