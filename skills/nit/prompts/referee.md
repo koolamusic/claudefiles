@@ -47,10 +47,10 @@ Stats:
 
 Confirmed bugs (ordered by severity):
 
-| # | Severity | File | Line(s) | Description | Suggested Fix |
-|---|----------|------|---------|-------------|---------------|
-| BUG-X | Critical | path | lines | description | fix direction |
-| ... | ... | ... | ... | ... | ... |
+| # | Severity | File | Line(s) | Rule | Description | Suggested Fix |
+|---|----------|------|---------|------|-------------|---------------|
+| BUG-X | Critical | path | lines | category::desc | description | fix direction |
+| ... | ... | ... | ... | ... | ... | ... |
 
 Low-confidence items (flagged for manual review):
 [List any bugs where your confidence was Medium or Low]
