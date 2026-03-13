@@ -15,16 +15,28 @@ The scan target is: $ARGUMENTS
 
 If no target was specified, scan the current working directory.
 
+## Triage (Nit Ignore)
+
+Nit respects a project-level ignore file at `.claude/nitignore.md`. This file tracks:
+- **intentional** — findings that are by design (won't fix)
+- **remediated** — findings that have already been fixed
+
+Entries use a `rule` field formatted as `category::description` (e.g. `security::hardcoded-token`). Nit matches on `file + rule` to skip known findings.
+
+A template is available at `${CLAUDE_SKILL_DIR}/references/nitignore-template.md`.
+
 ## Execution Steps
 
 You MUST follow these steps in exact order. Each agent runs as a separate subagent via the Agent tool to ensure context isolation.
 
-### Step 1: Read the prompt files
+### Step 1: Read the prompt files and check for ignore list
 
 Read these files using the skill directory variable:
 - ${CLAUDE_SKILL_DIR}/prompts/hunter.md
 - ${CLAUDE_SKILL_DIR}/prompts/skeptic.md
 - ${CLAUDE_SKILL_DIR}/prompts/referee.md
+
+Also check if `.claude/nitignore.md` exists in the project root. If it does, read it and pass the ignore entries to each agent so they can skip already-triaged findings.
 
 ### Step 2: Run the Hunter Agent
 
@@ -61,5 +73,21 @@ Display the Referee's final verified nit report to the user. Include:
 2. The confirmed bugs table (sorted by severity)
 3. Low-confidence items flagged for manual review
 4. A collapsed section with dismissed bugs (for transparency)
+5. Triage-ready entries (see below)
 
 If zero bugs were confirmed, say so clearly — a clean report is a good result.
+
+### Step 6: Offer Triage
+
+After presenting findings, offer the user the option to triage. For each confirmed bug, output a pre-formatted ignore entry the user can approve:
+
+```
+| intentional | category::description | file/path | line(s) | [user adds rationale] |
+```
+
+Ask: "Would you like to dismiss any of these as intentional, or mark any as remediated? I can update `.claude/nitignore.md` for you."
+
+If the user selects entries to triage:
+1. If `.claude/nitignore.md` doesn't exist, create it from `${CLAUDE_SKILL_DIR}/references/nitignore-template.md`
+2. Append the selected entries to the table
+3. Confirm what was added
