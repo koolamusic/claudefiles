@@ -1,6 +1,6 @@
 ---
 name: setup
-allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Read, Write, Glob
+allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Bash(npx:*), Read, Write, Glob
 description: Install claudefiles — copy skills, commands, sounds, hooks, and plugins into ~/.claude/
 ---
 
@@ -84,7 +84,21 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 7: Print summary
+### Step 7: Install external dependencies
+
+Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
+
+Determine the install flag based on the user's target choice:
+- **Global** → `--global`
+- **Local** → `--local`
+
+```bash
+npx get-shit-done-cc@latest --claude --global  # or --local
+```
+
+If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
+
+### Step 8: Print summary
 
 List what was installed:
 - Number of skills copied
@@ -95,5 +109,6 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
+- GSD install status (success or skipped)
 
-**Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup.
+**Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup. Verify GSD with `/gsd:help`.
