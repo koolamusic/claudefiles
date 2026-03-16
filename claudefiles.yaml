@@ -18,6 +18,9 @@ settings:
     SessionStart:
       - matcher: startup
         command: 'nohup {{sound_player}} $HOME/.claude/sounds/good-to-go-sir.wav >/dev/null 2>&1 &'
+      - matcher: startup
+        command: '$HOME/.claude/hooks/retro-reminder.sh'
+        timeout: 5
     UserPromptSubmit:
       - matcher: '.*'
         command: "bash -c 'sounds=($HOME/.claude/sounds/orders-received.wav $HOME/.claude/sounds/affirmative.wav $HOME/.claude/sounds/right-away-sir.wav $HOME/.claude/sounds/read-you.wav $HOME/.claude/sounds/cant-believe.wav $HOME/.claude/sounds/this-too.wav $HOME/.claude/sounds/claudrophobic.wav); nohup {{sound_player}} \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &'"
@@ -28,6 +31,9 @@ settings:
       - matcher: 'Write|Edit'
         command: '$HOME/.claude/hooks/shaping-ripple.sh'
         timeout: 5
+      - matcher: 'Edit|Write|Bash'
+        command: '$HOME/.claude/hooks/retro-trigger.sh'
+        timeout: 10
   plugins:
     - feature-dev@claude-plugins-official
     - ralph-loop@claude-plugins-official
