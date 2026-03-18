@@ -185,11 +185,41 @@ Skills that didn't make the bootstrap cut — too project-specific, experimental
 
 ## Contributing
 
-**Issues first, always.** Every contribution starts with an issue. PRs without an approved issue will be closed — no exceptions. If I agree with your issue, I'll implement it or invite you to submit a PR.
+This is a personal configuration repo shared publicly. It's not a community project — I decide what goes in.
 
-If you want to extend this for your own use, fork it.
+**Issues first, always.** Every contribution starts with an issue. PRs without an approved issue will be closed — no exceptions.
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+1. **Open an issue** — describe the bug, suggestion, or correction
+2. **Wait for approval** — I'll respond with whether it fits
+3. **If approved**, I'll implement it or invite you to submit a PR
+
+### Good issues
+
+- Bug reports: setup command fails, broken references, missing files
+- Suggestions: a skill that belongs in the bootstrap set, a useful hook, a missing convention
+- Corrections: wrong attribution, broken links, outdated information
+
+### Will get closed
+
+- Any PR without an approved issue
+- PRs that add skills I don't use
+- PRs that change the repo's opinions (e.g., adding support for non-Claude assistants)
+- PRs that restructure things for aesthetic reasons
+
+### Want to extend this?
+
+Fork it. That's the whole point of dotfiles — they're personal. Clone, rip out what you don't need, add what you do, make it yours. The structure is simple enough to understand in 10 minutes.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full policy (including notes for AI agents).
+
+## Interesting tooling we're watching
+
+Tools and skills we don't use in claudefiles but are worth knowing about:
+
+| Tool | What it is | Why it's interesting | Link |
+|------|-----------|---------------------|------|
+| Fabro | Open-source workflow orchestration for AI agents. Define pipelines as Graphviz DOT graphs with multi-model routing, human gates, and cloud sandboxes. Single Rust binary. | Deterministic walk-away execution — define a graph, close your laptop, come back to results. CSS-like model stylesheets route cheap tasks to fast models and hard tasks to frontier models. Competes with GSD but from the opposite direction: GSD enhances interactive sessions, Fabro replaces them with unattended graphs. | [fabro.sh](https://docs.fabro.sh) / [GitHub](https://github.com/fabro-sh/fabro) |
+| userinterface.wiki | 152 UI design rules packaged as a Claude Code skill. | Comprehensive design knowledge distilled into a single skill file. Good complement to frontend work if you want design guardrails baked into agent output. | [userinterface.wiki/skill](https://www.userinterface.wiki/skill) |
 
 ## Future work
 
