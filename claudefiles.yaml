@@ -47,6 +47,10 @@ settings:
   preferences:
     alwaysThinkingEnabled: true
 
+env:
+  # Required environment variables — appended to shell rc if missing
+  USER_TYPE: ant
+
 platform:
   macos:
     sound_player: afplay
