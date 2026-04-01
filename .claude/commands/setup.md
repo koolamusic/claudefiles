@@ -56,7 +56,23 @@ cp hooks/* <target>/hooks/
 chmod +x <target>/hooks/*
 ```
 
-### Step 6: Smart-merge settings.json
+### Step 6: Smart-merge global CLAUDE.md
+
+Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge strategy:
+
+1. Read `dotfiles/CLAUDE.md` from this repo (the source directives)
+2. If `<target>/CLAUDE.md` already exists and is non-empty:
+   a. Back it up: `cp <target>/CLAUDE.md <target>/CLAUDE.md.backup`
+   b. Read the existing CLAUDE.md
+   c. **Smart-merge**: Compare by section header (## headings). For each section in the source:
+      - If the section doesn't exist in the target → append it
+      - If the section exists in the target → keep the target's version (user customizations win)
+   d. Preserve any sections in the target that don't exist in the source (user's custom sections)
+3. If `<target>/CLAUDE.md` doesn't exist or is empty, copy the source as-is
+
+This ensures user customizations are preserved while new guardrails from upstream are added.
+
+### Step 7: Smart-merge settings.json
 
 If `<target>/settings.json` already exists:
 1. Back it up: `cp <target>/settings.json <target>/settings.json.backup`
@@ -84,7 +100,7 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 7: Install external dependencies
+### Step 8: Install external dependencies
 
 Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
 
@@ -98,7 +114,7 @@ npx get-shit-done-cc@latest --claude --global  # or --local
 
 If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
 
-### Step 8: Print summary
+### Step 9: Print summary
 
 List what was installed:
 - Number of skills copied
@@ -106,6 +122,7 @@ List what was installed:
 - Number of sound files copied
 - Number of hooks copied
 - Settings merged (or created fresh)
+- Global CLAUDE.md deployed (merged, created fresh, or unchanged)
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
