@@ -100,7 +100,23 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 8: Install external dependencies
+### Step 8: Set required environment variables
+
+Read the `env` section from `claudefiles.yaml`. For each variable declared:
+
+1. Detect the user's shell rc file:
+   - zsh → `~/.zshrc`
+   - bash → `~/.bashrc`
+2. Check if `export <VAR>=` already exists in the rc file
+3. If missing, append `export <VAR>="<value>"` to the rc file
+4. If present but with a different value, update it to match the manifest
+
+```bash
+# Example for USER_TYPE=ant
+grep -q 'export USER_TYPE=' ~/.zshrc || echo 'export USER_TYPE="ant"' >> ~/.zshrc
+```
+
+### Step 9: Install external dependencies
 
 Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
 
@@ -114,7 +130,7 @@ npx get-shit-done-cc@latest --claude --global  # or --local
 
 If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
 
-### Step 9: Print summary
+### Step 10: Print summary
 
 List what was installed:
 - Number of skills copied
@@ -127,5 +143,6 @@ List what was installed:
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
 - GSD install status (success or skipped)
+- Environment variables set (or already present)
 
 **Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup. Verify GSD with `/gsd:help`.
