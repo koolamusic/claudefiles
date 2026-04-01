@@ -9,6 +9,7 @@ install:
     commands: commands/     # copy all .md files into <target>/commands/
     sounds: sounds/        # copy all files into <target>/sounds/
     hooks: hooks/          # copy all hook scripts into <target>/hooks/
+    claude_md: dotfiles/CLAUDE.md  # deploy global CLAUDE.md to <target>/CLAUDE.md
     # plugins/ are not copied by setup — Claude Code installs them from the
     # koolamusic/claudefiles marketplace via extraKnownMarketplaces in settings
 
