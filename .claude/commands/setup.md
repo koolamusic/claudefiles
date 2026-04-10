@@ -56,7 +56,23 @@ cp hooks/* <target>/hooks/
 chmod +x <target>/hooks/*
 ```
 
-### Step 6: Smart-merge global CLAUDE.md
+### Step 6: Deploy nvim config (skip if exists)
+
+Check if `~/.config/nvim/` already exists. The `nvim` target in the manifest has `skip_if_exists: true`, meaning claudefiles should never overwrite an existing nvim configuration.
+
+```bash
+if [ -d ~/.config/nvim ]; then
+  echo "nvim config already exists at ~/.config/nvim — skipping"
+else
+  mkdir -p ~/.config/nvim
+  cp -R dotfiles/nvim/* ~/.config/nvim/
+  echo "nvim config installed to ~/.config/nvim"
+fi
+```
+
+Record the outcome (skipped or installed) for the summary.
+
+### Step 7: Smart-merge global CLAUDE.md
 
 Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge strategy:
 
@@ -72,7 +88,7 @@ Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge s
 
 This ensures user customizations are preserved while new guardrails from upstream are added.
 
-### Step 7: Smart-merge settings.json
+### Step 8: Smart-merge settings.json
 
 If `<target>/settings.json` already exists:
 1. Back it up: `cp <target>/settings.json <target>/settings.json.backup`
@@ -100,7 +116,7 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 8: Set required environment variables
+### Step 9: Set required environment variables
 
 Read the `env` section from `claudefiles.yaml`. For each variable declared:
 
@@ -116,7 +132,7 @@ Read the `env` section from `claudefiles.yaml`. For each variable declared:
 grep -q 'export USER_TYPE=' ~/.zshrc || echo 'export USER_TYPE="ant"' >> ~/.zshrc
 ```
 
-### Step 9: Install external dependencies
+### Step 10: Install external dependencies
 
 Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
 
@@ -130,7 +146,7 @@ npx get-shit-done-cc@latest --claude --global  # or --local
 
 If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
 
-### Step 10: Print summary
+### Step 11: Print summary
 
 List what was installed:
 - Number of skills copied
@@ -138,6 +154,7 @@ List what was installed:
 - Number of sound files copied
 - Number of hooks copied
 - Settings merged (or created fresh)
+- Nvim config (installed or skipped — existing config preserved)
 - Global CLAUDE.md deployed (merged, created fresh, or unchanged)
 - Whether a backup was made
 - The target directory
