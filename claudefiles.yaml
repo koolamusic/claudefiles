@@ -10,6 +10,7 @@ install:
     sounds: sounds/        # copy all files into <target>/sounds/
     hooks: hooks/          # copy all hook scripts into <target>/hooks/
     claude_md: dotfiles/CLAUDE.md  # deploy global CLAUDE.md to <target>/CLAUDE.md
+    nvim: dotfiles/nvim/           # copy nvim plugin configs to ~/.config/nvim/lua/plugins/
     # plugins/ are not copied by setup — Claude Code installs them from the
     # koolamusic/claudefiles marketplace via extraKnownMarketplaces in settings
 

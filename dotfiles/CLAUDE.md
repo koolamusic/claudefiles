@@ -79,3 +79,19 @@ If a fix doesn't work after two attempts, stop. Read the entire relevant section
 
 ### Two-Perspective Review
 When evaluating your own work, present two opposing views: what a perfectionist would criticize and what a pragmatist would accept. Let the user decide which tradeoff to take.
+
+---
+
+## Editor Integration
+
+### Neovim (claudecode.nvim)
+Claude Code integrates with Neovim via [coder/claudecode.nvim](https://github.com/coder/claudecode.nvim). Keybindings under `<leader>a`:
+- `<leader>ac` — Toggle Claude terminal
+- `<leader>af` — Focus Claude
+- `<leader>ar` — Resume session
+- `<leader>aC` — Continue session
+- `<leader>am` — Select model
+- `<leader>ab` — Add current buffer to context
+- `<leader>as` — Send visual selection to Claude (visual mode) / Add file from tree explorer
+- `<leader>aa` — Accept diff
+- `<leader>ad` — Deny diff

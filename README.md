@@ -100,6 +100,10 @@ SCV-themed audio cues (StarCraft). Claude plays a voice line on startup, when yo
 | Prompt submit | Random acknowledgment (7 variants) |
 | Task complete | Random completion (3 variants) |
 
+### Neovim integration
+
+Claude Code integration for Neovim via [coder/claudecode.nvim](https://github.com/coder/claudecode.nvim). Deployed to `~/.config/nvim/lua/plugins/`. Provides `<leader>a` keybindings for toggling Claude, sending selections, managing diffs, and more. Requires [lazy.nvim](https://github.com/folke/lazy.nvim) and [folke/snacks.nvim](https://github.com/folke/snacks.nvim).
+
 ### Git templates
 
 Opinionated git configuration in `dotfiles/`, installed separately via `/gitconfig` (these go to `~/.gitconfig`, not `~/.claude/`). Inspired by [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles).
@@ -128,11 +132,13 @@ claudefiles/
 ├── commands/                 # Global slash commands (.md)
 │   ├── gitcommit.md
 │   └── gitconfig.md
-├── dotfiles/                 # Git config, ignore, message template, hooks
+├── dotfiles/                 # Git config, ignore, message template, hooks, nvim
 │   ├── gitconfig
 │   ├── gitignore
 │   ├── gitmessage
 │   ├── tmux.conf
+│   ├── nvim/plugins/         # Neovim plugin configs (lazy.nvim specs)
+│   │   └── claudecode.lua    # coder/claudecode.nvim
 │   └── templates/hooks/
 ├── hooks/                    # Claude Code hook scripts
 │   └── shaping-ripple.sh
@@ -242,3 +248,4 @@ Most skills here weren't written by me. This repo curates and organizes work fro
 - [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) — golang-best-practices
 - [apollographql/skills](https://github.com/apollographql/skills) — rust-best-practices
 - [htjun/claude-code-hooks-scv-sounds](https://github.com/htjun/claude-code-hooks-scv-sounds) — SCV sound files
+- [coder/claudecode.nvim](https://github.com/coder/claudecode.nvim) — Neovim integration for Claude Code
