@@ -1,0 +1,7 @@
+{
+  "name": "jira",
+  "description": "Lean sprint workflow for Claude Code. Six commands (init/research/plan/execute/review/retro), six agents, .jira/ state, GitHub issue + PR integration, Nyquist validation by default.",
+  "author": {
+    "name": "koolamusic"
+  }
+}

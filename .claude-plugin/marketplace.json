@@ -14,6 +14,15 @@
       },
       "source": "./plugins/ux",
       "category": "development"
+    },
+    {
+      "name": "jira",
+      "description": "Lean sprint workflow. Six commands (init/research/plan/execute/review/retro), six agents, .jira/ state, GitHub issue + PR integration, Nyquist validation by default.",
+      "author": {
+        "name": "koolamusic"
+      },
+      "source": "./plugins/jira",
+      "category": "workflow"
     }
   ]
 }

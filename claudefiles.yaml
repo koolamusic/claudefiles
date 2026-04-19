@@ -43,6 +43,7 @@ settings:
     - feature-dev@claude-plugins-official
     - ralph-loop@claude-plugins-official
     - ux@claudefiles
+    - jira@claudefiles
   extraKnownMarketplaces:
     claudefiles:
       source:
