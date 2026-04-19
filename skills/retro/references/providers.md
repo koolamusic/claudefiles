@@ -115,6 +115,14 @@ For any section that other providers cannot populate, ask the user directly. Use
 
 **Behavior:** Ask only for gaps. If GSD and git already cover objectives and metrics, don't re-ask those. Focus manual questions on subjective context: surprises, learnings, team morale, process friction, stakeholder concerns.
 
+## Non-Provider: `.jira/`
+
+The `jira` plugin maintains `.jira/STATE.md` and per-sprint files (`BRIEF.md`, `CONTEXT.md`, `*-PLAN.md`, `EXECUTION.md`, `VERIFICATION.md`, `RETRO.md`). **This skill does not read those files** — sprint retros are tightly coupled to the plugin's structure (CONTEXT.md `D-XX` decisions, VERIFICATION.md goal-backward outcomes, per-wave plan groupings) and that coupling lives in `/jira:retro`.
+
+When `.jira/STATE.md` is detected, SKILL.md Step 1.5 prompts the user to redirect to `/jira:retro` or to continue here with `git`/`github`/`manual` only (for cross-sprint rollups).
+
+The `retro-trigger.sh` hook is also intentionally NOT extended to watch `.jira/STATE.md` — sprint retros are opt-in by design in the jira plugin.
+
 ## Provider Precedence
 
 When multiple providers supply data for the same section, merge with this priority:
