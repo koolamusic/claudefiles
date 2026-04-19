@@ -111,7 +111,7 @@ Generate the final `settings.json` from the manifest's `settings` section:
     "alwaysThinkingEnabled": true
   }
   ```
-- **All plugins** from the manifest's `settings.plugins` list must appear in `enabledPlugins` set to `true` — this includes both marketplace plugins (`feature-dev@claude-plugins-official`) and local plugins (`ux@claudefiles`).
+- **All plugins** from the manifest's `settings.plugins` list must appear in `enabledPlugins` set to `true` — this includes both marketplace plugins (`feature-dev@claude-plugins-official`) and local plugins (`ux@claudefiles`, `jira@claudefiles`).
 - Include `extraKnownMarketplaces` from the manifest so Claude Code can discover the `claudefiles` marketplace on future sessions.
 
 Write the merged settings to `<target>/settings.json`.
@@ -162,4 +162,8 @@ List what was installed:
 - GSD install status (success or skipped)
 - Environment variables set (or already present)
 
-**Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup. Verify GSD with `/gsd:help`.
+**Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup. Once restarted:
+
+- **`/jira:init`** in any git repo bootstraps a sprint workspace (`.jira/` with `STATE.md`, `sprints/`, `.gitignore`). This is the primary workflow.
+- **`/gsd:help`** still works if you want the legacy GSD commands — kept available but no longer the default path.
+- **`/help`** lists everything currently registered.
