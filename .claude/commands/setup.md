@@ -116,6 +116,21 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
+### Step 8.5: Prompt for experimental features
+
+Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default** — the backing scripts are still copied by Step 5, opting in only wires them into `settings.json`.
+
+Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include a brief preamble explaining these are experimental and can be toggled later by editing `settings.json`.
+
+For each feature the user opts into:
+1. Read its `settings:` fragment from the manifest.
+2. **Deep-merge** that fragment into the settings.json being written — same strategy as Step 8. For array-valued keys like `hooks.PostToolUse`, append (don't replace).
+3. Record the enabled feature name for the final summary.
+
+If the user opts into none (or the list is empty), proceed with base settings only. Do NOT prompt if `experimental.features` is absent or `[]`.
+
+Users can enable later by hand: copy the relevant `settings:` fragment from `claudefiles.yaml` into their `~/.claude/settings.json` (or project-local `.claude/settings.json`) and restart Claude Code.
+
 ### Step 9: Set required environment variables
 
 Read the `env` section from `claudefiles.yaml`. For each variable declared:
@@ -159,6 +174,7 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
+- Experimental features enabled (list each, or "none" if user declined)
 - GSD install status (success or skipped)
 - Environment variables set (or already present)
 
