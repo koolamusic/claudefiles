@@ -11,6 +11,66 @@ Optional flags:
 - `--dry-run` — print every command that would run; exit 0 with no side effects (no file writes, no commits).
 - `--message <msg>` — override the default commit message used when the managed gitignore block is updated. Does not change workspace-side commit message.
 
+## Memory archival (optional)
+
+This section runs BEFORE the main step sequence below. It archives the current Claude project memory snapshot into the studio workspace. All sub-steps are gated by `memory.enabled` in `studio.yaml` — if disabled, the entire section skips silently and control flows straight to the main Steps below. Under `--dry-run`, every mutating sub-step (mkdir, cp, git add/commit) prints instead of executing.
+
+Resolve `WORKSPACE` first (same as step 3 below): `PROJECT_ROOT=$(git rev-parse --show-toplevel)`; read `.workspacerc`; expand leading `~`. All sub-steps in this section assume `$WORKSPACE` is set.
+
+1. **Read studio.yaml memory config.** Resolve the studio config path the same way the main Steps do — but for memory archival we read from the workspace-local `studio.yaml` (copied there at `/studio:setup` time). Run:
+   ```bash
+   MEMORY_ENABLED=$(yq eval '.memory.enabled // false' "${WORKSPACE}/studio.yaml")
+   ```
+   If `MEMORY_ENABLED` is `false` or the key is missing (yq returns `false` for a missing path thanks to the `// false` default), print `[studio] memory archival disabled; skipping.` to stderr and jump to the main Steps section below. No exit code, no side effect.
+
+2. **Resolve source path via PROJECT_HASH expansion.** Capture the raw source template from studio.yaml and expand `${PROJECT_HASH}` inline. `${PROJECT_HASH}` is expanded by this command, not by Claude Code's plugin loader. The two-stage sed pipeline is load-bearing — it mirrors the directory-naming convention Claude Code uses under `~/.claude/projects/`:
+   ```bash
+   RAW_SOURCE=$(yq eval '.memory.source' "${WORKSPACE}/studio.yaml")
+   PROJECT_HASH=$(pwd | sed 's|/|-|g' | sed 's|\.|-|g')
+   MEMORY_SOURCE="${RAW_SOURCE//\$\{PROJECT_HASH\}/$PROJECT_HASH}"
+   # expand leading ~ to $HOME
+   MEMORY_SOURCE="${MEMORY_SOURCE/#\~/$HOME}"
+   ```
+   If `[[ ! -d "$MEMORY_SOURCE" ]]`, print `[studio] no memory dir at $MEMORY_SOURCE; skipping archival.` to stderr and jump to the main Steps section below. No exit code, no side effect.
+
+3. **Build archive target from hostname + iso.** Read `memory.archive_dir` (default `memory/archive`) and `memory.path_template` (default `{hostname}/{iso}`) from studio.yaml:
+   ```bash
+   archive_dir=$(yq eval '.memory.archive_dir // "memory/archive"' "${WORKSPACE}/studio.yaml")
+   path_template=$(yq eval '.memory.path_template // "{hostname}/{iso}"' "${WORKSPACE}/studio.yaml")
+   HOSTNAME_SHORT=$(hostname -s)
+   ISO=$(date -u +%Y-%m-%dT%H-%M-%SZ)
+   REL_PATH=$(echo "$path_template" | sed "s|{hostname}|$HOSTNAME_SHORT|g; s|{iso}|$ISO|g")
+   ARCHIVE_TARGET="${WORKSPACE}/${archive_dir}/${REL_PATH}"
+   ```
+   **Append-only guard.** If `[[ -e "$ARCHIVE_TARGET" ]]`, abort with `[studio] archive target already exists: $ARCHIVE_TARGET — this violates append-only; aborting.` and exit 1. This should be impossible given the second-resolution iso stamp, but the check is cheap and the invariant is load-bearing.
+
+4. **Create and copy.** Create the target directory and copy the full memory tree:
+   ```bash
+   mkdir -p "$ARCHIVE_TARGET"
+   cp -R "$MEMORY_SOURCE/." "$ARCHIVE_TARGET/"
+   ```
+   Every file under `$MEMORY_SOURCE` is preserved, including `MEMORY.md` and any nested references.
+
+5. **Report.** Print the archive location and file count. Use a shell fallback for the relative path (avoids GNU-only `realpath --relative-to`):
+   ```bash
+   REL_OUT="${ARCHIVE_TARGET#$WORKSPACE/}"
+   N=$(find "$ARCHIVE_TARGET" -type f | wc -l | tr -d ' ')
+   echo "[studio] memory archived: $REL_OUT ($N files)"
+   ```
+
+6. **Commit inside the workspace.** Change into the workspace git repo and commit the new archive directory. Never push. If `git add` fails or nothing is staged (e.g. workspace is a fresh dir with no `.git`), emit a one-line warning to stderr and continue — the on-disk archive is the load-bearing outcome; the commit is convenience:
+   ```bash
+   (cd "$WORKSPACE" && git add "${archive_dir}/${REL_PATH}" && git commit -m "studio: archive memory ($HOSTNAME_SHORT $ISO)") \
+     || echo "[studio] warn: workspace commit skipped (no git repo or nothing staged)" >&2
+   ```
+   Under `--dry-run`, print the commands instead of executing them.
+
+### Hard rules
+
+- Archive is append-only. Never overwrite a prior snapshot directory.
+- `memory.enabled: false` must skip the entire section silently (stderr line is fine; no exit code, no side effect).
+- `${PROJECT_HASH}` is expanded by the command, not by Claude Code's plugin loader.
+
 ## Steps
 
 1. **Parse flags.** Inspect `$ARGUMENTS`. Recognize `--dry-run` (boolean) and `--message <msg>` (string; takes the next token). Any other argument is an error — stop and explain. When `--dry-run` is set, every step that would mutate state (writes, `git add`, `git commit`) must only be printed, never executed.
