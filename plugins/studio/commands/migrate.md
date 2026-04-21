@@ -63,3 +63,46 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
 3. **Do NOT commit.** **migrate leaves the `git rm --cached` deletions STAGED but UNCOMMITTED.** The user reviews `git status`, then commits manually with a message like `chore: untrack local workflow state (studio-managed)`. **migrate MUST NEVER run `git commit` in the project repo.** This is a hard prohibition — the rest of the file MUST NOT introduce a project-repo commit either.
 
 4. **History preservation note.** **This step removes files from the git INDEX only. Prior history still contains them; `git log -- <path>` will show past commits that touched the path. This is intentional — history is never rewritten by this command.** If a user needs to purge prior history (for legal or secrets reasons), that is out of scope for studio; see "## Notes" at the bottom of this file.
+
+## Setup (shared with /studio:setup)
+
+Apply steps 3–N of `/studio:setup` (see `plugins/studio/commands/setup.md`) — do NOT duplicate that logic here. The following list enumerates each shared step by name and specifies the idempotence gate migrate adds on top. When a gate short-circuits, skip the entire step and move to the next one.
+
+- **Create workspace dir `~/.studio/<slug>/`** — skip if it already exists and contains the expected subdirs (the `target_name` set from `studio.yaml` `symlinks` plus every entry in `workspace_dirs`); otherwise `mkdir -p` the missing ones.
+- **Create symlinks at project root** — skip entirely if `SKIP_SYMLINK_CREATION=true` (set in Preflight step 5 when a matching `.workspacerc` was already present); otherwise apply the same move-then-symlink logic documented in `/studio:setup`'s "Move existing project state" and "Write symlinks" steps. Per-link: skip when the link already points into `~/.studio/$SLUG/$target_name`.
+- **Sync managed `.gitignore` block** — ALWAYS run. Use the same marker-aware replace-between-markers logic as `/studio:setup` (read markers from `studio.yaml`, do NOT redefine them here). When the block is already present and content-equal, the replacement is a byte-for-byte no-op.
+- **Copy session-start hook into `~/.studio/<slug>/hooks/`** — skip if the destination already exists and its checksum matches the plugin's canonical `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh`; otherwise copy fresh and `chmod +x`.
+- **Wire the hook into `.claude/settings.json`** — skip per-entry if an entry with the same resolved `command` string already exists in `settings.hooks.SessionStart`; otherwise APPEND (never replace — the user's other hooks remain untouched).
+- **Write `.workspacerc`** — skip if it already exists and its content matches the expected `{"version": 1, "workspace": "~/.studio/<slug>"}` breadcrumb; otherwise write with 2-space indent and a trailing newline.
+
+Do NOT run `/studio:setup`'s "Commit in the project repo" step. Migrate leaves all project-repo changes staged for the user to review (see "## Untrack committed state" step 3). Migrate MAY run `/studio:setup`'s "Commit in the `~/.studio` repo" step — the studio repo is owned by the command, not by the user's project.
+
+## Post-migration summary
+
+Print a concise report covering:
+
+- **Untracked paths** — the `TRACKED_STATE` set from "## Untrack committed state" step 2, or "(none)".
+- **Symlinks** — list each link name and whether it was `created`, `already-correct`, or `skipped (SKIP_SYMLINK_CREATION)`.
+- **Gitignore block** — one of `created`, `re-synced (block replaced)`, or `unchanged`.
+- **Session hook** — one of `installed`, `updated`, or `unchanged`; and one of `wired in settings.json`, `already wired`.
+- **`.workspacerc`** — one of `written`, or `already matched`.
+- **Next-step commands** for the user, verbatim:
+  ```bash
+  git status
+  git commit -m "chore: untrack local workflow state (studio-managed)"
+  ```
+  (The second line is suggested, not mandatory — the user picks a message.) Migrate itself ran no project-repo commit.
+
+## Idempotence contract
+
+- Running `/studio:migrate` twice on the same project is a safe no-op on the second run.
+- Every mutating step is preceded by a state check that can short-circuit — no step assumes its own prior non-execution.
+- The command never assumes clean state: every precondition (tracked entries, staged diffs, existing `.workspacerc`, existing symlinks, existing gitignore block, existing hook entry) is re-verified at run time.
+- `TRACKED_STATE` may be empty on the second run (step 1 of "## Untrack committed state" short-circuits); the shared setup section still runs and each of its gates short-circuits in turn.
+- No step in this command ever rewrites git history — re-running remains history-preserving as well.
+
+## Notes
+
+- For greenfield projects (no tracked state, no `.workspacerc`), prefer `/studio:setup`. `/studio:migrate` will still work but does extra preflight checks that aren't needed.
+- History is NEVER rewritten by this command. If you need to purge `.retrospective/` (or any other path) from prior commits (for legal or secrets reasons), use a dedicated history-rewriting tool separately — that is out of scope for `/studio:migrate` and out of scope for studio overall.
+- The managed `.gitignore` markers are defined in `studio.yaml` and consumed by `/studio:setup`. Migrate references them by name and does not redefine them; if you need to change the markers, change them in `studio.yaml` and re-run migrate (or `/studio:sync`).
