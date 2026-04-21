@@ -31,10 +31,24 @@ if [[ ! -d "$WORKSPACE" ]]; then
   exit 0
 fi
 
+# Read expected symlinks from .workspacerc. Projects declare only what they
+# actually use — e.g. a project with no jira sprint work omits ".jira" from
+# this list so the hook doesn't flag its absence as drift. Partial adoption
+# is a first-class state.
+SYMLINKS=$(jq -r '.symlinks // [] | .[]' "$WORKSPACERC" 2>/dev/null)
+
+# Back-compat: if .workspacerc has no symlinks field, treat as zero expected
+# symlinks (no drift reported). Re-run /studio:setup to populate the field.
+if [[ -z "$SYMLINKS" ]]; then
+  echo "[studio] workspace ok: $WORKSPACE (no symlinks declared in .workspacerc)" >&2
+  exit 0
+fi
+
 MISSING=0
 DRIFT=0
 
-for name in .jira .planning .retrospective .uat; do
+while IFS= read -r name; do
+  [[ -z "$name" ]] && continue
   link_path="$PROJECT_ROOT/$name"
   if [[ ! -L "$link_path" ]]; then
     MISSING=$((MISSING + 1))
@@ -49,7 +63,7 @@ for name in .jira .planning .retrospective .uat; do
       DRIFT=$((DRIFT + 1))
     fi
   fi
-done
+done <<< "$SYMLINKS"
 
 if [[ "$MISSING" -eq 0 && "$DRIFT" -eq 0 ]]; then
   echo "[studio] workspace ok: $WORKSPACE" >&2

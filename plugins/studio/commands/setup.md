@@ -59,10 +59,16 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 10. **Write `.workspacerc`.** Write a JSON breadcrumb to `$PROJECT_ROOT/.workspacerc` with the following shape, pretty-printed (2-space indent) and ending in a trailing newline:
 
     ```json
-    {"version": 1, "workspace": "~/.studio/<slug>"}
+    {
+      "version": 1,
+      "workspace": "~/.studio/<slug>",
+      "symlinks": [".jira", ".planning", ".retrospective", ".uat"]
+    }
     ```
 
-    where `<slug>` is the actual slug resolved in step 3. `.workspacerc` is **machine-local** — it lives in the project root but is gitignored via the managed block from step 9 (different machines may store the workspace at different absolute paths, so committing it would leak a machine-specific value). Do not `git add` it.
+    where `<slug>` is the actual slug resolved in step 3, and the `symlinks` array lists **exactly the symlinks that were actually created at the project root** (the subset of studio.yaml's `symlinks:` keys that this project uses). For `/studio:setup`, that's the full set from studio.yaml since setup creates all declared symlinks. For partial adoption (some symlinks omitted by choice), include only the ones actually written. The session-start hook reads this field to know what drift to check for.
+
+    `.workspacerc` is **machine-local** — it lives in the project root but is gitignored via the managed block from step 9 (different machines may store the workspace at different absolute paths, so committing it would leak a machine-specific value). Do not `git add` it.
 
 11. **Wire hook into project settings.** Read `$PROJECT_ROOT/.claude/settings.json`. If the directory or file does not exist, create `$PROJECT_ROOT/.claude/` and initialize `settings.json` with `{}`. For each entry in the parsed `hooks.SessionStart` list:
     - Take the entry's `command` string and replace the literal token `${WORKSPACE}` with the absolute, `~`-expanded path `$HOME/.studio/$SLUG`.

@@ -73,7 +73,17 @@ Apply steps 3–N of `/studio:setup` (see `plugins/studio/commands/setup.md`) �
 - **Sync managed `.gitignore` block** — ALWAYS run. Use the same marker-aware replace-between-markers logic as `/studio:setup` (read markers from `studio.yaml`, do NOT redefine them here). When the block is already present and content-equal, the replacement is a byte-for-byte no-op.
 - **Copy session-start hook into `~/.studio/<slug>/hooks/`** — skip if the destination already exists and its checksum matches the plugin's canonical `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh`; otherwise copy fresh and `chmod +x`.
 - **Wire the hook into `.claude/settings.json`** — skip per-entry if an entry with the same resolved `command` string already exists in `settings.hooks.SessionStart`; otherwise APPEND (never replace — the user's other hooks remain untouched).
-- **Write `.workspacerc`** — skip if it already exists and its content matches the expected `{"version": 1, "workspace": "~/.studio/<slug>"}` breadcrumb; otherwise write with 2-space indent and a trailing newline.
+- **Write `.workspacerc`** — skip if it already exists AND its `workspace` field matches `~/.studio/<slug>` AND its `symlinks` array matches the symlinks this migration actually created. Otherwise write with 2-space indent and trailing newline:
+
+  ```json
+  {
+    "version": 1,
+    "workspace": "~/.studio/<slug>",
+    "symlinks": [".planning", ".retrospective", ".uat"]
+  }
+  ```
+
+  The `symlinks` array lists **only symlinks actually created at the project root** — migration is scattered-state-driven, so the list reflects what existed to migrate. A project that had `.planning/` and `.retrospective/` but never had `.jira/` gets `symlinks: [".planning", ".retrospective"]`. The session-start hook reads this field to know what drift to check; omitting `.jira` means the hook won't flag its absence as missing.
 
 Do NOT run `/studio:setup`'s "Commit in the project repo" step. Migrate leaves all project-repo changes staged for the user to review (see "## Untrack committed state" step 3). Migrate MAY run `/studio:setup`'s "Commit in the `~/.studio` repo" step — the studio repo is owned by the command, not by the user's project.
 
