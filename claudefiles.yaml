@@ -44,7 +44,6 @@ settings:
     - ralph-loop@claude-plugins-official
     - ux@claudefiles
     - jira@claudefiles                    # primary sprint workflow — see plugins/jira/README.md
-    - studio@claudefiles
   extraKnownMarketplaces:
     claudefiles:
       source:
@@ -65,11 +64,19 @@ platform:
 
 experimental:
   # Opt-in features. /setup prompts whether to enable any of these during
-  # installation. Each feature declares a settings fragment that gets
-  # merged into the final settings.json only if the user opts in.
-  # The backing files (hook scripts, etc.) are still copied by default —
-  # opt-in just wires them up. Users can flip features on/off later by
-  # editing settings.json directly.
+  # installation. Each feature declares how opting in mutates settings.json:
+  #   - `settings:` — a settings fragment deep-merged into the final
+  #     settings.json (array-valued keys like hooks.PostToolUse are appended,
+  #     not replaced). Used for wiring up hook scripts copied by default.
+  #   - `enablePlugin:` — a plugin name (e.g. `<plugin>@<marketplace>`)
+  #     that gets added to `enabledPlugins` on opt-in. Claude Code installs
+  #     the plugin from its marketplace on next startup. Use for plugins
+  #     that ship commands/agents and are NOT listed under top-level
+  #     `settings.plugins:` (i.e. not default-enabled).
+  # A feature MAY declare both keys; opt-in runs both actions. The backing
+  # files (hook scripts, etc.) are still copied by default — opt-in just
+  # wires them up. Users can flip features on/off later by editing
+  # settings.json directly.
   features:
     - name: context-monitor
       description: >
@@ -84,6 +91,17 @@ experimental:
             - matcher: '.*'
               command: '$HOME/.claude/hooks/context-monitor.sh'
               timeout: 5
+    - name: studio
+      description: >
+        Per-project workflow workspace — hosts `.planning/`, `.jira/`,
+        `.retrospective/`, `.uat/` state as symlinks into a private
+        `~/.studio/` git repo, keeping the project repo clean. Ships
+        `/studio:setup`, `/studio:sync`, `/studio:adopt`, `/studio:migrate`.
+        Enabling this will install the studio plugin; you'll separately
+        need to clone or create `~/.studio/` before running
+        `/studio:setup`. See plugins/studio/README.md for the full story
+        including Windows / container fallback.
+      enablePlugin: studio@claudefiles
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)
