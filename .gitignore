@@ -8,3 +8,15 @@
 *.swo
 .vscode/
 .idea/
+
+# Claude Code machine-local settings (SessionStart hook wiring for studio workspace)
+.claude/settings.local.json
+
+# >>> studio (managed) >>>
+.jira
+.planning
+.retrospective
+.uat
+.studio
+.workspacerc
+# <<< studio (managed) <<<
