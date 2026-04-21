@@ -46,6 +46,20 @@ This plugin ships with the [koolamusic/claudefiles](https://github.com/koolamusi
 - **Managed block replaced wholesale.** Studio owns the content between its markers end-to-end; manual edits inside the block will be overwritten on sync.
 - **Conflicts stop and ask.** If a project-root path already exists as a real file/dir (not a symlink to the expected workspace target), Studio halts and surfaces the conflict rather than clobbering user data.
 
+## Portability / Fallback
+
+Studio's default behaviour creates filesystem symlinks at the project root pointing into `~/.studio/<slug>/`. This works on macOS, Linux, and WSL2 (when `~/.studio/` lives inside the Linux home). On native Windows without admin / Developer Mode, in containers where `~/.studio/` is not bind-mounted, or anywhere symlinks are undesirable, use the fallback mechanism based on `additionalDirectories`.
+
+| Environment | Symlink behaviour | Recommended setup |
+|---|---|---|
+| macOS | Native, no permissions needed | Primary path — `/studio:setup` |
+| Linux | Native | Primary path — `/studio:setup` |
+| WSL2 | Native inside the Linux FS; breaks if `~/.studio/` lives on `/mnt/c/...` | Primary path — keep `~/.studio/` under the WSL Linux home |
+| Native Windows (cmd / PowerShell, no WSL) | Requires admin OR Developer Mode for `mklink /D` | Fallback path |
+| Docker bind mounts | Symlinks only resolve if the target is also mounted | Fallback path, or bind-mount `~/.studio/` alongside the project |
+
+For fallback setup instructions, see [references/fallback.md](references/fallback.md).
+
 ## Not in P1
 
 - Memory archival
