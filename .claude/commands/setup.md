@@ -118,18 +118,21 @@ Write the merged settings to `<target>/settings.json`.
 
 ### Step 8.5: Prompt for experimental features
 
-Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default** — the backing scripts are still copied by Step 5, opting in only wires them into `settings.json`.
+Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default**. Some enable hook entries (e.g. `context-monitor`); some enable plugins that ship commands and agents (e.g. `studio`). The backing scripts are still copied by Step 5; opting in wires them into `settings.json` and/or activates a plugin. You can toggle features later by editing `settings.json` or re-running `/setup`.
 
-Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include a brief preamble explaining these are experimental and can be toggled later by editing `settings.json`.
+Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include the preamble above so users understand some features install plugins, not just hook entries.
 
-For each feature the user opts into:
-1. Read its `settings:` fragment from the manifest.
-2. **Deep-merge** that fragment into the settings.json being written — same strategy as Step 8. For array-valued keys like `hooks.PostToolUse`, append (don't replace).
-3. Record the enabled feature name for the final summary.
+For each feature the user opts into, apply the feature's declared effects. A feature may declare `settings:`, `enablePlugin:`, both, or neither:
+
+1. **If the feature has a `settings:` fragment**: **Deep-merge** that fragment into the settings.json being written — same strategy as Step 8. For array-valued keys like `hooks.PostToolUse`, **array-append** (don't replace).
+2. **If the feature has an `enablePlugin:` key** (string plugin name, e.g. `studio@claudefiles`): add the named plugin to the `enabledPlugins` object in the target `settings.json`, setting its value to `true`. **No-op guard**: if the plugin is already enabled (e.g. it appears under the manifest's top-level `settings.plugins:` list and was therefore already written in Step 8), adding it again is a harmless no-op — do not error.
+3. **If the feature has both keys**: run both actions independently (deep-merge the settings fragment AND add the plugin to `enabledPlugins`). No cross-interference.
+4. **If the feature has neither key**: record the feature name for the summary but do not mutate `settings.json`. This is a legal shape (useful for documentation-only experimental flags).
+5. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name) for the final summary in Step 11.
 
 If the user opts into none (or the list is empty), proceed with base settings only. Do NOT prompt if `experimental.features` is absent or `[]`.
 
-Users can enable later by hand: copy the relevant `settings:` fragment from `claudefiles.yaml` into their `~/.claude/settings.json` (or project-local `.claude/settings.json`) and restart Claude Code.
+Users can enable later by hand: copy the relevant `settings:` fragment from `claudefiles.yaml` into their `~/.claude/settings.json` (or project-local `.claude/settings.json`), or set `"enabledPlugins": { "<plugin>": true }` for an `enablePlugin:` feature, and restart Claude Code.
 
 ### Step 9: Set required environment variables
 
@@ -174,7 +177,7 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
-- Experimental features enabled (list each, or "none" if user declined)
+- Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)` so the user knows a plugin was activated. Example line: `- studio (plugin: studio@claudefiles)`.
 - GSD install status (success or skipped)
 - Environment variables set (or already present)
 
