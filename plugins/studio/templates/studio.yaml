@@ -1,0 +1,28 @@
+version: 1
+symlinks:
+  .jira: jira
+  .planning: planning
+  .retrospective: retrospective
+  .uat: uat
+workspace_dirs:
+  - memory
+  - memory/archive
+  - skills
+  - hooks
+gitignore:
+  marker_start: "# >>> studio (managed) >>>"
+  marker_end: "# <<< studio (managed) <<<"
+  entries:
+    - .jira
+    - .planning
+    - .retrospective
+    - .uat
+    - .studio
+    - .workspacerc
+hooks:
+  SessionStart:
+    - matcher: startup
+      command: "bash ${WORKSPACE}/hooks/session-start.sh"
+      timeout: 5
+memory: {}
+adoption: {}
