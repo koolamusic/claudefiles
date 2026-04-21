@@ -94,9 +94,16 @@ Paste this into `.claude/settings.local.json` at your project root. If the file 
 
 ## Why the hook is registered here (not in the workspace)
 
-Claude Code does not load hook entries from `settings.json` files inside directories added via `additionalDirectories`. The added directory extends tool-access scope — Read, Write, and Bash tools can see paths under it — but does NOT extend configuration scope. The project's own `.claude/settings.local.json` (together with `~/.claude/settings.json` globally) is the only place where a hook registration is recognised when Claude Code runs in this project.
+Claude Code does not load hook entries from `settings.json` files inside directories added via `additionalDirectories`. The official settings docs describe the field as granting *"additional working directories for file access"* and note that *"most `.claude/` configuration is not discovered from these directories"* — i.e. the added directory extends tool-access scope (Read, Write, and Bash tools can see paths under it) but does NOT extend configuration scope. Hooks are loaded only from:
 
-See Claude Code docs on hooks and settings precedence — verify against live docs at time of use; this note may need updating as Claude Code evolves.
+- `~/.claude/settings.json` (user-level, machine-local)
+- the project's own `.claude/settings.json` (committed, shared)
+- the project's own `.claude/settings.local.json` (gitignored, machine-local)
+- managed policy settings and plugin / skill / agent bundled hooks
+
+The project's own `.claude/settings.local.json` is therefore the natural place to register the studio session-start hook under fallback — the hook script still lives in the workspace (`~/.studio/<slug>/hooks/session-start.sh`), but its registration points at that absolute path rather than relying on the `.claude/` tree inside the workspace being discovered.
+
+See Claude Code docs on hooks and settings precedence — re-verify against live docs at time of use if the Claude Code version advances substantially; this note may need updating as Claude Code evolves.
 
 ## What you lose
 
