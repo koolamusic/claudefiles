@@ -43,3 +43,23 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
    - Symlink status at project root (which of the four link names already exist, and whether they already point into `~/.studio/$SLUG/`).
    - `SKIP_SYMLINK_CREATION` flag value.
    This is still READ-ONLY. Ask for confirmation before proceeding to any mutating section.
+
+## Untrack committed state
+
+1. **Skip if empty.** If `TRACKED_STATE` (from Preflight step 3) is empty, print "No tracked workflow state detected — migrate is equivalent to setup for this project" and jump straight to "## Setup (shared with /studio:setup)".
+
+2. **For each path in `TRACKED_STATE`** (in the order `[.jira, .planning, .retrospective, .uat]`), decide dir-vs-file and untrack:
+   - Probe: if the working-tree path exists as a directory (`test -d "$path"`) OR `git ls-files --cached -- "$path/" 2>/dev/null` returns any entries below the path, treat it as a directory and use the recursive form:
+     ```bash
+     git rm --cached -r "$path"
+     ```
+   - Otherwise (single tracked file, no entries below it), use the non-recursive form:
+     ```bash
+     git rm --cached "$path"
+     ```
+   - Capture the exit status. Do NOT `|| true` or otherwise swallow errors — on any non-zero exit, abort and surface the full git stdout and stderr to the user verbatim.
+   - On success, print exactly one status line: `untracked <path> from index (files remain on disk)`.
+
+3. **Do NOT commit.** **migrate leaves the `git rm --cached` deletions STAGED but UNCOMMITTED.** The user reviews `git status`, then commits manually with a message like `chore: untrack local workflow state (studio-managed)`. **migrate MUST NEVER run `git commit` in the project repo.** This is a hard prohibition — the rest of the file MUST NOT introduce a project-repo commit either.
+
+4. **History preservation note.** **This step removes files from the git INDEX only. Prior history still contains them; `git log -- <path>` will show past commits that touched the path. This is intentional — history is never rewritten by this command.** If a user needs to purge prior history (for legal or secrets reasons), that is out of scope for studio; see "## Notes" at the bottom of this file.
