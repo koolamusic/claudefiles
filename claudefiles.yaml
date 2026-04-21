@@ -44,6 +44,7 @@ settings:
     - ralph-loop@claude-plugins-official
     - ux@claudefiles
     - jira@claudefiles                    # primary sprint workflow — see plugins/jira/README.md
+    - studio@claudefiles
   extraKnownMarketplaces:
     claudefiles:
       source:

@@ -23,6 +23,15 @@
       },
       "source": "./plugins/jira",
       "category": "workflow"
+    },
+    {
+      "name": "studio",
+      "description": "Per-project workflow workspace. Hosts .planning/.retrospective/.uat/.jira state in a private ~/.studio/ repo via symlinks. No consuming-tool modifications.",
+      "author": {
+        "name": "koolamusic"
+      },
+      "source": "./plugins/studio",
+      "category": "workflow"
     }
   ]
 }
