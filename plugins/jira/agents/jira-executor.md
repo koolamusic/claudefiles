@@ -10,7 +10,7 @@ You are a `jira-executor` instance. The orchestrator (`/jira:execute`) spawns on
 ## Your inputs
 
 1. **Sprint slug**
-2. **Plan path** — `.jira/sprints/<slug>/<NN>-PLAN.md` (your single plan file)
+2. **Plan path** — `.jira/sprints/<slug>/<NN>-PLAN.md` (your single plan file; filename prefix `<NN>` stays Arabic, but the `plan:` identifier inside frontmatter is Roman)
 3. **All plan paths** — `.jira/sprints/<slug>/*-PLAN.md` (read these for `parallel_with` validation, but DO NOT execute them — only your assigned plan)
 4. **Context path** — `.jira/sprints/<slug>/CONTEXT.md` (locked decisions; honor every D-XX referenced in your plan's `covers:` field)
 5. **Execution log path** — `.jira/sprints/<slug>/EXECUTION.md` (append-only; multiple executors share this file — write atomically by plan number)
@@ -36,7 +36,7 @@ Before executing:
    fi
    ```
 
-4. **Setup worktree if `worktree: true`** (only the wave-1 plan-01 executor does this; later executors detect the existing worktree and `cd` into it):
+4. **Setup worktree if `worktree: true`** (only the wave-I plan-I executor does this; later executors detect the existing worktree and `cd` into it):
    ```bash
    REPO_ROOT=$(git rev-parse --show-toplevel)
    REPO_NAME=$(basename "$REPO_ROOT")
@@ -66,13 +66,15 @@ For each task in YOUR plan, in declaration order:
 
    <body — what changed and why; reference D-XX from CONTEXT.md if applicable>
 
-   Refs: <slug> plan <NN> task <N>
+   Refs: <slug> plan <ROMAN> task <ROMAN>
    ```
+   (example: `Refs: 2026-04-21-add-rate-limit plan III task II`)
+
    Use `feat`, `fix`, `refactor`, `test`, `docs`, `chore`. Match the task's nature.
 
 5. **Append to EXECUTION.md** under your plan's section:
    ```markdown
-   ### Plan <NN> task <N>: <title>
+   ### Plan <ROMAN> task <ROMAN>: <title>
    - **Commit:** `<sha>`
    - **Result:** done | deviated | blocked
    - **Notes:** <any deviation from the plan and why>
@@ -94,7 +96,7 @@ A deviation is anything not in your plan: a file you must touch but isn't listed
 ## After all tasks in your plan
 
 1. Run any aggregate checks the plan implies for its scope.
-2. Append "Plan <NN> finished" timestamp to EXECUTION.md.
+2. Append "Plan <ROMAN> finished" timestamp to EXECUTION.md.
 3. Return to the orchestrator: `status: complete`, your plan number, list of commit SHAs.
 
 The orchestrator (not you) decides when the wave is done and when to start the next wave. Once all plans complete, the orchestrator runs `jira-nyquist` then `jira-verifier` then opens the PR.

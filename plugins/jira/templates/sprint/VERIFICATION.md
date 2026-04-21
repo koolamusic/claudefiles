@@ -35,7 +35,7 @@ Cross-check against CONTEXT.md decisions:
 
 | Decision | Plan | Implemented | Evidence |
 |----------|------|-------------|----------|
-| D-01     | 01-PLAN.md task 2 | yes | `src/foo.ts:42` |
+| D-01     | 01-PLAN.md task II | yes | `src/foo.ts:42` |
 
 ## Verdict
 

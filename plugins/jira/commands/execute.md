@@ -12,11 +12,11 @@ Execute the active sprint to completion: every plan executed (parallel within wa
 
 2. **Verify plans exist:** `ls .jira/sprints/<slug>/*-PLAN.md`. Stop if zero — tell the user to run `/jira:plan`.
 
-3. **Read frontmatter from all plans.** Build a wave map:
+3. **Read frontmatter from all plans.** Build a wave map (wave and plan IDs are Roman):
    ```
-   wave 1: [01, 02]
-   wave 2: [03]
-   wave 3: [04, 05]
+   wave I: [I, II]
+   wave II: [III]
+   wave III: [IV, V]
    ```
    Pull `worktree`, `branch`, `issue` from any plan (they share these).
 

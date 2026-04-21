@@ -59,8 +59,8 @@ Read CONTEXT.md. For each `D-XX` decision, find the implementing code. Build the
 
 | Decision | Plan that claimed it | Implemented? | Evidence |
 |----------|---------------------|--------------|----------|
-| D-01 | 01-PLAN.md task 2 | yes | `src/foo.ts:42` |
-| D-02 | 02-PLAN.md task 1 | NO | — |
+| D-01 | 01-PLAN.md task II | yes | `src/foo.ts:42` |
+| D-02 | 02-PLAN.md task I | NO | — |
 
 A `D-XX` listed as `covers:` in a plan but with no implementing code is a critical gap.
 

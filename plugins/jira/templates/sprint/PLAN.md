@@ -1,13 +1,13 @@
 ---
 sprint: {{sprint_slug}}
-plan: {{NN}}                # 01, 02, 03 — one file per parallel-safe group
-wave: {{N}}                 # tasks within the same wave can run in parallel; later waves depend on earlier
+plan: {{ROMAN}}             # I, II, III — one file per parallel-safe group
+wave: {{ROMAN}}             # tasks within the same wave can run in parallel; later waves depend on earlier
 goal: {{one_sentence_goal}} # inherits from sprint; appears in every plan for traceability
 worktree: false             # sprint-level decision; same value across all plans of one sprint
 branch: jira/{{sprint_slug}}
 issue: {{issue_number_or_none}}
-depends_on: []              # plan numbers from earlier waves this one needs
-parallel_with: []           # other plan numbers in the SAME wave
+depends_on: []              # Roman plan IDs from earlier waves this one needs (e.g. [I])
+parallel_with: []           # Roman plan IDs of other plans in the SAME wave (e.g. [II, III])
 files_modified:             # exhaustive list — used for parallel-safety check by orchestrator
   - path/to/file.ts
 covers:                     # source items this plan addresses (D-XX, REQ-XX, RESEARCH bullets)
@@ -15,7 +15,7 @@ covers:                     # source items this plan addresses (D-XX, REQ-XX, RE
   - GOAL: <fragment>
 ---
 
-# Plan {{NN}}: {{plan_title}}
+# Plan {{ROMAN}}: {{plan_title}}
 
 **Sprint goal:** {{sprint_goal}}
 **This plan delivers:** {{what_this_subset_does}}
@@ -24,7 +24,7 @@ covers:                     # source items this plan addresses (D-XX, REQ-XX, RE
 
 Each task is atomic — one commit. Max 3 tasks per plan (quality degrades past that point in a single executor's context window).
 
-### 1. {{task_title}}
+### I. {{task_title}}
 
 - **Files:** `path/to/file.ts`
 - **Read first:** `path/to/source-of-truth.ts` (the file being modified, plus any reference implementation)
@@ -32,7 +32,7 @@ Each task is atomic — one commit. Max 3 tasks per plan (quality degrades past 
 - **Done when:** Observable, grep-verifiable, or command-output-checkable condition. NOT "tests pass" alone.
 - **Covers:** D-01, GOAL fragment
 
-### 2. {{task_title}}
+### II. {{task_title}}
 
 - **Files:**
 - **Read first:**

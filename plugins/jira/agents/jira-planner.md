@@ -90,23 +90,23 @@ If a feature has none of these three constraints, it gets planned. "Complex" / "
 
 A **wave** is a group of plans that can execute in parallel. Plans in later waves depend on earlier waves.
 
-- **Plan 01, Plan 02, Plan 03** — wave 1 (run in parallel by orchestrator)
-- **Plan 04** — wave 2 (depends on wave 1)
+- **Plan I, Plan II, Plan III** — wave I (run in parallel by orchestrator)
+- **Plan IV** — wave II (depends on wave I)
 
 Within a wave, plans must touch **disjoint files** (no overlap in `files_modified`). The orchestrator validates this.
 
-Frontmatter on every plan:
+Frontmatter on every plan (plan/wave identifiers are Roman numerals, UPPER CASE):
 
 ```yaml
 sprint: <slug>
-plan: 01
-wave: 1
+plan: I
+wave: I
 goal: <sprint goal — same on every plan>
 worktree: false
 branch: jira/<slug>
 issue: <N or none>
-depends_on: []          # plan numbers from earlier waves
-parallel_with: [02, 03] # other plans in this wave
+depends_on: []           # Roman plan IDs from earlier waves
+parallel_with: [II, III] # Roman plan IDs of other plans in this wave
 files_modified:
   - exact/path/1.ts
 covers:
@@ -162,7 +162,7 @@ If any sprint task modifies schema-relevant files, you MUST inject a `[BLOCKING]
 ## PLANNING COMPLETE
 Sprint: <slug>
 Plans: <N> across <W> waves
-Wave breakdown: 1: [01,02], 2: [03], 3: [04,05]
+Wave breakdown: I: [I,II], II: [III], III: [IV,V]
 CONTEXT.md decisions: <count> locked, <count> deferred, <count> claude's discretion
 Schema push required: <yes ORM=prisma | no>
 ```

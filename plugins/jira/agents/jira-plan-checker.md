@@ -89,12 +89,12 @@ escalate: false  # set true if revisions tried and audit still fails
 
 A `BLOCKER` is anything that breaks the sprint (missing source coverage, prohibited language, missing schema push). A `WARNING` is degrading quality (unclear "Done when", weak risks section). An `INFO` is a nice-to-have.
 
-If `verdict: REVISE`, list at most 5 required revisions. Each must be specific enough that the planner knows exactly what to change. "Improve clarity" is not a revision; "Plan 02 task 1: Action says 'align config with prod' — replace with the literal env vars to set" is.
+If `verdict: REVISE`, list at most 5 required revisions. Each must be specific enough that the planner knows exactly what to change. "Improve clarity" is not a revision; "Plan II task I: Action says 'align config with prod' — replace with the literal env vars to set" is.
 
 ## Hard rules
 
 - **Do not edit any plan.** You audit; the planner revises.
 - **Do not propose new plans.** You may say "no plan covers D-04" but not write the plan.
 - **Independence.** If the planner's reasoning seems sound but you can't verify the underlying claim, FAIL the check and require evidence.
-- **Cite specifically.** Every BLOCKER finding must cite plan + section. "Plan 02 task 2 missing Read-first" is good; "tasks are weak" is not.
+- **Cite specifically.** Every BLOCKER finding must cite plan + section. "Plan II task II missing Read-first" is good; "tasks are weak" is not.
 - **Two passes max.** If after one revision the plan still fails, return `verdict: REVISE` with `escalate: true` and let the orchestrator decide whether to involve the human.

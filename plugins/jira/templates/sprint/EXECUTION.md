@@ -12,7 +12,7 @@ Append-only log of what happened during `/jira:execute`. The executor writes her
 
 ## Task log
 
-### 1. {{task_title}}
+### I. {{task_title}}
 
 - **Commit:** `{{sha}}`
 - **Result:** done | deviated | blocked

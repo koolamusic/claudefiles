@@ -67,7 +67,7 @@ Convert the active sprint's RESEARCH.md into one or more executable PLAN files (
 
 10. **Report:**
     - Goal (from any PLAN frontmatter — they all share it)
-    - Plan count + wave breakdown ("3 plans across 2 waves: [01,02] then [03]")
+    - Plan count + wave breakdown ("3 plans across 2 waves: [I,II] then [III]")
     - CONTEXT decisions: locked count, deferred count, claude's-discretion count
     - Schema push required (yes / no — from planner return)
     - Worktree decision
