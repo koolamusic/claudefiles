@@ -24,5 +24,16 @@ hooks:
     - matcher: startup
       command: "bash ${WORKSPACE}/hooks/session-start.sh"
       timeout: 5
-memory: {}
-adoption: {}
+# memory: archival config consumed by /studio:sync. ${PROJECT_HASH} is expanded by the command, not by Claude Code's plugin loader.
+memory:
+  enabled: true
+  source: "~/.claude/projects/${PROJECT_HASH}/memory"
+  archive_dir: "memory/archive"
+  path_template: "{hostname}/{iso}"
+
+# adoption: options consumed by /studio:adopt. latest-per-host reduces to one snapshot per host before prompting.
+adoption:
+  default_filter: latest-per-host
+  preview_chars: 200
+  backup_on_overwrite: true
+  backup_suffix: ".local-backup-{iso}"
