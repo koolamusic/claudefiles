@@ -1,0 +1,7 @@
+{
+  "name": "studio",
+  "description": "Per-project workflow workspace. Hosts .planning/.retrospective/.uat/.jira state in a private ~/.studio/ git repo and symlinks each project root into its workspace slug. No tool/skill modifications — consuming plugins see expected paths.",
+  "author": {
+    "name": "koolamusic"
+  }
+}
