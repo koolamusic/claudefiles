@@ -50,6 +50,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 - **`AskUserQuestion` is the discussion layer.** No dedicated discuss command — questions get asked inline where they arise.
 - **Schema-push tasks** are auto-injected for Prisma / Drizzle / Payload / Supabase / TypeORM projects to prevent false-positive verification (types pass, but the live DB hasn't been pushed).
 - **Issue writing has a guide.** `/jira:issue` follows [`templates/issue/GUIDE.md`](templates/issue/GUIDE.md) — evidence-grounded principles distilled from three real conventions (stellar/wallet-backend H-series for backend research, vercel-labs/json-render contributor bugs for libraries, stellar/freighter-mobile for visual/integration). Domain-aware: the shape stays the same; the evidence layer changes per domain.
+- **Research follows a structured synthesis pattern** inspired by [GSD](https://github.com/gsd-build/get-shit-done). Every `RESEARCH.md` carries tiered sources (HIGH/MEDIUM/LOW), Common Pitfalls with warning signs, Don't Hand-Roll calls, an Architectural Responsibility Map for multi-tier work, and a Valid-until date that acknowledges research decay. See [`templates/sprint/RESEARCH.md`](templates/sprint/RESEARCH.md). Wave-style phase numbering from GSD is intentionally not adopted — jira keeps its single-level `NN-PLAN.md` with `wave:` frontmatter.
 
 ## Install
 

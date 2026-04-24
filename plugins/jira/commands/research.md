@@ -34,7 +34,30 @@ If empty, use `AskUserQuestion` to ask what the user wants to work on. Don't pro
 
    The agents will also pick up `.jira/sprints/<slug>/CONTEXT.md` if it exists (it doesn't, on first pass — but the convention holds for re-research).
 
-6. **Synthesize.** When all three return, read the three `research-<focus>.md` files and write `.jira/sprints/<slug>/RESEARCH.md` using the template at `${CLAUDE_PLUGIN_ROOT}/templates/sprint/RESEARCH.md`. Don't paraphrase the per-focus files into oblivion — keep their headlines and citations. The synthesis adds the cross-cut: contradictions between focus areas, the open questions for the planner.
+6. **Synthesize.** When all three return, read the three `research-<focus>.md` files and write `.jira/sprints/<slug>/RESEARCH.md` using the template at `${CLAUDE_PLUGIN_ROOT}/templates/sprint/RESEARCH.md`. Don't paraphrase the per-focus files into oblivion — keep their headlines and citations.
+
+   **Synthesis map — which focus feeds which RESEARCH.md section:**
+
+   | RESEARCH.md section | Primary source(s) | Applicability |
+   |---|---|---|
+   | Summary + Primary recommendation | all three | required |
+   | Architectural Responsibility Map | codebase (seed) + brief | required if multi-tier; skip + note if single-tier |
+   | Codebase | codebase | required |
+   | Patterns & conventions | patterns | required |
+   | Standard Stack | external | required if new deps considered; skip if pure refactor |
+   | Don't Hand-Roll | patterns (local half) + external (library half) | required if there's a "we could build it" trap; skip otherwise |
+   | Common Pitfalls | external (docs/issues) + patterns (local near-misses) | **required — always at least one entry** |
+   | SOTA Updates | external | optional; include when touching fast-moving libs |
+   | Risks & unknowns | all three (contradictions + gaps) | required |
+   | Open questions for planner | all three | required |
+   | Sources (tiered HIGH/MEDIUM/LOW) | all three | required; preserve tiers from per-focus files |
+   | Metadata | orchestrator fills from focus agents' confidence | required |
+
+   **Cross-cut duties of the synthesis step (don't delegate these to the focus agents):**
+   - Resolve contradictions between focus files (e.g. codebase pattern conflicts with external best practice).
+   - Assign the overall Confidence at the top (HIGH only if all three focus files are HIGH on their core claims).
+   - Set Valid until with a reason in Metadata.
+   - Note any omitted sections in Metadata with a one-line reason.
 
 7. **Set CURRENT:** `echo <slug> > .jira/CURRENT`.
 
