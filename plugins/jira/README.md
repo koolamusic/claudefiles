@@ -12,6 +12,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 | `/jira:research [<prompt>\|--issue N]` | Spawn parallel `jira-researcher` agents; synthesize `RESEARCH.md`; update `STATE.md` |
 | `/jira:plan [--push-issue]` | `jira-planner` writes CONTEXT.md + per-wave PLANs; `jira-plan-checker` audits with stall detection |
 | `/jira:execute` | Wave-by-wave parallel `jira-executor`; then `jira-nyquist` (tests); then `jira-verifier` (goal-backward); opens PR |
+| `/jira:issue <research\|spec\|wave> --domain <d> [--push]` | Draft a GitHub issue from the active sprint's artifacts, following `templates/issue/GUIDE.md`. Domain-aware evidence layer (backend / library / frontend / integration / infra). Push is opt-in. |
 | `/jira:review` | `jira-reviewer` reviews the current branch diff against CONTEXT and PLAN |
 | `/jira:retro` | Opt-in. Generates `RETRO.md` for the active sprint or a date range; rolls workflow lessons into `STATE.md` |
 
@@ -48,6 +49,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 - **PR is opened automatically** when execute completes green and the sprint has an associated issue.
 - **`AskUserQuestion` is the discussion layer.** No dedicated discuss command — questions get asked inline where they arise.
 - **Schema-push tasks** are auto-injected for Prisma / Drizzle / Payload / Supabase / TypeORM projects to prevent false-positive verification (types pass, but the live DB hasn't been pushed).
+- **Issue writing has a guide.** `/jira:issue` follows [`templates/issue/GUIDE.md`](templates/issue/GUIDE.md) — evidence-grounded principles distilled from three real conventions (stellar/wallet-backend H-series for backend research, vercel-labs/json-render contributor bugs for libraries, stellar/freighter-mobile for visual/integration). Domain-aware: the shape stays the same; the evidence layer changes per domain.
 
 ## Install
 
