@@ -249,3 +249,4 @@ Most skills here weren't written by me. This repo curates and organizes work fro
 - [apollographql/skills](https://github.com/apollographql/skills) — rust-best-practices
 - [htjun/claude-code-hooks-scv-sounds](https://github.com/htjun/claude-code-hooks-scv-sounds) — SCV sound files
 - [coder/claudecode.nvim](https://github.com/coder/claudecode.nvim) — Neovim integration for Claude Code
+- [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — inspiration for the default tight tone in `dotfiles/CLAUDE.md` (lite mode adapted as a global directive)
