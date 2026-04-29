@@ -81,7 +81,7 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | Shorthand | What it does | Scope |
 |---------|-------------|-------|
 | `/setup` | Install claudefiles to `~/.claude/` | Project-level (runs inside this repo only) |
-| `/gcw` | Git commit with conventional commit format | Global (deployed to `~/.claude/commands/`) |
+| `/gitcommit` | Git commit with conventional commit format and message-quality spec | Global (deployed to `~/.claude/commands/`) |
 | `/gitconfig` | Configure git — SSH keys, aliases, templates, hooks (local or global) | Global (deployed to `~/.claude/commands/`) |
 
 ### Hooks

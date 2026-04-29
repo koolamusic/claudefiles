@@ -26,7 +26,7 @@ Portable configuration for Claude Code — skills, commands, hooks, sounds, and 
 | nvim | `dotfiles/nvim/` | `~/.config/nvim/` |
 | plugins | `plugins/` | Installed by Claude Code via marketplace |
 
-Note: `commands/` contains only global commands (`/gcw`, `/gitconfig`). `/setup` lives in `.claude/commands/` as a project-level command and is not deployed globally.
+Note: `commands/` contains only global commands (`/gitcommit`, `/gitconfig`). `/setup` lives in `.claude/commands/` as a project-level command and is not deployed globally.
 
 ### Plugins
 
