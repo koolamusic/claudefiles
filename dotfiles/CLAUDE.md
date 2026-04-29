@@ -117,6 +117,15 @@ This is the default register, not a mode that wears off over many turns. If prea
 
 ---
 
+## Git
+
+### Commit Messages
+For any git commit, apply the **Message format** section of `~/.claude/commands/gitcommit.md`. That file is the source of truth for commit conventions in my projects — it overrides Claude Code's default commit behavior, including the `Co-Authored-By` footer, "Generated with Claude Code" attribution, and any other AI-identifying trailers.
+
+This applies whether the commit goes through `/gitcommit` or a direct `git commit` from Bash.
+
+---
+
 ## Editor Integration
 
 ### Neovim (claudecode.nvim)
