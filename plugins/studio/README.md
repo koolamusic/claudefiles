@@ -1,6 +1,6 @@
 # studio
 
-Studio moves workflow state (`.planning/`, `.retrospective/`, `.uat/`, `.jira/`, local memory) out of project repos into a single private git repo at `~/.studio/`. Project roots get symlinks pointing into per-project subdirs. Tools and skills that expect `.planning/`, `.jira/`, etc. see exactly those paths — no modifications needed.
+Studio moves workflow state (`.project/`, `.uat/`, `.jira/`, local memory) out of project repos into a single private git repo at `~/.studio/`. Project roots get symlinks pointing into per-project subdirs. Tools and skills that expect `.project/`, `.jira/`, etc. see exactly those paths — no modifications needed.
 
 ## Commands
 
@@ -17,8 +17,7 @@ Studio moves workflow state (`.planning/`, `.retrospective/`, `.uat/`, `.jira/`,
 ├── README.md
 └── <project-slug>/
     ├── jira/
-    ├── planning/
-    ├── retrospective/
+    ├── project/
     ├── uat/
     ├── skills/
     └── hooks/
@@ -27,7 +26,7 @@ Studio moves workflow state (`.planning/`, `.retrospective/`, `.uat/`, `.jira/`,
 ## Project-root effects
 
 - `.workspacerc` — gitignored via the managed block; machine-local breadcrumb pointing at the workspace.
-- `.jira`, `.planning`, `.retrospective`, `.uat` — symlinks into `~/.studio/<slug>/`, gitignored via the studio-managed block.
+- `.jira`, `.project`, `.uat` — symlinks into `~/.studio/<slug>/`, gitignored via the studio-managed block.
 - `.gitignore` — gains a studio-managed block delimited by markers; Studio owns the contents between the markers and replaces it wholesale on sync.
 
 ## Install

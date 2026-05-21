@@ -23,6 +23,7 @@ If `.jira/sprints/<slug>/CONTEXT.md` exists, read it before starting — locked 
 ## Project context
 
 - Read `./CLAUDE.md` if present.
+- Read `.project/PROJECT.md` and `.project/ROADMAP.md` if present — project goals, constraints, and phase structure shape what's worth researching. If a feature is explicitly deferred in the roadmap, don't research it. If the project has stated constraints (single-tenant, no-auth, specific stack), respect them.
 - Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Skills may dictate what counts as "this repo's pattern" (e.g. a `react-best-practices` skill informs the `patterns` focus).
 
 ## What each focus area means

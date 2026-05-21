@@ -18,6 +18,8 @@ If empty, use `AskUserQuestion` to ask what the user wants to work on. Don't pro
 
 1. **Verify `.jira/` exists.** If not, run `/jira:init` semantics yourself (or tell the user to).
 
+1.5. **Read project context.** Check for `.project/PROJECT.md` and `.project/ROADMAP.md`. If either exists, include them as context for all researcher agents — project goals, constraints, and roadmap phases shape what's worth researching (e.g. don't research features explicitly deferred in the roadmap). Pass the paths to each researcher in step 5.
+
 2. **Build the sprint slug:** `YYYY-MM-DD-<short-kebab-from-brief>`. Slug ≤ 40 chars, lowercase, alphanumeric + hyphens. Use `date -u +%Y-%m-%d`.
 
 3. **Create the sprint directory:** `.jira/sprints/<slug>/`. If a date+slug collision, append `-2`, `-3`, etc.

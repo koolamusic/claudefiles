@@ -14,8 +14,8 @@ Studio's default behaviour creates filesystem symlinks at the project root point
 
 | Concern | Normal mode | Fallback mode |
 |---|---|---|
-| State access | Symlinks at project root (`.planning`, `.jira`, `.retrospective`, `.uat`) | `additionalDirectories` in `.claude/settings.local.json` pointing at `~/.studio/<slug>/` |
-| Shell discoverability | `ls .planning/` works from any shell in the project root | Does NOT work — only Claude Code's tools see the workspace paths |
+| State access | Symlinks at project root (`.project`, `.jira`, `.uat`) | `additionalDirectories` in `.claude/settings.local.json` pointing at `~/.studio/<slug>/` |
+| Shell discoverability | `ls .project/` works from any shell in the project root | Does NOT work — only Claude Code's tools see the workspace paths |
 | Session-start hook | Wired via workspace's `settings.json` (reached through the symlinked `.claude/` if present, or via the project's own `settings.json`) | Registered with an absolute path in the project's `.claude/settings.local.json` |
 | `.workspacerc` | Written at project root (gitignored via studio-managed block — machine-local) | Same — still written, same format, still gitignored |
 
@@ -30,7 +30,7 @@ Studio's default behaviour creates filesystem symlinks at the project root point
 2. Create the workspace directory manually (matching what `/studio:setup` would create — see `plugins/studio/templates/studio.yaml` for the exact subdir list):
 
    ```bash
-   mkdir -p ~/.studio/<slug>/{planning,retrospective,uat,jira,memory,memory/archive,skills,hooks}
+   mkdir -p ~/.studio/<slug>/{project,uat,jira,memory,memory/archive,skills,hooks}
    ```
 
 3. Copy the session-start hook into the workspace:
@@ -54,8 +54,7 @@ Studio's default behaviour creates filesystem symlinks at the project root point
 
    ```
    .jira
-   .planning
-   .retrospective
+   .project
    .uat
    .studio
    .workspacerc
@@ -107,9 +106,9 @@ See Claude Code docs on hooks and settings precedence — re-verify against live
 
 ## What you lose
 
-- Shell `ls .planning/` no longer works in fallback — use `ls ~/.studio/<slug>/planning/` directly.
+- Shell `ls .project/` no longer works in fallback — use `ls ~/.studio/<slug>/project/` directly.
 - Some tools that follow symlinks at the filesystem level (editors, build tools, language servers) will not see the workspace paths — they only see the project root.
-- Workspace paths appear as absolute (`~/.studio/<slug>/...`) in Claude's tool calls rather than as project-relative (`.planning/...`). Skills and commands that hard-code relative paths like `.planning/` will silently fail to find state unless they're updated to read `.workspacerc` and resolve against the workspace path.
+- Workspace paths appear as absolute (`~/.studio/<slug>/...`) in Claude's tool calls rather than as project-relative (`.project/...`). Skills and commands that hard-code relative paths like `.project/` will silently fail to find state unless they're updated to read `.workspacerc` and resolve against the workspace path.
 
 ## Limitations and caveats
 

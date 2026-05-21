@@ -13,6 +13,9 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 | `/jira:plan [--push-issue]` | `jira-planner` writes CONTEXT.md + per-wave PLANs; `jira-plan-checker` audits with stall detection |
 | `/jira:execute` | Wave-by-wave parallel `jira-executor`; then `jira-nyquist` (tests); then `jira-verifier` (goal-backward); opens PR |
 | `/jira:issue <research\|spec\|wave> --domain <d> [--push]` | Draft a GitHub issue from the active sprint's artifacts, following `templates/issue/GUIDE.md`. Domain-aware evidence layer (backend / library / frontend / integration / infra). Push is opt-in. |
+| `/jira:uat <design\|write\|run> [--plan N]` | UAT lifecycle: design test plans from acceptance criteria, write executable scripts, run and triage results with remediation file generation |
+| `/jira:advisor <triage\|plan>` | Advisory gate: spawns `jira-advisor` for independent second opinion on triage recommendations or plan quality before committing |
+| `/jira:to-issues [--plan N] [--dry-run]` | Break sprint plans into independently-grabbable GitHub issues using vertical slices (tracer bullets). AFK/HITL classification. |
 | `/jira:review` | `jira-reviewer` reviews the current branch diff against CONTEXT and PLAN |
 | `/jira:retro` | Opt-in. Generates `RETRO.md` for the active sprint or a date range; rolls workflow lessons into `STATE.md` |
 
@@ -62,7 +65,7 @@ This plugin ships with the [koolamusic/claudefiles](https://github.com/koolamusi
 
 ## Tradeoffs
 
-- **No milestones, no roadmap, no project bootstrap.** A sprint is the atomic unit. If you need long-horizon planning, `jira` is the wrong tool.
+- **No milestones, no roadmap, no project bootstrap.** A sprint is the atomic unit. For long-horizon planning, use `/kickoff` to create `.project/PROJECT.md` + `ROADMAP.md` — `jira:research` reads these for context but doesn't manage them.
 - **No autonomous mode.** Each command is invoked explicitly.
 - **Single-file agents.** Agents are short and don't share helpers — duplication is preferred over a shared library.
 - **No SDK, no CLI.** Everything runs inside Claude Code.

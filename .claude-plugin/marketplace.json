@@ -17,7 +17,7 @@
     },
     {
       "name": "jira",
-      "description": "Lean sprint workflow. Six commands (init/research/plan/execute/review/retro), six agents, .jira/ state, GitHub issue + PR integration, Nyquist validation by default.",
+      "description": "Lean sprint workflow. Nine commands (init/research/plan/execute/review/retro/uat/advisor/to-issues), eight agents, .jira/ state, GitHub issue + PR integration, Nyquist validation by default.",
       "author": {
         "name": "koolamusic"
       },
@@ -26,7 +26,7 @@
     },
     {
       "name": "studio",
-      "description": "Per-project workflow workspace. Hosts .planning/.retrospective/.uat/.jira state in a private ~/.studio/ repo via symlinks. No consuming-tool modifications.",
+      "description": "Per-project workflow workspace. Hosts .project/.uat/.jira state in a private ~/.studio/ repo via symlinks. No consuming-tool modifications.",
       "author": {
         "name": "koolamusic"
       },

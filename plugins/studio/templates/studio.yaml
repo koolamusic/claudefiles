@@ -1,8 +1,7 @@
 version: 1
 symlinks:
   .jira: jira
-  .planning: planning
-  .retrospective: retrospective
+  .project: project
   .uat: uat
 workspace_dirs:
   - memory
@@ -14,8 +13,7 @@ gitignore:
   marker_end: "# <<< studio (managed) <<<"
   entries:
     - .jira
-    - .planning
-    - .retrospective
+    - .project
     - .uat
     - .studio
     - .workspacerc

@@ -33,9 +33,6 @@ settings:
       - matcher: '.*'
         command: "bash -c 'sounds=($HOME/.claude/sounds/jobs-finished.wav $HOME/.claude/sounds/orders-captain.wav $HOME/.claude/sounds/reporting-for-duty.wav); nohup {{sound_player}} \"${sounds[$RANDOM % ${#sounds[@]}]}\" >/dev/null 2>&1 &'"
     PostToolUse:
-      - matcher: 'Write|Edit'
-        command: '$HOME/.claude/hooks/shaping-ripple.sh'
-        timeout: 5
       - matcher: 'Edit|Write|Bash'
         command: '$HOME/.claude/hooks/retro-trigger.sh'
         timeout: 10
@@ -93,8 +90,8 @@ experimental:
               timeout: 5
     - name: studio
       description: >
-        Per-project workflow workspace — hosts `.planning/`, `.jira/`,
-        `.retrospective/`, `.uat/` state as symlinks into a private
+        Per-project workflow workspace — hosts `.project/`, `.jira/`,
+        `.uat/` state as symlinks into a private
         `~/.studio/` git repo, keeping the project repo clean. Ships
         `/studio:setup`, `/studio:sync`, `/studio:adopt`, `/studio:migrate`.
         Enabling this will install the studio plugin; you'll separately
