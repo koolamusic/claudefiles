@@ -15,7 +15,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 | `/jira:issue <research\|spec\|wave> --domain <d> [--push]` | Draft a GitHub issue from the active sprint's artifacts, following `templates/issue/GUIDE.md`. Domain-aware evidence layer (backend / library / frontend / integration / infra). Push is opt-in. |
 | `/jira:uat <design\|write\|run> [--plan N]` | UAT lifecycle: design test plans from acceptance criteria, write executable scripts, run and triage results with remediation file generation |
 | `/jira:advisor <triage\|plan>` | Advisory gate: spawns `jira-advisor` for independent second opinion on triage recommendations or plan quality before committing |
-| `/jira:to-issues [--plan N] [--dry-run]` | Break sprint plans into independently-grabbable GitHub issues using vertical slices (tracer bullets). AFK/HITL classification. |
+| `/jira:triage [--plan N] [--dry-run]` | Triage sprint plans into independently-grabbable GitHub issues using vertical slices (tracer bullets). AFK/HITL classification. |
 | `/jira:review` | `jira-reviewer` reviews the current branch diff against CONTEXT and PLAN |
 | `/jira:retro` | Opt-in. Generates `RETRO.md` for the active sprint or a date range; rolls workflow lessons into `STATE.md` |
 

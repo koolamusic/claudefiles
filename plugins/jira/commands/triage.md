@@ -1,5 +1,5 @@
 ---
-description: "Break the active sprint's plans into independently-grabbable GitHub issues using vertical slices. Adapted from mattpocock's to-issues pattern. Uses caveman lite."
+description: "Triage the active sprint's plans into independently-grabbable GitHub issues using vertical slices. Adapted from mattpocock's to-issues pattern. Uses caveman lite."
 allowed-tools: Bash, Read, Write, Glob, Grep, AskUserQuestion
 argument-hint: "[--plan N] [--dry-run]"
 ---
