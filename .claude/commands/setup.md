@@ -56,7 +56,21 @@ cp hooks/* <target>/hooks/
 chmod +x <target>/hooks/*
 ```
 
-### Step 6: Smart-merge global CLAUDE.md
+### Step 6: Deploy Neovim plugins
+
+If `install.targets.nvim_plugins` is declared in the manifest, deploy Neovim plugin files:
+
+1. Check if `~/.config/nvim/lua/plugins/` exists (LazyVim standard location)
+2. If the directory doesn't exist, ask the user if they want to create it (they may not use LazyVim)
+3. Copy each `.lua` file from the source directory into `~/.config/nvim/lua/plugins/`
+4. For each file, if the target already exists, back it up with `.backup` suffix first
+
+```bash
+mkdir -p ~/.config/nvim/lua/plugins
+cp dotfiles/nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
+```
+
+### Step 7: Smart-merge global CLAUDE.md
 
 Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge strategy:
 
@@ -72,7 +86,7 @@ Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge s
 
 This ensures user customizations are preserved while new guardrails from upstream are added.
 
-### Step 7: Smart-merge settings.json
+### Step 8: Smart-merge settings.json
 
 If `<target>/settings.json` already exists:
 1. Back it up: `cp <target>/settings.json <target>/settings.json.backup`
@@ -100,7 +114,7 @@ Generate the final `settings.json` from the manifest's `settings` section:
 
 Write the merged settings to `<target>/settings.json`.
 
-### Step 8: Set required environment variables
+### Step 9: Set required environment variables
 
 Read the `env` section from `claudefiles.yaml`. For each variable declared:
 
@@ -116,7 +130,7 @@ Read the `env` section from `claudefiles.yaml`. For each variable declared:
 grep -q 'export USER_TYPE=' ~/.zshrc || echo 'export USER_TYPE="ant"' >> ~/.zshrc
 ```
 
-### Step 9: Install external dependencies
+### Step 10: Install external dependencies
 
 Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
 
@@ -130,13 +144,14 @@ npx get-shit-done-cc@latest --claude --global  # or --local
 
 If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
 
-### Step 10: Print summary
+### Step 11: Print summary
 
 List what was installed:
 - Number of skills copied
 - Number of commands copied
 - Number of sound files copied
 - Number of hooks copied
+- Neovim plugins deployed (list files, note any backups)
 - Settings merged (or created fresh)
 - Global CLAUDE.md deployed (merged, created fresh, or unchanged)
 - Whether a backup was made
