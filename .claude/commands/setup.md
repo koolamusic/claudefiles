@@ -56,21 +56,25 @@ cp hooks/* <target>/hooks/
 chmod +x <target>/hooks/*
 ```
 
-### Step 6: Deploy nvim config (skip if exists)
+### Step 6: Deploy nvim plugin overlays (skip per-file if exists)
 
-Check if `~/.config/nvim/` already exists. The `nvim` target in the manifest has `skip_if_exists: true`, meaning claudefiles should never overwrite an existing nvim configuration.
+Overlay `dotfiles/nvim/lua/plugins/` onto `~/.config/nvim/lua/plugins/`. The `nvim_plugins` target in the manifest has `skip_if_exists: true` at the file level — never overwrite an existing plugin file the user already customized.
 
 ```bash
-if [ -d ~/.config/nvim ]; then
-  echo "nvim config already exists at ~/.config/nvim — skipping"
-else
-  mkdir -p ~/.config/nvim
-  cp -R dotfiles/nvim/* ~/.config/nvim/
-  echo "nvim config installed to ~/.config/nvim"
-fi
+mkdir -p ~/.config/nvim/lua/plugins
+for src in dotfiles/nvim/lua/plugins/*; do
+  name=$(basename "$src")
+  dest="$HOME/.config/nvim/lua/plugins/$name"
+  if [ -e "$dest" ]; then
+    echo "nvim plugin $name already exists — skipping"
+  else
+    cp "$src" "$dest"
+    echo "nvim plugin $name installed"
+  fi
+done
 ```
 
-Record the outcome (skipped or installed) for the summary.
+Record per-file outcomes for the summary.
 
 ### Step 7: Smart-merge global CLAUDE.md
 
