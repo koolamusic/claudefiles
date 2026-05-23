@@ -17,6 +17,43 @@ Before any structural refactor on a file >300 LOC, first remove all dead props, 
 
 ---
 
+## Alignment on Coding and Programming Tasks
+
+Keep what you build matched to what I asked for. When in doubt, surface — don't guess.
+
+### Think Before Coding
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something conflicts with existing code or earlier decisions, flag it before proceeding.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### Simplicity Ceiling
+Minimum code that solves the stated problem. No speculative features, no abstractions for single-use code, no flexibility I didn't ask for, no error handling for impossible scenarios. If 200 lines could be 50, make it 50.
+
+### Surgical Scope
+**Touch only what you must. Clean up only your own mess.**
+
+Every changed line traces to the request. Don't improve adjacent code, don't refactor what isn't broken, don't reformat to taste. Match existing style. Remove imports and variables your changes orphan. Unrelated smells or dead code — mention, don't touch.
+
+### Verifiable Success Criteria
+Translate the request into a check before coding:
+- "Add validation" → tests for invalid inputs, make them pass
+- "Fix the bug" → test that reproduces it, make it pass
+- "Refactor X" → tests pass before and after
+
+For multi-step work, state steps with verifications:
+```
+1. [step] → verify: [check]
+2. [step] → verify: [check]
+```
+
+Weak criteria ("make it work") force clarification loops. Strong criteria let me loop independently.
+
+---
+
 ## Understanding Intent
 
 ### Follow References, Not Descriptions
