@@ -92,6 +92,19 @@ Deploy the global agent directives to `<target>/CLAUDE.md` using a smart-merge s
 
 This ensures user customizations are preserved while new guardrails from upstream are added.
 
+### Step 7.5: Smart-merge keybindings.json
+
+Deploy custom keybindings to `<target>/keybindings.json` from `dotfiles/keybindings.json`. These are **additive overrides** — Claude Code appends them after its built-in defaults, so the file only needs to contain the bindings being changed.
+
+1. Read `dotfiles/keybindings.json` from this repo (the source bindings).
+2. If `<target>/keybindings.json` already exists and is non-empty:
+   a. Back it up: `cp <target>/keybindings.json <target>/keybindings.json.backup`
+   b. Read the existing file.
+   c. **Merge by context**: each entry in `bindings[]` has a `context` (e.g. `Scroll`, `Chat`). For each context block in the source, merge its `bindings` object into the matching target context (key-by-key). On a per-key conflict, **the source (repo) value wins** — keybindings are intentional config the repo is the source of truth for. Preserve any contexts/keys in the target that don't exist in the source (user's own additions).
+3. If `<target>/keybindings.json` doesn't exist or is empty, copy the source as-is.
+
+Always keep the `$schema` and `$docs` top-level fields.
+
 ### Step 8: Smart-merge settings.json
 
 If `<target>/settings.json` already exists:
@@ -178,6 +191,7 @@ List what was installed:
 - Settings merged (or created fresh)
 - Nvim config (installed or skipped — existing config preserved)
 - Global CLAUDE.md deployed (merged, created fresh, or unchanged)
+- Keybindings deployed (merged, created fresh, or unchanged)
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)

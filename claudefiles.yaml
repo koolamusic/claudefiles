@@ -10,6 +10,7 @@ install:
     sounds: sounds/        # copy all files into <target>/sounds/
     hooks: hooks/          # copy all hook scripts into <target>/hooks/
     claude_md: dotfiles/CLAUDE.md  # deploy global CLAUDE.md to <target>/CLAUDE.md
+    keybindings: dotfiles/keybindings.json  # deploy keybindings to <target>/keybindings.json (merge by context)
     nvim_plugins:
       source: dotfiles/nvim/lua/plugins/   # overlay plugin files onto existing nvim config
       dest: ~/.config/nvim/lua/plugins/
