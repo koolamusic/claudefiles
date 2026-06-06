@@ -35,3 +35,10 @@ adoption:
   preview_chars: 200
   backup_on_overwrite: true
   backup_suffix: ".local-backup-{iso}"
+
+# index: per-project knowledge-sources file (markdown, lives in the workspace,
+# synced via the studio repo). The session-start hook prints it to stdout so it
+# lands in session context. Paths/URLs are written inline — no indirection.
+index:
+  enabled: true
+  index_file: _index.md

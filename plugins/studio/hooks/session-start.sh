@@ -4,7 +4,9 @@
 # trigger: SessionStart (startup)
 # description: >
 #   Reads .workspacerc in the project root, validates each symlink resolves
-#   into the workspace slug dir, emits a one-line status to stderr, always exits 0.
+#   into the workspace slug dir, emits a one-line status to stderr. If the
+#   workspace has an _index.md (knowledge sources), prints it to stdout so it
+#   lands in session context. Always exits 0.
 # input: none (runs at session start)
 # exit_codes:
 #   0: always
@@ -41,34 +43,40 @@ SYMLINKS=$(jq -r '.symlinks // [] | .[]' "$WORKSPACERC" 2>/dev/null)
 # symlinks (no drift reported). Re-run /studio:setup to populate the field.
 if [[ -z "$SYMLINKS" ]]; then
   echo "[studio] workspace ok: $WORKSPACE (no symlinks declared in .workspacerc)" >&2
-  exit 0
+else
+  MISSING=0
+  DRIFT=0
+
+  while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    link_path="$PROJECT_ROOT/$name"
+    if [[ ! -L "$link_path" ]]; then
+      MISSING=$((MISSING + 1))
+    else
+      target=$(readlink "$link_path")
+      # Expand relative targets against project root for comparison
+      case "$target" in
+        /*) resolved="$target" ;;
+        *) resolved="$PROJECT_ROOT/$target" ;;
+      esac
+      if [[ "$resolved" != "$WORKSPACE"* ]]; then
+        DRIFT=$((DRIFT + 1))
+      fi
+    fi
+  done <<< "$SYMLINKS"
+
+  if [[ "$MISSING" -eq 0 && "$DRIFT" -eq 0 ]]; then
+    echo "[studio] workspace ok: $WORKSPACE" >&2
+  else
+    echo "[studio] workspace drift: missing=$MISSING drift=$DRIFT (workspace=$WORKSPACE)" >&2
+  fi
 fi
 
-MISSING=0
-DRIFT=0
-
-while IFS= read -r name; do
-  [[ -z "$name" ]] && continue
-  link_path="$PROJECT_ROOT/$name"
-  if [[ ! -L "$link_path" ]]; then
-    MISSING=$((MISSING + 1))
-  else
-    target=$(readlink "$link_path")
-    # Expand relative targets against project root for comparison
-    case "$target" in
-      /*) resolved="$target" ;;
-      *) resolved="$PROJECT_ROOT/$target" ;;
-    esac
-    if [[ "$resolved" != "$WORKSPACE"* ]]; then
-      DRIFT=$((DRIFT + 1))
-    fi
-  fi
-done <<< "$SYMLINKS"
-
-if [[ "$MISSING" -eq 0 && "$DRIFT" -eq 0 ]]; then
-  echo "[studio] workspace ok: $WORKSPACE" >&2
-else
-  echo "[studio] workspace drift: missing=$MISSING drift=$DRIFT (workspace=$WORKSPACE)" >&2
+# Knowledge index: stdout from a SessionStart hook is added to session context,
+# so emitting the file is all the "integration" needed. Claude resolves and
+# validates the listed paths on demand — no parsing here.
+if [[ -f "$WORKSPACE/_index.md" ]]; then
+  cat "$WORKSPACE/_index.md"
 fi
 
 exit 0

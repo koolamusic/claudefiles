@@ -15,6 +15,8 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
    - `gitignore.marker_end` (the end marker string)
    - `gitignore.entries` (list of entries managed inside the block)
    - `hooks.SessionStart` (list of hook entries to wire)
+   - `index.enabled` (whether to initialize the knowledge-sources index — skip step 9 if false)
+   - `index.index_file` (filename of the per-project knowledge-sources file, e.g. `_index.md`)
 
    Every value below that looks like a literal (e.g. `.jira`, `# >>> studio (managed) >>>`) is only a running example showing what the parsed values will resolve to — the command's decision source is the parsed YAML, not inline literals.
 
@@ -42,7 +44,9 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
 8. **Install session-start hook into workspace.** Copy `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` to `~/.studio/$SLUG/hooks/session-start.sh` (overwrite unconditionally — the plugin ships the canonical version) and `chmod +x` the destination. This keeps the workspace self-contained so the hook keeps working even when the plugin is unavailable.
 
-9. **Sync the managed `.gitignore` block** (inline logic — no external helper script):
+9. **Initialize knowledge-sources index.** Skip if `index.enabled` is false. Target is `~/.studio/$SLUG/$index.index_file`. If the target **does not exist**, copy `${CLAUDE_PLUGIN_ROOT}/templates/_index.md` to it. If it **already exists**, leave it untouched — this file is user-edited content; `/studio:setup` must never overwrite it. The file is not symlinked into the project root; the session-start hook prints it to stdout at session start, which is how it reaches Claude's context.
+
+10. **Sync the managed `.gitignore` block** (inline logic — no external helper script):
 
    1. Read `$PROJECT_ROOT/.gitignore` into memory. If the file does not exist, treat its current content as empty string.
    2. Let `MARKER_START = gitignore.marker_start` and `MARKER_END = gitignore.marker_end` (from the parsed studio.yaml in step 1 — not hardcoded).
@@ -56,7 +60,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
       - **Malformed — only one marker present, or `MARKER_END` appears before `MARKER_START`, or either marker appears more than once:** STOP immediately and report the malformed state to the user. Do not guess — the `.gitignore` has diverged from studio's expectations and needs manual repair.
    5. Write the resulting content back to `$PROJECT_ROOT/.gitignore`.
 
-10. **Write `.workspacerc`.** Write a JSON breadcrumb to `$PROJECT_ROOT/.workspacerc` with the following shape, pretty-printed (2-space indent) and ending in a trailing newline:
+11. **Write `.workspacerc`.** Write a JSON breadcrumb to `$PROJECT_ROOT/.workspacerc` with the following shape, pretty-printed (2-space indent) and ending in a trailing newline:
 
     ```json
     {
@@ -68,16 +72,16 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
     where `<slug>` is the actual slug resolved in step 3, and the `symlinks` array lists **exactly the symlinks that were actually created at the project root** (the subset of studio.yaml's `symlinks:` keys that this project uses). For `/studio:setup`, that's the full set from studio.yaml since setup creates all declared symlinks. For partial adoption (some symlinks omitted by choice), include only the ones actually written. The session-start hook reads this field to know what drift to check for.
 
-    `.workspacerc` is **machine-local** — it lives in the project root but is gitignored via the managed block from step 9 (different machines may store the workspace at different absolute paths, so committing it would leak a machine-specific value). Do not `git add` it.
+    `.workspacerc` is **machine-local** — it lives in the project root but is gitignored via the managed block from step 10 (different machines may store the workspace at different absolute paths, so committing it would leak a machine-specific value). Do not `git add` it.
 
-11. **Wire hook into project settings.** Read `$PROJECT_ROOT/.claude/settings.json`. If the directory or file does not exist, create `$PROJECT_ROOT/.claude/` and initialize `settings.json` with `{}`. For each entry in the parsed `hooks.SessionStart` list:
+12. **Wire hook into project settings.** Read `$PROJECT_ROOT/.claude/settings.json`. If the directory or file does not exist, create `$PROJECT_ROOT/.claude/` and initialize `settings.json` with `{}`. For each entry in the parsed `hooks.SessionStart` list:
     - Take the entry's `command` string and replace the literal token `${WORKSPACE}` with the absolute, `~`-expanded path `$HOME/.studio/$SLUG`.
     - Ensure `settings.hooks.SessionStart` exists (create as an empty array if missing), then merge the entry (with the substituted command) into it.
     - Deduplicate by command string — if an entry with the same resolved command already exists in `settings.hooks.SessionStart`, do not append a second copy. This preserves idempotency across re-runs.
 
     Write the result back using stable JSON formatting (2-space indent, trailing newline).
 
-12. **Commit in the project repo.** Stage `.gitignore`, and stage `.claude/settings.json` as well if it was created or modified by step 11. Do **NOT** `git add .workspacerc` — it is intentionally gitignored via the managed block in step 9 and must remain machine-local. Then:
+13. **Commit in the project repo.** Stage `.gitignore`, and stage `.claude/settings.json` as well if it was created or modified by step 12. Do **NOT** `git add .workspacerc` — it is intentionally gitignored via the managed block in step 10 and must remain machine-local. Then:
 
     ```bash
     git commit -m "chore: initialize studio workspace ($SLUG)"
@@ -85,7 +89,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
     If there is nothing staged (fully idempotent re-run with no drift), skip the commit and note it in the report. Never `git push`.
 
-13. **Commit in the `~/.studio` repo.** Change into `~/.studio`, stage the entire `$SLUG/` subtree, and commit:
+14. **Commit in the `~/.studio` repo.** Change into `~/.studio`, stage the entire `$SLUG/` subtree, and commit:
 
     ```bash
     cd ~/.studio
@@ -95,14 +99,15 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
     If the working tree has nothing to commit (idempotent re-run with no workspace-side drift), skip the commit and note it in the report. Never `git push` — the studio repo is pushed manually by the user.
 
-14. **Report.** Print a short summary:
+15. **Report.** Print a short summary:
     - slug (`$SLUG`)
     - workspace path (`~/.studio/$SLUG`)
     - number of symlinks created (vs. already-correct)
     - gitignore action: `created` | `updated (block replaced)` | `appended (block added)` | `unchanged`
+    - index file: `_index.md` written | already-present | disabled
     - whether `.workspacerc` was written or already matched
     - whether commits were created in the project repo and the studio repo (or were no-ops)
-    - next step hint: "Run `/studio:sync` to re-apply the managed gitignore block after future studio.yaml updates."
+    - next step hint: "Edit `~/.studio/$SLUG/_index.md` to list this project's knowledge sources; run `/studio:sync` to re-apply the managed gitignore block after future studio.yaml updates."
 
 ## Hard rules
 
