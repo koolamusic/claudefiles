@@ -4,9 +4,10 @@
 # trigger: SessionStart (startup)
 # description: >
 #   Reads .workspacerc in the project root, validates each symlink resolves
-#   into the workspace slug dir, emits a one-line status to stderr. If the
-#   workspace has an _index.md (knowledge sources), prints it to stdout so it
-#   lands in session context. Always exits 0.
+#   into the workspace slug dir, emits a one-line status to stderr. Prints the
+#   workspace's _index.md (knowledge sources) and _index.local.md (machine-
+#   local overrides, gitignored) to stdout so they land in session context.
+#   Always exits 0.
 # input: none (runs at session start)
 # exit_codes:
 #   0: always
@@ -72,11 +73,10 @@ else
   fi
 fi
 
-# Knowledge index: stdout from a SessionStart hook is added to session context,
-# so emitting the file is all the "integration" needed. Claude resolves and
-# validates the listed paths on demand — no parsing here.
-if [[ -f "$WORKSPACE/_index.md" ]]; then
-  cat "$WORKSPACE/_index.md"
-fi
+# Knowledge index → session context. _index.md is synced via the studio repo;
+# _index.local.md is this machine's overlay (gitignored there, self-headed).
+for f in "$WORKSPACE/_index.md" "$WORKSPACE/_index.local.md"; do
+  if [[ -f "$f" ]]; then cat "$f"; fi
+done
 
 exit 0

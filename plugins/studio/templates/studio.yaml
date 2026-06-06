@@ -39,6 +39,7 @@ adoption:
 # index: per-project knowledge-sources file (markdown, lives in the workspace,
 # synced via the studio repo). The session-start hook prints it to stdout so it
 # lands in session context. Paths/URLs are written inline — no indirection.
+# Filenames are fixed conventions (like .workspacerc): _index.md, with
+# machine-local overrides in _index.local.md — the hook hardcodes both.
 index:
   enabled: true
-  index_file: _index.md

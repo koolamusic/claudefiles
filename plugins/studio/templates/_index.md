@@ -5,6 +5,9 @@ This file is injected into session context at startup. List real paths and
 URLs with a short note on what each is for. Edit freely; paths that don't
 exist on this machine are fine to leave noted as such.
 
+Machine-specific overrides: `_index.local.md` beside this file (gitignored,
+injected after this one — begin it with `## Local overrides (this machine)`).
+
 <!-- Examples:
 
 ## Obsidian

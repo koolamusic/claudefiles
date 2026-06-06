@@ -16,7 +16,6 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
    - `gitignore.entries` (list of entries managed inside the block)
    - `hooks.SessionStart` (list of hook entries to wire)
    - `index.enabled` (whether to initialize the knowledge-sources index — skip step 9 if false)
-   - `index.index_file` (filename of the per-project knowledge-sources file, e.g. `_index.md`)
 
    Every value below that looks like a literal (e.g. `.jira`, `# >>> studio (managed) >>>`) is only a running example showing what the parsed values will resolve to — the command's decision source is the parsed YAML, not inline literals.
 
@@ -44,7 +43,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
 8. **Install session-start hook into workspace.** Copy `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` to `~/.studio/$SLUG/hooks/session-start.sh` (overwrite unconditionally — the plugin ships the canonical version) and `chmod +x` the destination. This keeps the workspace self-contained so the hook keeps working even when the plugin is unavailable.
 
-9. **Initialize knowledge-sources index.** Skip if `index.enabled` is false. Target is `~/.studio/$SLUG/$index.index_file`. If the target **does not exist**, copy `${CLAUDE_PLUGIN_ROOT}/templates/_index.md` to it. If it **already exists**, leave it untouched — this file is user-edited content; `/studio:setup` must never overwrite it. The file is not symlinked into the project root; the session-start hook prints it to stdout at session start, which is how it reaches Claude's context.
+9. **Initialize knowledge-sources index.** Skip if `index.enabled` is false. Target is `~/.studio/$SLUG/_index.md` (the filename is a fixed convention hardcoded in the hook, like `.workspacerc` — not a studio.yaml value). If the target **does not exist**, copy `${CLAUDE_PLUGIN_ROOT}/templates/_index.md` to it. If it **already exists**, leave it untouched — this file is user-edited content; `/studio:setup` must never overwrite it. The file is not symlinked into the project root; the session-start hook prints it to stdout at session start, which is how it reaches Claude's context. (Machine-local overrides live in `_index.local.md` beside it — written by sandbox bootstrap or by hand, never by setup; gitignored via the studio repo's own committed `.gitignore`.)
 
 10. **Sync the managed `.gitignore` block** (inline logic — no external helper script):
 
