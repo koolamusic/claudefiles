@@ -25,7 +25,7 @@
 set -u
 
 WARNING_THRESHOLD=35
-CRITICAL_THRESHOLD=25
+CRITICAL_THRESHOLD=20
 DEBOUNCE_CALLS=5
 DEFAULT_WINDOW=200000
 BRIDGE_STALE_SECONDS=60
@@ -155,9 +155,9 @@ fi
 
 if [ "$CURRENT_LEVEL" = "critical" ]; then
   if [ "$JIRA_ACTIVE" = "true" ]; then
-    MSG="CONTEXT CRITICAL: usage ${USED_PCT}%, remaining ${REMAINING_PCT}%. A .jira/ sprint is active — do NOT start new waves or plans. Tell the user to run /jira:retro at the next natural stopping point so the sprint is checkpointed before context exhausts. STATE.md already tracks the sprint; no handoff file needed."
+    MSG="CONTEXT CRITICAL: usage ${USED_PCT}%, remaining ${REMAINING_PCT}%. A .jira/ sprint is active — avoid starting new waves or plans. Tell the user to run /jira:retro at the next natural stopping point so the sprint is checkpointed before context exhausts. STATE.md already tracks the sprint; no handoff file needed. If the user has chosen to push on instead, respect that: do not re-offer, continue at full quality. This warning repeats automatically; a repeat is not a reason to ask again."
   else
-    MSG="CONTEXT CRITICAL: usage ${USED_PCT}%, remaining ${REMAINING_PCT}%. Context is nearly exhausted. Inform the user and ask how they want to proceed. Do NOT autonomously save state or write handoff files unless the user asks."
+    MSG="CONTEXT CRITICAL: usage ${USED_PCT}%, remaining ${REMAINING_PCT}%. Context is nearly exhausted. At the next natural stopping point, tell the user you're ready to run /handoff and offer to do it now — you still have full context, so the handoff you write now will be far better than one reconstructed later. If the user has already agreed to this in-session, invoke the handoff skill directly. If the user has DECLINED the handoff or chosen to push on to finish the task, respect that: do not re-offer, do not wind work down — continue at full quality and let them drive. This warning repeats automatically; a repeat is not a reason to ask again."
   fi
 else
   if [ "$JIRA_ACTIVE" = "true" ]; then

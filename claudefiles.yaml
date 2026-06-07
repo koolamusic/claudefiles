@@ -77,11 +77,12 @@ experimental:
   features:
     - name: context-monitor
       description: >
-        PostToolUse hook that reads the session transcript and warns the
-        agent when context usage crosses thresholds (35% remaining =
-        WARNING, 25% = CRITICAL). Debounces to avoid spam. Jira-aware:
-        suggests /jira:retro at CRITICAL when a .jira/ sprint is active.
-        ~130 lines of bash; requires jq. File: hooks/context-monitor.sh.
+        PostToolUse hook that warns the agent when context usage crosses
+        thresholds (35% remaining = WARNING, 20% = CRITICAL). Reads exact
+        window metrics from the statusline bridge file, falling back to
+        transcript math. Debounces to avoid spam. CRITICAL drives a
+        handoff: suggests /jira:retro when a .jira/ sprint is active,
+        /handoff otherwise. Requires jq. File: hooks/context-monitor.sh.
       settings:
         hooks:
           PostToolUse:
