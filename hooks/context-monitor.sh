@@ -3,9 +3,13 @@
 # name: context-monitor
 # trigger: PostToolUse (.*)
 # description: >
-#   Warns the agent when context usage is high. Reads the last assistant
-#   message's `usage` block from the session's transcript_path, computes
-#   used/remaining percentage against the context window, and emits
+#   Warns the agent when context usage is high. Preferred source: the
+#   statusline bridge file ($TMPDIR/claude-ctxwin-<session_id>.json, written
+#   by statusline-command.sh) — the statusline is the only script Claude
+#   Code hands the session's real context_window, so this is exact for both
+#   200k and 1M sessions. Fallback: compute from the last assistant
+#   message's `usage` block in transcript_path against an inferred window
+#   (env override → `[1m]` in model id → 200k default). Emits
 #   additionalContext on thresholds. Debounces to avoid spam. Jira-aware:
 #   different CRITICAL/WARNING copy when .jira/STATE.md exists — suggests
 #   /jira:retro at a natural stopping point so the sprint gets checkpointed.
@@ -24,6 +28,7 @@ WARNING_THRESHOLD=35
 CRITICAL_THRESHOLD=25
 DEBOUNCE_CALLS=5
 DEFAULT_WINDOW=200000
+BRIDGE_STALE_SECONDS=60
 
 # Read stdin
 INPUT=$(cat 2>/dev/null || true)
@@ -42,33 +47,68 @@ case "$SESSION_ID" in
   */*|*\\*|*..*) exit 0 ;;
 esac
 
-# Pull the last assistant message's usage block. JSONL; one line per event.
-LAST_USAGE=$(jq -c 'select(.type == "assistant") | .message.usage // empty' \
-  "$TRANSCRIPT_PATH" 2>/dev/null | tail -1)
-[ -n "$LAST_USAGE" ] || exit 0
+TMP="${TMPDIR:-/tmp}"
+TMP="${TMP%/}"
 
-# Token counts (cache read + cache create + input — output tokens don't consume context window)
-INPUT_TOKENS=$(echo "$LAST_USAGE"  | jq -r '.input_tokens // 0'                 2>/dev/null || echo 0)
-CACHE_READ=$(echo "$LAST_USAGE"    | jq -r '.cache_read_input_tokens // 0'      2>/dev/null || echo 0)
-CACHE_CREATE=$(echo "$LAST_USAGE"  | jq -r '.cache_creation_input_tokens // 0'  2>/dev/null || echo 0)
-TOTAL=$(( INPUT_TOKENS + CACHE_READ + CACHE_CREATE ))
-[ "$TOTAL" -gt 0 ] || exit 0
-
-# Window: env override, else default. If used already exceeds 200k, bump to 1M (heuristic for [1m] sessions).
-WINDOW="${CLAUDE_CONTEXT_WINDOW:-$DEFAULT_WINDOW}"
-if [ "$TOTAL" -gt "$DEFAULT_WINDOW" ] && [ "$WINDOW" -le "$DEFAULT_WINDOW" ]; then
-  WINDOW=1000000
+# Preferred source: the statusline bridge file. Claude Code hands the
+# statusline (and only the statusline) the session's real context_window —
+# including the exact window size and pre-computed percentages — and
+# statusline-command.sh caches it per-session. Authoritative for both
+# 200k and 1M sessions; no window guessing needed.
+USED_PCT=""
+REMAINING_PCT=""
+BRIDGE="$TMP/claude-ctxwin-${SESSION_ID}.json"
+if [ -f "$BRIDGE" ]; then
+  BRIDGE_TS=$(jq -r '.ts // 0' "$BRIDGE" 2>/dev/null || echo 0)
+  NOW=$(date +%s)
+  if [ $(( NOW - BRIDGE_TS )) -le "$BRIDGE_STALE_SECONDS" ]; then
+    REMAINING_PCT=$(jq -r '.context_window.remaining_percentage // empty' "$BRIDGE" 2>/dev/null || true)
+    USED_PCT=$(jq -r '.context_window.used_percentage // empty' "$BRIDGE" 2>/dev/null || true)
+    REMAINING_PCT=${REMAINING_PCT%%.*}  # floats → ints for shell arithmetic
+    USED_PCT=${USED_PCT%%.*}
+  fi
 fi
 
-USED_PCT=$(( (TOTAL * 100) / WINDOW ))
-REMAINING_PCT=$(( 100 - USED_PCT ))
+# Fallback: compute from the transcript when the bridge is missing or stale
+# (fresh session before first statusline render, custom statusline without
+# the bridge write, etc.).
+if [ -z "$REMAINING_PCT" ] || [ -z "$USED_PCT" ]; then
+  # Pull the last assistant message's usage block + model id. JSONL; one line per event.
+  LAST_MSG=$(jq -c 'select(.type == "assistant") | select(.message.usage != null) | {u: .message.usage, m: (.message.model // "")}' \
+    "$TRANSCRIPT_PATH" 2>/dev/null | tail -1)
+  [ -n "$LAST_MSG" ] || exit 0
+  LAST_USAGE=$(echo "$LAST_MSG" | jq -c '.u' 2>/dev/null || true)
+  MODEL=$(echo "$LAST_MSG" | jq -r '.m' 2>/dev/null || true)
+  [ -n "$LAST_USAGE" ] || exit 0
+
+  # Token counts (cache read + cache create + input — output tokens don't consume context window)
+  INPUT_TOKENS=$(echo "$LAST_USAGE"  | jq -r '.input_tokens // 0'                 2>/dev/null || echo 0)
+  CACHE_READ=$(echo "$LAST_USAGE"    | jq -r '.cache_read_input_tokens // 0'      2>/dev/null || echo 0)
+  CACHE_CREATE=$(echo "$LAST_USAGE"  | jq -r '.cache_creation_input_tokens // 0'  2>/dev/null || echo 0)
+  TOTAL=$(( INPUT_TOKENS + CACHE_READ + CACHE_CREATE ))
+  [ "$TOTAL" -gt 0 ] || exit 0
+
+  # Window: env override wins; else detect 1M sessions from the model id (e.g. claude-opus-4-8[1m]);
+  # else default. Last-resort: if used already exceeds the assumed window, bump to 1M.
+  WINDOW="${CLAUDE_CONTEXT_WINDOW:-}"
+  if [ -z "$WINDOW" ]; then
+    case "$MODEL" in
+      *"[1m]"*) WINDOW=1000000 ;;
+      *)        WINDOW=$DEFAULT_WINDOW ;;
+    esac
+    if [ "$TOTAL" -gt "$WINDOW" ]; then
+      WINDOW=1000000
+    fi
+  fi
+
+  USED_PCT=$(( (TOTAL * 100) / WINDOW ))
+  REMAINING_PCT=$(( 100 - USED_PCT ))
+fi
 
 # Above warning threshold — nothing to do
 [ "$REMAINING_PCT" -le "$WARNING_THRESHOLD" ] || exit 0
 
 # Debounce state
-TMP="${TMPDIR:-/tmp}"
-TMP="${TMP%/}"
 WARN_PATH="$TMP/claude-ctx-${SESSION_ID}-warned.json"
 
 PREV_CALLS=0
