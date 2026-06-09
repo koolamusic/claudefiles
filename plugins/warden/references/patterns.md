@@ -109,3 +109,83 @@ source "$WARDEN_LIB/env.sh"
 warden_load_env
 # All vars from core/.env and .env are now exported
 ```
+
+## Observations versus assertions
+
+Not everything that matters is pass/fail. Boot times, queue depths,
+response sizes, version strings: useful trend data that should not gate
+the suite. Use `warden_observe`.
+
+```bash
+START=$(date +%s%N)
+curl -sf "$SERVER_URL/health" >/dev/null
+END=$(date +%s%N)
+ELAPSED_MS=$(( (END - START) / 1000000 ))
+
+warden_observe boot.health "${ELAPSED_MS}ms" "cold start"
+# Then assert separately
+[[ $ELAPSED_MS -lt 500 ]] && warden_pass boot.health.fast || warden_fail boot.health.fast "took ${ELAPSED_MS}ms"
+```
+
+Observations land in `.warden/runs/observations.jsonl`, append-only.
+`/warden:report` reads them to show trends.
+
+## Cross-plan state via warden_save_state
+
+Plan A creates a resource and saves its ID. Plan B reads it.
+
+```bash
+# In plans/01-seed/01-create-wiki.md:
+WIKI_ID=$(warden_api_post "$SERVER_URL/wikis" '{"type":"log","name":"x"}' | jq -r '.id')
+warden_save_state WIKI_ID "$WIKI_ID"
+warden_pass create-wiki
+
+# In plans/01-seed/02-add-fragments.md (later in the run):
+WIKI_ID=$(warden_get_state WIKI_ID)
+[[ -n "$WIKI_ID" ]] || warden_halt "WIKI_ID missing; plan 01-create-wiki must run first"
+warden_api_post "$SERVER_URL/wikis/$WIKI_ID/fragments" '...'
+```
+
+State persists in `.warden/runs/state` across runs. To reset between
+full-suite runs, delete the file.
+
+## Halt on fatal prerequisite
+
+When a prerequisite for subsequent assertions has broken so badly that
+running them would mislead, `warden_halt`. The runner records the
+failure, dumps the tail of any captured server log it can find, and
+exits non-zero.
+
+```bash
+warden_wait_pg 127.0.0.1 5432 postgres 10 || warden_halt "postgres unreachable, aborting suite"
+```
+
+Distinct from a single failed assertion. Use sparingly: only when the
+whole run loses meaning, not when one feature is broken.
+
+## Trap-based cleanup
+
+Plans that mint temp files or hold resources should clean up.
+
+```bash
+COOKIE_JAR=$(mktemp /tmp/warden-cookies-XXXXXX.txt)
+trap 'rm -f "$COOKIE_JAR"' EXIT
+```
+
+For most plans, `warden_signin` (cookie-session strategy) handles its
+own cookie jar lifecycle. Use this pattern for project-specific temp
+state outside the auth library.
+
+## Idempotent naming
+
+Plans that create real records in the DB will collide on re-run unless
+names are unique. Suffix with a timestamp or run id.
+
+```bash
+TS=$(date +%s)
+NAME="warden-test-wiki-$TS"
+# or, to scope to the current run:
+NAME="warden-test-wiki-$WARDEN_RUN_ID"
+```
+
+Pair with cleanup or a destructive reset between runs.
