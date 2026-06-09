@@ -1,116 +1,76 @@
 ---
-description: "Generate a warden plan from a spec, GitHub issue, or interactive description. Self-bootstraps `.warden/` from plugin templates on first invocation, including project-aware auth strategy detection and config seeding."
+description: "Design a warden acceptance plan through guided spec gathering. Detects existing planning artifacts (GSD, jira sprint, GitHub issue) and reads them as the spec source, or walks the user through adaptive Q&A. Self-bootstraps `.warden/` on first invocation."
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
-argument-hint: "<spec | --issue N | --from-plan path>"
+argument-hint: "[<spec> | --issue N | --from-plan path | --source <auto|interactive|...>]"
 ---
 
-Design a warden acceptance plan for the current project. Two modes depending on whether `.warden/` already exists.
+Design a warden acceptance plan for the current project. The command's job is to converge on a clear, testable spec, then write a plan that verifies it. Spec gathering is the load-bearing step; do not skip past it.
 
 ## Parse the input
 
 `$ARGUMENTS`:
-- A free-text spec describing what to verify ("the auth flow signs a user in and the dashboard renders"). Default mode.
-- `--issue N` to pull the spec from GitHub issue N (uses `gh issue view N --json title,body`).
-- `--from-plan <path>` to model the new plan on an existing one.
+- A free-text spec describing what to verify. Used as a starting point for the converge loop.
+- `--issue N`: pull the spec from GitHub issue N (`gh issue view N --json title,body`). Counts as a planning artifact.
+- `--from-plan <path>`: model the new plan on an existing one. Counts as a planning artifact.
+- `--source auto`: skip the source-picker and use whichever planning artifact ranks first (see "Detect planning artifacts" below).
+- `--source interactive`: skip the source-picker and force interactive Q&A.
 
-If empty, ask the user what feature or behaviour they want to verify.
+Empty `$ARGUMENTS` is fine. Spec gathering will proceed from interactive Q&A.
 
-## Detect state
+## Mode: detect
 
 ```bash
 WARDEN_DIR=".warden"
-if [ -d "$WARDEN_DIR" ]; then
-  MODE=plan
-else
-  MODE=first-run
-fi
+if [ -d "$WARDEN_DIR" ]; then MODE=plan; else MODE=first-run; fi
 ```
 
-## Mode: first-run
+## Stage 1: bootstrap (first-run only)
 
-`.warden/` does not exist. Detect the project's shape, confirm decisions with the user, copy templates from the plugin into the project, then write the first plan.
+`.warden/` does not exist. Run the bootstrap once. The first plan is written in Stage 3 below.
 
-### 1. Detect tech stack and auth strategy
+### 1.1 Detect tech stack and auth strategy
 
-Inspect what's in the repo. Report findings to the user before asking anything.
+Inspect (use Read for known paths, Glob/Grep tight scope; no whole-file reads):
 
-**Read these files if present** (use Read, no need to run shell tools for known paths):
-- `package.json` (check `dependencies` + `devDependencies` for auth libs)
+- `package.json` deps (`better-auth`, `next-auth`, `lucia`, `passport`, `jose`, `jsonwebtoken`, `@clerk/`, `@auth0/`)
 - `pyproject.toml`, `requirements.txt`, `Pipfile`
 - `Cargo.toml`, `go.mod`
 - `.env`, `.env.example`, `core/.env`, `core/.env.example`, `backend/.env.example`
-- `openapi.json`, `openapi.yaml` (look for `securitySchemes`)
+- `openapi.json` / `openapi.yaml` `securitySchemes`
 
-**Grep targets** (Glob/Grep; keep scope tight, don't read whole files):
-- Auth lib imports and middleware: `better-auth`, `next-auth`, `lucia`, `passport`, `jose`, `jsonwebtoken`, `@clerk/`, `@auth0/`, `Authorization: Bearer`, `Set-Cookie`, `cookies.set`, `res.cookie`, `@UseGuards`, `@requires_auth`, `[Authorize]`, `X-API-Key`, `process.env.API_KEY`
+Grep targets:
+- `Set-Cookie`, `cookies.set`, `res.cookie` → cookie-session
+- `Authorization: Bearer`, `verify_jwt`, `jwt.sign` → jwt-bearer
+- `X-API-Key`, `process.env.API_KEY` → api-key
+- `@UseGuards`, `@requires_auth`, `[Authorize]` → role-based; multi-identity is likely needed
 - Auth-shaped env vars: `BETTER_AUTH_SECRET`, `NEXTAUTH_SECRET`, `JWT_SECRET`, `JWT_PRIVATE_KEY`, `SESSION_SECRET`, `COOKIE_DOMAIN`, `AUTH_API_KEY`
 
-**Map findings to a strategy hypothesis:**
+Hypothesize strategy. If unambiguous, set silently; only confirm when uncertain.
 
-| Signal | Strategy |
-|---|---|
-| `better-auth`, `next-auth`, `lucia`, `Set-Cookie`, `BETTER_AUTH_SECRET` | `cookie-session` |
-| `jsonwebtoken`, `jose`, `Authorization: Bearer`, `JWT_SECRET`, `JWT_PRIVATE_KEY` | `jwt-bearer` |
-| HttpOnly cookies containing a JWT, `JWT_COOKIE_NAME` | `jwt-cookie` |
-| `X-API-Key`, `process.env.API_KEY` only (no signin endpoint) | `api-key` |
-| `@clerk/`, `@auth0/`, `next-auth` providers (Google, GitHub) | `custom` |
-| Nothing matches | ask the user |
+### 1.2 Confirm uncertain decisions
 
-### 2. Detect services, ports, env files
+Use `AskUserQuestion` with up to 4 questions in one block. Skip any question whose answer is unambiguous from detection. Recommended option always first.
 
-- Read `package.json` scripts for `PORT=` patterns
-- Read `docker-compose.yml` / `compose.yaml` services + ports
-- Note any workspace split (`core/` vs `wiki/`, `backend/` vs `frontend/`)
-- Identify dotenv layering: `core/.env` plus `.env` is common in monorepos
+Candidates:
+- Auth strategy (only if hypothesis is uncertain)
+- Service URLs (only if multiple hosts detected and ports ambiguous)
+- Signin URL (only if multiple paths plausible)
+- Multi-identity slots (only if admin/user fixtures or role columns detected)
 
-### 3. Confirm decisions interactively
-
-Use `AskUserQuestion` with one block of up to 4 questions, recommended option first. Skip any question where detection is unambiguous.
-
-**Question 1 (always ask if hypothesis is unclear):** "Which auth strategy fits this project?"
-- Options listed with the detection rationale on the recommended one (e.g. "cookie-session (detected: BETTER_AUTH_SECRET in core/.env.example and `Set-Cookie` in core/src/routes/auth.ts:42)")
-- header: "Auth"
-
-**Question 2 (if multiple service hosts detected):** "Which URLs should plans assume?"
-- header: "Services"
-- options: detected ports, or "I'll fill them in"
-
-**Question 3 (if signin URL detected but uncertain):** "Sign-in endpoint?"
-- header: "Signin URL"
-- options: detected paths
-
-**Question 4 (if multiple identity hints, admin/user fixtures, role columns):** "Set up multi-identity slots?"
-- header: "Identities"
-- options: "Yes, admin + regular" / "Yes, just admin" / "No, single user"
-
-Take answers and form a config block.
-
-### 4. Bootstrap `.warden/`
-
-Copy the engine templates verbatim. Personalize the config and stub files.
+### 1.3 Copy templates into `.warden/`
 
 ```bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:?CLAUDE_PLUGIN_ROOT not set}"
-
 mkdir -p .warden/lib .warden/plans .warden/fixtures .warden/logs .warden/runs .warden/remediation
-
 cp "$PLUGIN_ROOT/templates/run.sh"          .warden/run.sh
 cp "$PLUGIN_ROOT/templates/lib/"*.sh        .warden/lib/
 cp "$PLUGIN_ROOT/templates/SEQUENCE.md"     .warden/SEQUENCE.md
 cp "$PLUGIN_ROOT/templates/HANDOFF.md"      .warden/HANDOFF.md
 ```
 
-Then write `.warden/warden.config.sh` populating the discovered values. Start from `$PLUGIN_ROOT/templates/warden.config.sh` and edit the relevant lines:
+Then write `.warden/warden.config.sh` populating discovered values: auth strategy, signin URL, origin, env file layering, service URL exports, optional user slots. Use `$PLUGIN_ROOT/templates/warden.config.sh` as the starting structure.
 
-- `WARDEN_AUTH_STRATEGY=` <chosen strategy>
-- `WARDEN_AUTH_SIGNIN_URL=` (only if strategy is cookie-session / jwt-bearer / jwt-cookie)
-- `WARDEN_AUTH_ORIGIN=` (only cookie flows)
-- `ENV_FILES=(...)` reflecting discovered layering
-- Service URL exports (`SERVER_URL`, `WIKI_URL`, etc) under the appropriate comment block
-
-For multi-identity, append `WARDEN_USERS_admin_email=...` lines from the user's input. Do not hardcode passwords; leave placeholders and tell the user to fill them in.
-
-Update `.gitignore` to exclude `.warden/logs/`:
+Update `.gitignore`:
 
 ```bash
 if [ -f .gitignore ] && ! grep -q '^\.warden/logs/' .gitignore; then
@@ -118,79 +78,150 @@ if [ -f .gitignore ] && ! grep -q '^\.warden/logs/' .gitignore; then
 fi
 ```
 
-### 5. Personalize HANDOFF.md
+### 1.4 Personalize HANDOFF.md
 
-Replace the template's placeholder lines with what you detected: actual stack paths, ports, auth strategy, dotenv layering, "What's running" startup commands if you can infer them from package.json scripts.
+Fill in: stack paths, ports, auth strategy, dotenv layering, "What's running" startup commands inferred from package.json scripts. Leave clear placeholders for what you couldn't infer.
 
-Keep it as a starting point; tell the user what was filled in and what still needs editing.
+## Stage 2: converge on a spec
 
-### 6. Write the first plan
+This stage runs in both modes. The goal is a clear, testable spec. Do not write a plan until the spec is concrete enough that you could explain to a contributor exactly what passes and what fails.
 
-Continue to "Mode: plan" using the spec the user originally provided.
+### 2.1 Detect planning-artifact candidates
 
----
+Sources, in priority order:
 
-## Mode: plan
+1. **`--from-plan <path>`** if passed: model on that plan.
+2. **`--issue N`** if passed: that GitHub issue is the source.
+3. **`$ARGUMENTS` free text** if non-empty: starting point for refinement.
+4. **`.jira/sprints/<current>/`** if present: read `.jira/CURRENT`, then read `BRIEF.md`, `CONTEXT.md`, `VERIFICATION.md`, and any `*-PLAN.md` in the active sprint. These already encode acceptance criteria the jira workflow produced.
+5. **`.planning/active/`** if present (GSD): read `SPEC.md`, `PLAN.md`, `RESEARCH.md` from the active phase. GSD discuss-phase output is high-signal.
+6. **`.project/ROADMAP.md`** if present (studio): goals + phase breakdown.
+7. **`.warden/plans/`** existing: surface as "extend an existing plan" candidates.
 
-`.warden/` exists. Write a new plan based on `$ARGUMENTS`.
+For each detected source, record path, title (first heading), and one-line summary.
 
-### 1. Pick the runtime
+### 2.2 Pick the source
 
-From the spec, decide:
+If `--source auto` was passed, use the highest-priority detected source without prompting.
 
-| Spec shape | Runtime |
+If `--source interactive` was passed, skip detection and jump to Q&A.
+
+Otherwise use `AskUserQuestion` to present candidates plus "Interactive Q&A" as the fallback. Frame the recommended choice (highest priority) first. Example header: `Spec source`.
+
+Example shape (single question, omit options that don't apply):
+
+> "Which spec source should warden use?"
+> - "GSD active phase: .planning/active/SPEC.md (Recommended)"
+> - "Jira sprint: .jira/sprints/2026-06-09-publish-fix/CONTEXT.md"
+> - "GitHub issue #408 (you passed --issue 408)"
+> - "Free text you typed: '<first 60 chars>'"
+> - "Interactive Q&A (I'll ask you 2-3 questions)"
+
+### 2.3 Source: planning artifact
+
+Read the chosen artifact. Extract:
+
+- **Subject under test**: what feature, endpoint, page, or behavior.
+- **Acceptance criteria**: explicit pass/fail conditions. Look for Given/When/Then, "must", "should", or numbered acceptance lists.
+- **Prerequisites**: what state must exist (services running, data seeded, identity active).
+- **Identity scope**: anonymous, single authenticated user, multi-role.
+- **Cross-cutting concerns**: auth, persistence, queueing, third-party integrations.
+
+If any of these are missing or ambiguous after reading, ask 1-2 follow-up questions via `AskUserQuestion` to fill the gap. Do not write a plan with unresolved ambiguity.
+
+### 2.4 Source: free text from `$ARGUMENTS`
+
+Use the text as the subject. Ask up to 3 questions to flesh out the rest:
+
+- "What does success look like? (the assertion shape)" with options pulled from runtime fit: HTTP API contract / page renders / database state / mixed.
+- "Identity requirements?" Anonymous / single seeded user / multi-role / not applicable.
+- "Prerequisites the test must seed itself, or expect existing?"
+
+Skip any question whose answer is already clear from the text.
+
+### 2.5 Source: interactive Q&A (no artifact, no input)
+
+Run two rounds at most. Each round uses `AskUserQuestion` with up to 4 questions.
+
+**Round 1 (subject + shape):**
+
+1. "What's the feature or behavior you want warden to verify?" (header: `Subject`, free-text via Other)
+2. "What's the assertion shape?" (header: `Shape`). Options: HTTP API contract, page renders, database state, background job completes, multi-step flow.
+3. "Identity scope?" (header: `Identity`). Options: anonymous, single user, multi-role, not applicable.
+4. "Most likely failure mode you want to catch?" (header: `Failure mode`). Options: regression (was working), new feature edge case, silent error, performance.
+
+**Round 2 (prerequisites + scope boundary), only if needed:**
+
+1. "What state must exist before the test runs?" (header: `Prereqs`). Options: clean DB, seeded fixtures, specific records, services healthy.
+2. "What's the boundary?" (header: `Boundary`). Options: just this feature, includes upstream, end-to-end including third-party.
+
+Stop after round 2. If the spec is still ambiguous, ask the user to type a one-paragraph clarification and proceed with what they wrote.
+
+### 2.6 Record the converged spec
+
+Before writing the plan, paste back a 3-5 line summary of what you're about to build into:
+
+- Subject:
+- Acceptance criteria:
+- Prerequisites:
+- Identity scope:
+- Failure mode being guarded:
+
+This is for the user to sanity-check. If the user objects, loop back to whichever round resolved the wrong answer.
+
+## Stage 3: pick runtime, phase, sequence number
+
+### 3.1 Runtime
+
+| Assertion shape | Runtime |
 |---|---|
-| GET/POST endpoints, JSON shape, response status | `hurl` if response/header assertions are heavy, else `bash` + curl |
-| Page rendering, DOM interaction, navigation, forms | `agent-browser` |
-| Database state, env presence, file checks, process lifecycle | `bash` |
-| Mixed (login + UI + DB check) | `bash` (it can call all the helpers) |
+| HTTP endpoint contract (status, headers, JSON shape) | `hurl` when fixture-heavy, else `bash` + curl via `lib/api.sh` |
+| Page rendering, DOM, navigation, forms | `agent-browser` |
+| DB state, env presence, file presence, process lifecycle | `bash` |
+| Background job processed within time | `bash` (polling) |
+| Mixed (login + UI + DB check) | `bash` (helpers compose) |
 
-When uncertain, use bash. The lib helpers compose.
+When uncertain, bash. The lib helpers compose.
 
-### 2. Pick the phase and the next NN
+### 3.2 Phase + sequence number
 
-Read `.warden/warden.config.sh` for `WARDEN_PHASES`. If a phase suits the spec (auth → matches an `auth` phase; UI → matches a `frontend` phase), place the new plan there. Otherwise place it at the root of `.warden/plans/`.
-
-Find the next sequence number by reading the existing files in the target directory:
+Read `WARDEN_PHASES` from `.warden/warden.config.sh`. If a phase fits the spec (auth → matches an `auth` phase; UI → matches `frontend`), place there. Otherwise root of `.warden/plans/`.
 
 ```bash
 PHASE_DIR=".warden/plans${PHASE:+/$PHASE}"
 NEXT_NN=$(printf "%02d" $(( $(ls "$PHASE_DIR" 2>/dev/null | grep -oE '^[0-9]+' | sort -n | tail -1 || echo 0) + 1 )))
 ```
 
-Slug the spec into kebab-case for the filename (e.g. "auth flow works" → `auth-flow-works`).
+Slug the subject into kebab-case.
 
-### 3. Read the matching template as a style reference
+## Stage 4: write the plan
 
-For the chosen runtime, `Read` one of:
-- `$PLUGIN_ROOT/templates/plan-bash.md`
-- `$PLUGIN_ROOT/templates/plan-hurl.md`
-- `$PLUGIN_ROOT/templates/plan-browser.md`
+`Read` the matching template at `$PLUGIN_ROOT/templates/plan-bash.md`, `plan-hurl.md`, or `plan-browser.md` for style reference. Do not copy verbatim.
 
-Use the structure (headings, prerequisites section, multi-block bash with named steps) and the lib helpers it demonstrates. Do not copy verbatim; produce a fresh plan for the actual spec.
+Required sections in the plan:
 
-### 4. Write the plan
-
-`Write` to `$PHASE_DIR/<NN>-<slug>.md`.
-
-Required sections:
 - `# <NN> - <Title>` heading
-- `## What it proves`
-- `## Prerequisites`
+- `## What it proves` (one paragraph derived from converged spec)
+- `## Prerequisites` (from converged spec)
 - One or more `### Step` headings with bash blocks
 - First bash block starts with `set -uo pipefail` and `source "$WARDEN_LIB/assert.sh"`
-- Every check produces a `warden_pass` or `warden_fail` call (see references/antipatterns.md for the silent-green failure mode)
+- Every check produces a `warden_pass` or `warden_fail` (see `references/antipatterns.md`)
+- For multi-identity scenarios, use `warden_signin_as <slot>` and assert authorization via `warden_api_status_eq`
 
-### 5. Report back
+Write to `$PHASE_DIR/<NN>-<slug>.md`.
+
+## Stage 5: report back
 
 Tell the user:
 - Path written
+- Spec source used (artifact or interactive)
 - Runtime chosen and why
+- Phase placement
 - One-liner to run it: `bash .warden/run.sh <NN>-<slug>`
-- Any prerequisites the user needs to satisfy first (services running, env vars, fixtures)
+- Any prerequisites that need to be satisfied before running
 
 ## Error paths
 
-- `.warden/` exists but is corrupted (missing `run.sh` or `lib/`): tell the user, suggest deleting `.warden/` and re-running for first-run mode. Do not silently overwrite.
-- Detection turns up nothing usable for auth: fall back to asking the user directly, no hypothesis offered.
-- `$ARGUMENTS` empty: ask the user for the spec via AskUserQuestion before doing any work.
+- `.warden/` exists but is corrupted (missing `run.sh` or `lib/`): tell the user, suggest `/warden:doctor` to inspect, do not silently overwrite.
+- Multiple ambiguous spec sources and the user picks one but the artifact is empty or unparseable: surface the issue, offer to fall back to interactive Q&A.
+- User abandons interactive Q&A mid-stream (skips all questions, or cancels): stop and report. Do not write a plan from incomplete spec.
