@@ -3,6 +3,7 @@ symlinks:
   .jira: jira
   .project: project
   .uat: uat
+  .warden: warden
 workspace_dirs:
   - memory
   - memory/archive
@@ -15,6 +16,7 @@ gitignore:
     - .jira
     - .project
     - .uat
+    - .warden
     - .studio
     - .workspacerc
 hooks:
