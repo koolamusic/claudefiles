@@ -41,6 +41,7 @@ settings:
     - feature-dev@claude-plugins-official
     - ux@claudefiles
     - jira@claudefiles                    # primary sprint workflow — see plugins/jira/README.md
+    - warden@claudefiles                  # acceptance test playbook, see plugins/warden/README.md
   extraKnownMarketplaces:
     claudefiles:
       source:
