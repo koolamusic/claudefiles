@@ -10,7 +10,13 @@ For legacy projects that pre-exist with scattered workflow state AND may have th
 
 ## Preflight
 
-This section is READ-ONLY. No filesystem or git index mutations occur here. Every branch decision that affects later sections is recorded as a named flag or set (`PROJECT_ROOT`, `SLUG`, `TRACKED_STATE`, `SKIP_SYMLINK_CREATION`).
+This section is READ-ONLY. No filesystem or git index mutations occur here. Every branch decision that affects later sections is recorded as a named flag or set (`SYMLINK_NAMES`, `PROJECT_ROOT`, `SLUG`, `TRACKED_STATE`, `SKIP_SYMLINK_CREATION`).
+
+0. **Locate config.** Read `${CLAUDE_PLUGIN_ROOT}/templates/studio.yaml`. Parse the following fields and use them by name throughout. Do not bake any of these values into the command logic:
+   - `symlinks` (map of `link_name` → `target_name`). The **set of `link_name` keys** is what subsequent steps refer to as `SYMLINK_NAMES`: the paths at project root to detect, untrack, and symlink.
+   - `gitignore.marker_start` and `gitignore.marker_end` (consumed by the managed-block re-sync in "## Setup (shared)").
+
+   Every literal that appears below as `.jira`, `.project`, `.uat`, `.warden` is illustrative; the command's decision source is the parsed YAML, not the inline examples. A future contributor adding a fifth managed directory in `studio.yaml` should not need to edit this command.
 
 1. **Verify project context.** Run `git rev-parse --show-toplevel`. If it fails (not inside a git repo), stop with: "Not a git repository — run `git init` first. Studio workspaces are keyed to a git repo's basename." On success, record the stdout as `PROJECT_ROOT` and use it for every subsequent path.
 
@@ -19,7 +25,7 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
    - Else `SLUG=$(basename "$PROJECT_ROOT")`.
    - If `~/.studio/$SLUG/` already exists AND contains a `.setup-owner` marker that names a DIFFERENT project, offer a collision suffix (`$SLUG-2`, then `$SLUG-3`, ...) via `AskUserQuestion`. Do not auto-overwrite.
 
-3. **Detect tracked state.** For each path in the literal list `[.jira, .project, .uat, .warden]`, run:
+3. **Detect tracked state.** For each path in `SYMLINK_NAMES` (the parsed `link_name` set from step 0), run:
    ```bash
    git ls-files --cached --error-unmatch -- "$path" 2>/dev/null
    ```
@@ -39,8 +45,8 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
 6. **Summarise findings.** Print a concise pre-flight report to the user listing:
    - `PROJECT_ROOT` and `SLUG`.
    - `TRACKED_STATE` — the set of paths with tracked entries, or "(none)".
-   - For each of `.jira`, `.project`, `.uat`, `.warden`: whether the path exists on disk as (a) a real directory, (b) a symlink (and where it points), or (c) absent.
-   - Symlink status at project root (which of the four link names already exist, and whether they already point into `~/.studio/$SLUG/`).
+   - For each path in `SYMLINK_NAMES`: whether the path exists on disk as (a) a real directory, (b) a symlink (and where it points), or (c) absent.
+   - Symlink status at project root (which of `SYMLINK_NAMES` already exist, and whether they already point into `~/.studio/$SLUG/`).
    - `SKIP_SYMLINK_CREATION` flag value.
    This is still READ-ONLY. Ask for confirmation before proceeding to any mutating section.
 
@@ -48,7 +54,7 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
 
 1. **Skip if empty.** If `TRACKED_STATE` (from Preflight step 3) is empty, print "No tracked workflow state detected — migrate is equivalent to setup for this project" and jump straight to "## Setup (shared with /studio:setup)".
 
-2. **For each path in `TRACKED_STATE`** (in the order `[.jira, .project, .uat, .warden]`), decide dir-vs-file and untrack:
+2. **For each path in `TRACKED_STATE`** (in the parsed order of `SYMLINK_NAMES`), decide dir-vs-file and untrack:
    - Probe: if the working-tree path exists as a directory (`test -d "$path"`) OR `git ls-files --cached -- "$path/" 2>/dev/null` returns any entries below the path, treat it as a directory and use the recursive form:
      ```bash
      git rm --cached -r "$path"
