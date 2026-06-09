@@ -1,0 +1,111 @@
+# Patterns
+
+Recipes that show up across plans. Lift these verbatim.
+
+## Login and reuse
+
+One login at the top of a frontend plan, every subsequent assertion
+inherits the session. Saves 5+ seconds per assertion.
+
+```bash
+source "$WARDEN_LIB/browser.sh"
+warden_browser_login "$WIKI_URL/login" "$INITIAL_USERNAME" "$INITIAL_PASSWORD"
+warden_pass login
+
+warden_browser_open "$WIKI_URL/dashboard" ".dashboard-root" 8000
+warden_browser_open "$WIKI_URL/settings" ".settings-page" 8000
+# ... session persists for the whole plan
+```
+
+## Wait-until-ready
+
+Plans should not assume the stack is ready when they start. Robin's
+backing services (Postgres, Redis) take a second or two after `pnpm dev`.
+
+```bash
+source "$WARDEN_LIB/wait.sh"
+warden_wait_pg 127.0.0.1 5432 postgres 30 || { warden_fail pg-ready; exit 0; }
+warden_wait_redis 127.0.0.1 6379 30      || { warden_fail redis-ready; exit 0; }
+warden_wait_http "$SERVER_URL/health" 30 || { warden_fail http-ready; exit 0; }
+```
+
+`exit 0` after a fatal prerequisite is intentional: keep the plan from
+running pointless assertions, but do not crash the runner. The `warden_fail`
+call already recorded the failure.
+
+## Clean slate between runs
+
+For destructive UAT suites that need a known-empty starting state, run
+a reset before the suite. Most teams do this manually rather than
+per-run, but if you need it:
+
+```bash
+psql -h 127.0.0.1 -U postgres -d <db> -f .warden/lib/wipe.sql
+```
+
+Keep the SQL in `lib/wipe.sql` so it can be version-controlled and
+reviewed separately from plans.
+
+## MCP-driven seeding
+
+When you need rich content (wikis, fragments, structured data) before
+running assertions, drive the MCP layer from a bash plan. Faster than
+agent-browser, more realistic than direct DB inserts.
+
+```bash
+npx claude-code-mcp-cli call \
+  --server robin-mcp \
+  --tool create_wiki \
+  --args '{"type":"log","name":"<wiki name>"}' \
+  >/dev/null
+```
+
+Then poll the DB for the row appearing:
+
+```bash
+warden_wait_pg 127.0.0.1 5432 postgres 5
+for _ in $(seq 1 30); do
+  count=$(psql -h 127.0.0.1 -U postgres -d <db> -tA -c \
+    "SELECT count(*) FROM wikis WHERE name='<name>';")
+  [[ "$count" -eq 1 ]] && break
+  sleep 1
+done
+```
+
+## Multi-block scripts sharing variables
+
+Plans can have multiple ```bash fences. The runner concatenates them
+before execution, so variables flow across blocks.
+
+```markdown
+### Step 1
+\`\`\`bash
+USER_ID=$(curl -sf "$SERVER_URL/users/me" | jq -r '.id')
+\`\`\`
+
+### Step 2
+\`\`\`bash
+# USER_ID is visible here
+curl -sf "$SERVER_URL/users/$USER_ID/wikis" > /tmp/wikis.json
+\`\`\`
+```
+
+Useful for narrative plans where each section corresponds to a logical
+step the reader should follow.
+
+## Layered env loading
+
+Robin loads env from `core/.env` first, then `.env`. First definition
+wins per variable.
+
+```bash
+# In warden.config.sh:
+ENV_FILES=(core/.env .env)
+```
+
+```bash
+# In a plan:
+source "$WARDEN_LIB/env.sh"
+warden_load_env
+# All vars from core/.env and .env are now exported
+```
