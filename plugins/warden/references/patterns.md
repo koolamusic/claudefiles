@@ -47,6 +47,36 @@ psql -h 127.0.0.1 -U postgres -d <db> -f .warden/lib/wipe.sql
 Keep the SQL in `lib/wipe.sql` so it can be version-controlled and
 reviewed separately from plans.
 
+## Calling MCP servers
+
+MCP servers speak JSON-RPC 2.0, which is shape-compatible with bash + curl + jq but has different envelope rules from REST. Auth varies: OAuth bearer token, static bearer, query-string token, or none.
+
+```bash
+# Bearer-authed MCP server
+MCP_URL="${MCP_URL:-http://localhost:8080/mcp}"
+MCP_TOKEN="${MCP_TOKEN:-}"
+
+mcp_call() {
+  local method="$1" params="$2"
+  local headers=(-H "Content-Type: application/json")
+  [[ -n "$MCP_TOKEN" ]] && headers+=(-H "Authorization: Bearer $MCP_TOKEN")
+  curl -s -X POST "${headers[@]}" \
+    -d "{\"jsonrpc\":\"2.0\",\"method\":\"$method\",\"params\":$params,\"id\":1}" \
+    "$MCP_URL"
+}
+
+# Discover tools
+mcp_call tools/list '{}' | jq -r '.result.tools[].name' > /tmp/mcp-tools
+
+# Call a tool
+result=$(mcp_call tools/call '{"name":"echo","arguments":{"text":"hi"}}')
+echo "$result" | jq -e '.error == null' >/dev/null \
+  && warden_pass mcp-echo "tool call ok" \
+  || warden_fail mcp-echo "$(echo "$result" | jq -r '.error.message')"
+```
+
+For OAuth-bearer servers, refresh via the token endpoint just like a normal OAuth flow; the bearer header shape is identical. For query-string-token servers (`?token=...`), embed the token in `MCP_URL` directly. Treat the JSON-RPC envelope plus a single `mcp_call` helper as the warden interaction shape; no dedicated lib helper is shipped because the envelope is simple enough that one local function per plan is clearer than a fifth library.
+
 ## API-driven seeding
 
 When you need rich content before running assertions, seed via the API
