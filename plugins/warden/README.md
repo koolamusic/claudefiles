@@ -13,6 +13,7 @@ A portable acceptance-test playbook for Claude Code. Project-coupled, sprint-agn
 | `/warden:triage [run-id]` | Classify failures from a run, write per-failure remediation files. Detects regressions vs new failures via the JSONL audit trail. |
 | `/warden:report [run-id]` | WhatsApp-casual stakeholder summary. Lead with shipped vs regressed. |
 | `/warden:resume` | Brief a fresh session from `.warden/HANDOFF.md`. |
+| `/warden:doctor` | Health check for `.warden/`: engine drift, lib gaps, missing runtimes, audit-trail integrity, gitignore, plan format. |
 
 ## `.warden/` directory
 
@@ -121,7 +122,7 @@ The jira plugin's `/jira:uat design` writes plans into `.warden/plans/` directly
 - **Plugin (`~/.claude/plugins/warden/`)**: generator only (commands, templates, references). Updated via the marketplace.
 - **Project (`<repo>/.warden/`)**: the engine, the libs, the plans, the audit trail. Owned by the repo; survives plugin uninstall; works without the plugin installed.
 
-To upgrade an existing `.warden/` against an improved plugin template, re-copy `templates/run.sh` and `templates/lib/*.sh` manually (or wait for `/warden:upgrade-runner` if it lands in a later version).
+To compare an existing `.warden/` against the current plugin templates, run `/warden:doctor`. It reports any drift in `run.sh` and `lib/*.sh` as advisory; ask Claude to walk through the diff and pick what to sync. Project-owned engine drift is expected and supported, so there is no automatic upgrade path.
 
 ## References
 
