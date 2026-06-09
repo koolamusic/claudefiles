@@ -31,8 +31,9 @@ WARDEN_PHASES=()
 ENV_FILES=(.env)
 PREFLIGHT=()
 RUNTIME_CHECKS=()
+DESTRUCTIVE=0
 
-# Source project config (sets WARDEN_PHASES, ENV_FILES, PREFLIGHT, RUNTIME_CHECKS, service URLs)
+# Source project config (sets WARDEN_PHASES, ENV_FILES, PREFLIGHT, RUNTIME_CHECKS, service URLs, DESTRUCTIVE)
 if [[ -f "$WARDEN_DIR/warden.config.sh" ]]; then
   # shellcheck disable=SC1091
   source "$WARDEN_DIR/warden.config.sh"
@@ -46,9 +47,12 @@ WARDEN_RUN_ID="$(date +%Y%m%dT%H%M%S)"
 STRICT=0
 
 ARGS=()
+FORCE_DESTRUCTIVE=0
 for arg in "$@"; do
   case "$arg" in
     --strict) STRICT=1 ;;
+    --destructive|--force) FORCE_DESTRUCTIVE=1 ;;
+    --yes) FORCE_DESTRUCTIVE=1 ;;
     *) ARGS+=("$arg") ;;
   esac
 done
@@ -127,8 +131,26 @@ echo "======================================================================"
 echo "  warden run $WARDEN_RUN_ID"
 echo "  plans: ${#PLAN_FILES[@]}"
 [[ $STRICT -eq 1 ]] && echo "  mode: strict"
+[[ $DESTRUCTIVE -eq 1 ]] && echo "  mode: DESTRUCTIVE (this suite mutates state)"
 echo "======================================================================"
 echo ""
+
+# Destructive confirmation: 5s countdown unless --destructive/--yes passed
+if [[ $DESTRUCTIVE -eq 1 && $FORCE_DESTRUCTIVE -eq 0 ]]; then
+  if [[ -t 0 ]]; then
+    echo "  WARNING: this suite is marked DESTRUCTIVE (mutates DB or files)"
+    echo "  Starting in 5 seconds. Ctrl-C to abort, or re-run with --destructive to skip this delay."
+    for i in 5 4 3 2 1; do
+      echo -n "  $i..."
+      sleep 1
+    done
+    echo " go"
+    echo ""
+  else
+    echo "warden: refusing destructive run in non-interactive shell without --destructive" >&2
+    exit 2
+  fi
+fi
 
 TOTAL_PASS=0
 TOTAL_FAIL=0
@@ -174,7 +196,7 @@ run_plan() {
   export WARDEN_LOG="$log"
   export WARDEN_PLAN_NAME="$name"
 
-  bash -c "$script" > "$log" 2>&1
+  ( cd "$PROJECT_ROOT" && bash -c "$script" ) > "$log" 2>&1
   local exit_code=$?
 
   local plan_pass plan_fail plan_skip
