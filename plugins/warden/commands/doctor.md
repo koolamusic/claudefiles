@@ -57,6 +57,17 @@ Source `.warden/warden.config.sh` in a subshell. Verify:
 - Parse `.warden/SEQUENCE.md` for `## Phase N: <slug>` headers. Compare the slugs against `WARDEN_PHASES`. Drift between them → advisory (SEQUENCE.md is prose for humans; WARDEN_PHASES is executable). Suggest reconciling them.
 - Plans at root of `.warden/plans/*.md` always run first per the runner; surface this if it surprises (e.g. a stray plan at root when the user expected phase-only execution).
 
+### Engine dependencies
+
+Warden's runner and lib rely on a small set of host tools. Even if no plan exercises them yet, missing engine deps silently produce broken artifacts (e.g. `audit.sh` skips JSONL emission when `jq` is missing, so `/warden:triage` then reports "no failures" against an empty audit trail).
+
+Check, in order:
+
+- `jq` present (`command -v jq`). Required by `lib/audit.sh` for every assertion. Missing → error.
+- `curl` present. Required by `lib/auth.sh`, `lib/api.sh`, and any HTTP wait. Missing → error.
+- `bash` major version ≥ 4 (`bash --version`). Lower → error; arrays, `[[ ]]` semantics, and `${!var}` indirection all break on bash 3 (the default `/bin/bash` on macOS without Homebrew). The runner advertises `#!/usr/bin/env bash`, so brewing bash and putting it first on PATH is the fix.
+- macOS and Linux are the primary targets. On other platforms (Windows Git Bash, BusyBox), flag as advisory: untested.
+
 ### Runtime availability
 
 For each runtime that plans actually use, check the tool is on PATH.

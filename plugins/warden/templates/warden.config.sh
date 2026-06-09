@@ -72,6 +72,16 @@ WARDEN_AUTH_STRATEGY=cookie-session
 #   WARDEN_USERS_regular_email="user@example.com"
 #   WARDEN_USERS_regular_password="userpass"
 
+# Signin payload field names. Defaults match better-auth and most Node /
+# Go JSON APIs. Override when the backend expects different keys
+# (e.g. WARDEN_AUTH_USERNAME_FIELD=username for some Go projects).
+# WARDEN_AUTH_USERNAME_FIELD=email
+# WARDEN_AUTH_PASSWORD_FIELD=password
+
+# Server log path consulted by warden_halt when dumping context after a
+# fatal failure. Falls back to /tmp/server.log and .warden/runs/server.log.
+# WARDEN_SERVER_LOG=/tmp/<your-service>-server.log
+
 # Service URLs. Export so plans inherit defaults.
 #   export SERVER_URL="${SERVER_URL:-http://localhost:3000}"
-#   export WIKI_URL="${WIKI_URL:-http://localhost:8080}"
+#   export FRONTEND_URL="${FRONTEND_URL:-http://localhost:8080}"

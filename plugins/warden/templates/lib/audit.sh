@@ -116,13 +116,18 @@ warden_get_state() {
 # Fatal failure: print reason, dump tail of any captured server log if
 # present, exit non-zero. Use when the prerequisite for subsequent
 # assertions has broken so badly that running them would mislead.
+#
+# Looks for the server log in (in order): $WARDEN_SERVER_LOG (set in
+# warden.config.sh), /tmp/server.log, .warden/runs/server.log. Skips
+# silently if none exist.
 warden_halt() {
   _warden_audit_init
   local reason="$1"
   echo "  HALT $reason"
   echo "WARDEN_RESULT fail _halt $reason"
-  for candidate in /tmp/robin-core.log /tmp/server.log "$WARDEN_DIR/runs/server.log"; do
-    if [[ -f "$candidate" ]]; then
+  local candidates=("${WARDEN_SERVER_LOG:-}" /tmp/server.log "$WARDEN_DIR/runs/server.log")
+  for candidate in "${candidates[@]}"; do
+    if [[ -n "$candidate" && -f "$candidate" ]]; then
       echo "--- last 50 lines of $candidate ---"
       tail -50 "$candidate"
       break

@@ -2,7 +2,7 @@
 
 A portable acceptance-test playbook for Claude Code. Project-coupled, sprint-agnostic. Three runtimes (bash, hurl, agent-browser), five commands, one project directory (`.warden/`) that travels with the repo and works without the plugin installed.
 
-> Built from the working `.uat/` setup of withrobinhq/robinwiki. The shapes that proved load-bearing in eight months of daily UAT work are codified here as templates plus libraries plus commands.
+> Supported scope: Node.js and Go backends, Postgres for database assertions, cookie-session (better-auth shape) or JWT bearer auth. Frontend testing via agent-browser. Designed for macOS and Linux development machines.
 
 ## Commands
 

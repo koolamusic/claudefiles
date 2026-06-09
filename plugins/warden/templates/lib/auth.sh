@@ -102,6 +102,13 @@ warden_authed_curl() {
 # Per-strategy implementations
 # -----------------------------------------------------------------------
 
+_warden_signin_body() {
+  local user="$1" pass="$2"
+  local u_field="${WARDEN_AUTH_USERNAME_FIELD:-email}"
+  local p_field="${WARDEN_AUTH_PASSWORD_FIELD:-password}"
+  printf '{"%s":"%s","%s":"%s"}' "$u_field" "$user" "$p_field" "$pass"
+}
+
 _warden_signin_cookie() {
   local user="$1" pass="$2"
   : "${WARDEN_AUTH_SIGNIN_URL:?WARDEN_AUTH_SIGNIN_URL not set in warden.config.sh}"
@@ -112,7 +119,7 @@ _warden_signin_cookie() {
   fi
   curl -s -c "$WARDEN_AUTH_COOKIE_JAR" -X POST \
     "${headers[@]}" \
-    -d "{\"email\":\"$user\",\"password\":\"$pass\"}" \
+    -d "$(_warden_signin_body "$user" "$pass")" \
     "$WARDEN_AUTH_SIGNIN_URL" \
     >/dev/null
 }
@@ -123,7 +130,7 @@ _warden_signin_jwt() {
   local response
   response=$(curl -s \
     -H "Content-Type: application/json" \
-    -d "{\"email\":\"$user\",\"password\":\"$pass\"}" \
+    -d "$(_warden_signin_body "$user" "$pass")" \
     "$WARDEN_AUTH_SIGNIN_URL")
   WARDEN_AUTH_TOKEN=$(echo "$response" | jq -r "${WARDEN_AUTH_TOKEN_PATH:-.token}")
   if [[ -z "$WARDEN_AUTH_TOKEN" || "$WARDEN_AUTH_TOKEN" == "null" ]]; then

@@ -6,6 +6,8 @@ argument-hint: "[<spec> | --issue N | --from-plan path | --source <auto|interact
 
 Design a warden acceptance plan for the current project. The command's job is to converge on a clear, testable spec, then write a plan that verifies it. Spec gathering is the load-bearing step; do not skip past it.
 
+**Supported scope.** Node.js and Go backends with cookie-session (better-auth shape) or JWT bearer auth; Postgres for database assertions; agent-browser for UI; macOS and Linux dev machines. Other stacks may work via the `custom` auth strategy and skipping unused libs, but are not first-class.
+
 ## Parse the input
 
 `$ARGUMENTS`:
@@ -35,7 +37,7 @@ Inspect (use Read for known paths, Glob/Grep tight scope; no whole-file reads):
 - `package.json` deps (`better-auth`, `next-auth`, `lucia`, `passport`, `jose`, `jsonwebtoken`, `@clerk/`, `@auth0/`)
 - `pyproject.toml`, `requirements.txt`, `Pipfile`
 - `Cargo.toml`, `go.mod`
-- `.env`, `.env.example`, `core/.env`, `core/.env.example`, `backend/.env.example`
+- `.env`, `.env.example`, `backend/.env`, `backend/.env.example`, `<service>/.env*` for any workspace package
 - `openapi.json` / `openapi.yaml` `securitySchemes`
 
 Grep targets:
@@ -47,6 +49,8 @@ Grep targets:
 
 Hypothesize strategy. If unambiguous, set silently; only confirm when uncertain.
 
+**Env file discovery.** Glob for `.env*` files at project root and one level deep inside detected workspace packages. Record what's found. Common layouts: root-only (`.env`), monorepo (`backend/.env` plus root `.env`), per-service (`services/<name>/.env`). The default `ENV_FILES=(.env)` only fits root-only projects; never assume it without checking. Note `warden_load_env` uses plain shell `source` semantics (later files in the array overwrite earlier values per variable), so list them in the order the project expects them merged.
+
 ### 1.2 Confirm uncertain decisions
 
 Use `AskUserQuestion` with up to 4 questions in one block. Skip any question whose answer is unambiguous from detection. Recommended option always first.
@@ -55,6 +59,7 @@ Candidates:
 - Auth strategy (only if hypothesis is uncertain)
 - Service URLs (only if multiple hosts detected and ports ambiguous)
 - Signin URL (only if multiple paths plausible)
+- Env files (whenever multiple `.env*` candidates exist; do not silently default to `(.env)`)
 - Multi-identity slots (only if admin/user fixtures or role columns detected)
 
 ### 1.3 Copy templates into `.warden/`

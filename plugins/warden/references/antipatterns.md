@@ -12,8 +12,8 @@ echo '{"rows": 5}' | warden_pass mocked
 ```
 
 The point of UAT is to catch the integration. Mocks pass when prod
-breaks. Robin learned this when a mocked auth flow shipped and the
-real cookie path was broken.
+breaks. Teams routinely ship mocked auth flows that work in tests and
+fall over on the real cookie path in production.
 
 Right: hit the real stack. If running against prod is risky, run
 against a local stack with the same code.
@@ -26,9 +26,10 @@ Wrong:
 curl http://localhost:3000/health
 ```
 
-Different machines, sandbox vs personal vs CI, will use different ports
-and hosts. Robin's Railway deploy uses public hostnames that the local
-dev env does not.
+Different machines (sandbox vs personal vs CI vs hosted deploys) use
+different ports and hosts. A literal `http://localhost:3000` will silently
+hit the wrong target the moment the suite runs anywhere other than the
+machine where it was authored.
 
 Right: source `warden_load_env` and use config vars.
 
@@ -134,9 +135,9 @@ echo "============================================"
 ```
 
 Warden does not care; it counts `WARDEN_RESULT` lines, not summary
-parsing. But the older Robin runner did parse summaries, and decorative
-borders broke it. Avoid leaving brittle artifacts behind for the next
-contributor.
+parsing. Older runners that parsed summaries broke when decorative
+borders pushed the pass/fail line off the last visible row. Avoid
+leaving brittle artifacts behind for the next contributor.
 
 Right: let the runner emit its own summary at the bottom. If you want
 an in-plan summary for readability, call `warden_summary` from

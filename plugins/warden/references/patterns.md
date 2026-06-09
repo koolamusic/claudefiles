@@ -19,8 +19,9 @@ warden_browser_open "$WIKI_URL/settings" ".settings-page" 8000
 
 ## Wait-until-ready
 
-Plans should not assume the stack is ready when they start. Robin's
-backing services (Postgres, Redis) take a second or two after `pnpm dev`.
+Plans should not assume the stack is ready when they start. Backing
+services (Postgres, Redis) often take a second or two to accept
+connections after the dev server starts.
 
 ```bash
 source "$WARDEN_LIB/wait.sh"
@@ -46,30 +47,27 @@ psql -h 127.0.0.1 -U postgres -d <db> -f .warden/lib/wipe.sql
 Keep the SQL in `lib/wipe.sql` so it can be version-controlled and
 reviewed separately from plans.
 
-## MCP-driven seeding
+## API-driven seeding
 
-When you need rich content (wikis, fragments, structured data) before
-running assertions, drive the MCP layer from a bash plan. Faster than
-agent-browser, more realistic than direct DB inserts.
+When you need rich content before running assertions, seed via the API
+rather than direct DB inserts. Faster than agent-browser, more realistic
+than fixtures bypassing application logic.
 
 ```bash
-npx claude-code-mcp-cli call \
-  --server robin-mcp \
-  --tool create_wiki \
-  --args '{"type":"log","name":"<wiki name>"}' \
-  >/dev/null
+warden_signin "$INITIAL_USERNAME" "$INITIAL_PASSWORD"
+warden_api_post "$SERVER_URL/widgets" '{"name":"smoke-widget","kind":"alpha"}' >/dev/null
 ```
 
-Then poll the DB for the row appearing:
+For async pipelines, poll the database (or a status endpoint) until the
+record materializes:
 
 ```bash
-warden_wait_pg 127.0.0.1 5432 postgres 5
 for _ in $(seq 1 30); do
-  count=$(psql -h 127.0.0.1 -U postgres -d <db> -tA -c \
-    "SELECT count(*) FROM wikis WHERE name='<name>';")
+  count=$(warden_psql_count widgets "name='smoke-widget'")
   [[ "$count" -eq 1 ]] && break
   sleep 1
 done
+[[ "$count" -eq 1 ]] && warden_pass widget-seeded || warden_fail widget-seeded "not visible after 30s"
 ```
 
 ## Multi-block scripts sharing variables
@@ -95,19 +93,21 @@ step the reader should follow.
 
 ## Layered env loading
 
-Robin loads env from `core/.env` first, then `.env`. First definition
-wins per variable.
+A monorepo with `backend/` and `frontend/` services often has env files
+per service plus a shared root `.env`. List them in the order shell
+should source them (later files overwrite earlier values per variable;
+this is plain shell `source` semantics).
 
 ```bash
 # In warden.config.sh:
-ENV_FILES=(core/.env .env)
+ENV_FILES=(backend/.env .env)
 ```
 
 ```bash
 # In a plan:
 source "$WARDEN_LIB/env.sh"
 warden_load_env
-# All vars from core/.env and .env are now exported
+# All vars from backend/.env and .env are now exported
 ```
 
 ## Observations versus assertions
