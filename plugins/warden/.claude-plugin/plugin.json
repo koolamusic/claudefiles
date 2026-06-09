@@ -1,0 +1,7 @@
+{
+  "name": "warden",
+  "description": "Acceptance test playbook. Three runtimes (bash, hurl, agent-browser), three modes (design, run, triage). Project-coupled, sprint-agnostic. Composes with jira:uat.",
+  "author": {
+    "name": "koolamusic"
+  }
+}
