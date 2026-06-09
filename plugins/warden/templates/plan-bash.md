@@ -23,6 +23,7 @@ executing).
 ### Health check
 
 ```bash
+set -uo pipefail
 source "$WARDEN_LIB/assert.sh"
 source "$WARDEN_LIB/env.sh"
 source "$WARDEN_LIB/wait.sh"
