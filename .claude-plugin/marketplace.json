@@ -26,7 +26,7 @@
     },
     {
       "name": "studio",
-      "description": "Per-project workflow workspace. Hosts .project/.uat/.jira state in a private ~/.studio/ repo via symlinks. No consuming-tool modifications.",
+      "description": "Per-project workflow workspace. Hosts .project/.uat/.jira/.warden state in a private ~/.studio/ repo via symlinks. No consuming-tool modifications.",
       "author": {
         "name": "koolamusic"
       },
