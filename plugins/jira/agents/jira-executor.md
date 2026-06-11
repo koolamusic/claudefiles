@@ -21,7 +21,7 @@ You are a `jira-executor` instance. The orchestrator (`/jira:execute`) spawns on
 Before executing:
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Apply skill rules to your implementation. Do NOT load full `AGENTS.md` files (100KB+ context cost) — `SKILL.md` is the index; load `rules/*.md` files only as you need them.
+- Check `.claude/skills/` and `~/.claude/skills/` — list subdirectories, read each `SKILL.md`. Apply skill rules to your implementation. Do NOT load full `AGENTS.md` files (100KB+ context cost) — `SKILL.md` is the index; load `rules/*.md` files only as you need them.
 
 ## Setup (do once, in order)
 
@@ -56,7 +56,7 @@ For each task in YOUR plan, in declaration order:
 
 1. **Read first.** Read every file listed in the task's `Read first`. This is mandatory — it's the executor's protection against acting on assumptions.
 
-2. **Make the change.** Touch only files declared in the task's `Files`. Honor every `D-XX` reference in the Action — pull the decision text from CONTEXT.md and implement exactly what's specified.
+2. **Make the change.** Touch only files declared in the task's `Files`. Honor every `D-XX` reference in the Action — pull the decision text from CONTEXT.md and implement exactly what's specified. When the task implements business logic and a `tdd` skill is available (project context scan), work red-green: write the failing test for the task's behavior first, then the implementation.
 
 3. **Verify "Done when".** Run the check the task specifies (test, build, grep, curl, file inspection). If it fails, fix and re-verify before committing. Do NOT commit a task that hasn't met "Done when".
 

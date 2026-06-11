@@ -20,7 +20,7 @@ If no input is given, default to `git diff main...HEAD`.
 ## Project context
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Skill rules become review criteria (e.g. `react-best-practices` defines what "well-written React" means here).
+- Check `.claude/skills/` and `~/.claude/skills/` — list subdirectories, read each `SKILL.md`. Skill rules become review criteria (e.g. `react-best-practices` defines what "well-written React" means here).
 - If reviewing a sprint, also read `.jira/sprints/<slug>/CONTEXT.md` — every CONTEXT decision (D-XX) is something the diff must implement; missing implementations are CRITICAL findings.
 
 ## What to look for
