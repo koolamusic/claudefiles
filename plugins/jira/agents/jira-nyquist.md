@@ -27,7 +27,7 @@ The Nyquist principle (sampling): if the goal has N implied behaviors, you need 
 Before testing, scan for project-specific rules:
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Apply skill rules (e.g. a skill may dictate test framework, coverage minimum, file patterns). Do NOT load full `AGENTS.md` files (100KB+ context cost) — `SKILL.md` is the index.
+- Check `.claude/skills/` and `~/.claude/skills/` — list subdirectories, read each `SKILL.md`. Apply skill rules (e.g. a skill may dictate test framework, coverage minimum, file patterns). Do NOT load full `AGENTS.md` files (100KB+ context cost) — `SKILL.md` is the index.
 
 ## Process
 
@@ -63,7 +63,7 @@ For each criterion, classify into one of three buckets:
 | `covered` | A test exists and passes against the executor's changes | Record evidence; no further action |
 | `test_fails` | A test exists but fails | Record; do NOT fix the implementation. After classifying all criteria, ESCALATE if any are in this state. |
 | `gap` (no_test_file) | No test exists | Fill the gap (next step) |
-| `not_testable_in_code` | E.g. "documented in README" | Verify the artifact exists by inspection; mark `covered-by-inspection` with the path |
+| `not_testable_in_code` | E.g. "documented in README" | Verify the artifact exists by inspection; mark `covered-by-inspection` with evidence type `source-audit` or `artifact` plus the path |
 
 To classify, search existing tests (in this sprint's commits + the broader test suite) using `Grep` on the criterion's keywords.
 
@@ -102,8 +102,11 @@ Run the full test suite using the framework runner. Capture pass/fail count.
 ```markdown
 ## Nyquist results
 
-- [x] <criterion> — covered by `<test path>` (existing)
-- [x] <criterion> — covered by `<test path>` (added in commit <sha>)
+Each closed criterion names its evidence type — `command` for a run test, `source-audit` or `artifact` for inspection.
+
+- [x] <criterion> — command: `<test path>` (existing)
+- [x] <criterion> — command: `<test path>` (added in commit <sha>)
+- [x] <criterion> — source-audit: `<path>` (covered-by-inspection)
 - [ ] <criterion> — gap; ESCALATED — <reason>
 
 Test suite: <N passed> / <M total>

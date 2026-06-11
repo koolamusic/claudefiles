@@ -21,7 +21,7 @@ Read all of these before returning anything.
 ## Project context
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Verify plans honor skill rules.
+- Check `.claude/skills/` and `~/.claude/skills/` — list subdirectories, read each `SKILL.md`. Verify plans honor skill rules.
 
 ## Goal-backward audit
 
@@ -29,7 +29,7 @@ For each item, return PASS / FAIL with one sentence of evidence.
 
 ### Plan-set checks
 
-1. **Goal clarity.** Is the sprint goal a single, testable sentence? FAIL if multi-clause, vague, or aspirational.
+1. **Goal measurability.** Is the sprint goal a single sentence with a verification surface — decomposable into ≥ 2 observable outcomes, each provable by a command, source audit, or named artifact? FAIL if multi-clause, vague, or aspirational ("improve X", "clean up Y", "make Z better" with no threshold). A goal that fails here will be ruled unverifiable by `jira-verifier` after execution; catching it now is the cheapest point.
 
 2. **Goal coverage.** Do all plans, taken together, achieve the goal? Walk the tasks; imagine the system after every commit lands; check whether the post-state matches the goal.
 

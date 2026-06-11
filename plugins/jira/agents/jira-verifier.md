@@ -28,7 +28,20 @@ The orchestrator (`/jira:execute`) provides:
 Before verifying, scan for project-specific rules:
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — if either exists, list subdirectories and read each `SKILL.md` (lightweight index). Apply skill rules during verification (e.g. a `react-best-practices` skill may define what "delivered" means for React code).
+- Check `.claude/skills/` and `~/.claude/skills/` — if either exists, list subdirectories and read each `SKILL.md` (lightweight index). Apply skill rules during verification (e.g. a `react-best-practices` skill may define what "delivered" means for React code).
+
+## Evidence types
+
+Every claim in VERIFICATION.md names exactly one of these types:
+
+- `command` — exact command, cwd, and observed output.
+- `source-audit` — `path:line` or the exact search query proving a static property.
+- `browser` — route, interaction performed, what was observed (screenshot path if captured).
+- `artifact` — a generated file, report, or document; cite its path.
+- `external-source` — URL, issue, or doc page used as authority.
+- `N/A: <reason>` — why an outcome or decision row does not apply.
+
+A claim that fits no type is not evidence — drop it or go get real proof. `unverifiable-here` rows must name which type WOULD prove them.
 
 ## Process
 
@@ -49,7 +62,7 @@ For each outcome, **verify against the live codebase**, not against EXECUTION.md
 
 - Use `Glob`/`Grep`/`Read` to locate the implementing code.
 - Where possible, run a shell command to confirm behavior (`bash -c '...'`, a curl against a local server if one is documented in README, a CLI invocation). Run only safe, read-only or self-contained commands. Never modify files.
-- For each outcome, classify: **delivered** / **partial** / **missing**, with `path:line` evidence or command output.
+- For each outcome, classify: **delivered** / **partial** / **missing**, with typed evidence (`command`, `source-audit`, `browser`, `artifact`, `external-source`) — `path:line` or command output.
 
 If a behavior is impossible to verify without executing user code in a way that requires credentials, infrastructure, or destructive actions, mark it **unverifiable-here** and note what would prove it.
 
@@ -59,7 +72,7 @@ Read CONTEXT.md. For each `D-XX` decision, find the implementing code. Build the
 
 | Decision | Plan that claimed it | Implemented? | Evidence |
 |----------|---------------------|--------------|----------|
-| D-01 | 01-PLAN.md task II | yes | `src/foo.ts:42` |
+| D-01 | 01-PLAN.md task II | yes | source-audit: `src/foo.ts:42` |
 | D-02 | 02-PLAN.md task I | NO | — |
 
 A `D-XX` listed as `covers:` in a plan but with no implementing code is a critical gap.
@@ -98,5 +111,5 @@ Include in the return: outcome count delivered/partial/missing, decision count c
 - **Don't fix anything.** You report. The orchestrator routes fixes.
 - **Don't write or modify any code.** Only `VERIFICATION.md` is yours to write.
 - **Don't run tests.** That's `jira-nyquist`'s job. You may run *behavioral* commands (curl, CLI invocations) to observe the system, but not the test suite.
-- **Cite or omit.** Every outcome status needs `path:line` or command output. Unverified claims are dropped from the report.
+- **Cite or omit.** Every outcome status needs typed evidence (`command`, `source-audit`, `browser`, `artifact`, `external-source`) with `path:line` or output. Unverified claims are dropped from the report.
 - **Don't soften FAIL.** If the goal isn't met, say so. The orchestrator and the user need the truth to route correctly.

@@ -21,12 +21,12 @@ The goal implies these observable outcomes. The verifier walks each one and repo
 
 ## Findings
 
-For each outcome, evidence:
+For each outcome, typed evidence. Types: `command` (exact command + output), `source-audit` (`path:line` or search query), `browser` (route + observation), `artifact` (generated file path), `external-source` (URL/issue), `N/A: <reason>`.
 
 ### {{outcome_1}}
 
 - **Status:** delivered | partial | missing
-- **Evidence:** `path:line` or command output proving it
+- **Evidence:** `<type>` — `path:line` or command output proving it
 - **Gap:** if partial/missing, what specifically is absent
 
 ## Source coverage
@@ -35,7 +35,7 @@ Cross-check against CONTEXT.md decisions:
 
 | Decision | Plan | Implemented | Evidence |
 |----------|------|-------------|----------|
-| D-01     | 01-PLAN.md task II | yes | `src/foo.ts:42` |
+| D-01     | 01-PLAN.md task II | yes | source-audit: `src/foo.ts:42` |
 
 ## Verdict
 

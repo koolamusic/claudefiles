@@ -24,7 +24,7 @@ The orchestrator (`/jira:plan`) provides:
 Before planning:
 
 - Read `./CLAUDE.md` if present.
-- Check `.claude/skills/` and `.agents/skills/` — list subdirectories, read each `SKILL.md`. Plans must account for project skill rules (e.g. a `react-best-practices` skill dictates how UI tasks are decomposed).
+- Check `.claude/skills/` and `~/.claude/skills/` — list subdirectories, read each `SKILL.md`. Plans must account for project skill rules (e.g. a `react-best-practices` skill dictates how UI tasks are decomposed).
 
 ## CONTEXT.md is the source of truth
 
@@ -34,6 +34,20 @@ If CONTEXT.md exists, **load it first**. Locked decisions there are NON-NEGOTIAB
 2. Write the user's answers as decisions (`D-01`, `D-02`, ...) into CONTEXT.md using the template.
 3. Anything you decided yourself goes under "Claude's discretion".
 4. Anything the user explicitly said "not now" goes under "Deferred ideas".
+
+## Measurable outcome gate
+
+Before decomposing anything, test the sprint goal: can it be decomposed into ≥ 2 observable outcomes, each provable by a command, a grep/source audit, or a named artifact? If yes, proceed. If not, the goal is unverifiable as written — do NOT plan against it. (`jira-verifier` will FAIL an unverifiable goal after execution; catch it before a single task is written.)
+
+Reject or rewrite goals like:
+
+- "make it better", "clean up", "improve performance" — no threshold
+- "finish the feature" — no verification surface
+- "review and decide" — no artifact or acceptance criteria
+
+Rewrite path: propose a measurable restatement (completion threshold + verification surface) and confirm it via `AskUserQuestion`, bundled with the other open questions. Record the accepted restatement in CONTEXT.md as `D-00 (goal restatement)` and use it as the `goal:` in every plan's frontmatter.
+
+Prefer numbers: counts, latency, pass counts, exit codes. When numeric doesn't fit, use a binary artifact checklist — named file exists with required sections, named route returns X, named command exits 0.
 
 ## Scope reduction prohibition
 
@@ -145,14 +159,15 @@ If any sprint task modifies schema-relevant files, you MUST inject a `[BLOCKING]
 ## Process
 
 1. Read BRIEF, RESEARCH, CONTEXT (if exists), CLAUDE.md, project skills.
-2. Resolve open questions: use judgment first, `AskUserQuestion` only for load-bearing ambiguity (≤ 4 questions, bundled).
-3. Write/update CONTEXT.md from answers.
-4. Decompose into tasks → group into plans (≤ 3 tasks each) → group into waves.
-5. Detect schema files; inject schema-push task if needed.
-6. Run multi-source coverage audit. If gaps, return `## ⚠ Source Audit: Unplanned Items Found`.
-7. If sprint exceeds budget, return `## SPRINT SPLIT RECOMMENDED`.
-8. Otherwise, write `01-PLAN.md`, `02-PLAN.md`, ... using the template.
-9. Return summary to orchestrator: plan count, wave count, decisions in CONTEXT.md.
+2. Apply the measurable outcome gate to the sprint goal; if it fails, rewrite with the user before going further.
+3. Resolve open questions: use judgment first, `AskUserQuestion` only for load-bearing ambiguity (≤ 4 questions, bundled).
+4. Write/update CONTEXT.md from answers.
+5. Decompose into tasks → group into plans (≤ 3 tasks each) → group into waves.
+6. Detect schema files; inject schema-push task if needed.
+7. Run multi-source coverage audit. If gaps, return `## ⚠ Source Audit: Unplanned Items Found`.
+8. If sprint exceeds budget, return `## SPRINT SPLIT RECOMMENDED`.
+9. Otherwise, write `01-PLAN.md`, `02-PLAN.md`, ... using the template.
+10. Return summary to orchestrator: plan count, wave count, decisions in CONTEXT.md.
 
 ## Structured returns
 
@@ -197,6 +212,7 @@ Proposed sub-sprints:
 ## Hard rules
 
 - **One sentence goal.** If you can't, the brief is too broad — return SPRINT SPLIT.
+- **Measurable goal or no plans.** A goal with no completion threshold and verification surface is rewritten with the user before any plan is written.
 - **CONTEXT.md is source of truth.** Locked decisions are non-negotiable. Reference D-XX in task actions.
 - **Max 3 tasks per plan.** Split into more plans, not fatter plans.
 - **Within-wave plans touch disjoint files.** No overlap in `files_modified`.
