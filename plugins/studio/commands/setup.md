@@ -73,14 +73,17 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
     `.workspacerc` is **machine-local** — it lives in the project root but is gitignored via the managed block from step 10 (different machines may store the workspace at different absolute paths, so committing it would leak a machine-specific value). Do not `git add` it.
 
-12. **Wire hook into project settings.** Read `$PROJECT_ROOT/.claude/settings.json`. If the directory or file does not exist, create `$PROJECT_ROOT/.claude/` and initialize `settings.json` with `{}`. For each entry in the parsed `hooks.SessionStart` list:
+12. **Wire hook into project settings.** Write to `$PROJECT_ROOT/.claude/settings.local.json` — NOT `settings.json`. The resolved command embeds an absolute, machine-specific workspace path (`$HOME/.studio/$SLUG/...`), so it must live in the machine-local, git-ignored settings file, never the shareable `settings.json` that teammates clone. Read `$PROJECT_ROOT/.claude/settings.local.json`; if the directory or file does not exist, create `$PROJECT_ROOT/.claude/` and initialize `settings.local.json` with `{}`. Preserve any existing keys (e.g. `permissions`) verbatim. For each entry in the parsed `hooks.SessionStart` list:
     - Take the entry's `command` string and replace the literal token `${WORKSPACE}` with the absolute, `~`-expanded path `$HOME/.studio/$SLUG`.
-    - Ensure `settings.hooks.SessionStart` exists (create as an empty array if missing), then merge the entry (with the substituted command) into it.
-    - Deduplicate by command string — if an entry with the same resolved command already exists in `settings.hooks.SessionStart`, do not append a second copy. This preserves idempotency across re-runs.
+    - Ensure `settings.hooks.SessionStart` exists (create as an empty array if missing), then append a hook group in Claude Code's required **nested** schema — do NOT merge the raw `{matcher, command, timeout}` entry from studio.yaml, which fails settings validation. The studio.yaml entry is config; the wired shape must be:
+      ```json
+      { "matcher": "<entry.matcher>", "hooks": [ { "type": "command", "command": "<resolved command>", "timeout": <entry.timeout> } ] }
+      ```
+    - Deduplicate by resolved command string — if a group whose inner `hooks[].command` already matches the resolved command exists in `settings.hooks.SessionStart`, do not append a second copy. This preserves idempotency across re-runs.
 
     Write the result back using stable JSON formatting (2-space indent, trailing newline).
 
-13. **Commit in the project repo.** Stage `.gitignore`, and stage `.claude/settings.json` as well if it was created or modified by step 12. Do **NOT** `git add .workspacerc` — it is intentionally gitignored via the managed block in step 10 and must remain machine-local. Then:
+13. **Commit in the project repo.** Stage `.gitignore` only. Do **NOT** `git add .claude/settings.local.json` (machine-local, like `.workspacerc` — the absolute workspace path must never be committed) and do **NOT** `git add .workspacerc` — it is intentionally gitignored via the managed block in step 10 and must remain machine-local. Then:
 
     ```bash
     git commit -m "chore: initialize studio workspace ($SLUG)"
