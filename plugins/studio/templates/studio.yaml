@@ -19,6 +19,9 @@ gitignore:
     - .warden
     - .studio
     - .workspacerc
+    # machine-local: step 12 writes the session-start hook here with an absolute
+    # workspace path; gitignored so `git add -A` can never re-commit that path.
+    - .claude/settings.local.json
 hooks:
   SessionStart:
     - matcher: startup
