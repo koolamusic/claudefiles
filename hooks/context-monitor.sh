@@ -4,8 +4,8 @@
 # trigger: PostToolUse (.*)
 # description: >
 #   Warns the agent when context usage is high. Preferred source: the
-#   statusline bridge file ($TMPDIR/claude-ctxwin-<session_id>.json, written
-#   by statusline-command.sh) — the statusline is the only script Claude
+#   statusline bridge file ($TMPDIR/claude-ctx-<session_id>.json, written
+#   by the statusline gsd-statusline.js) — the statusline is the only script Claude
 #   Code hands the session's real context_window, so this is exact for both
 #   200k and 1M sessions. Fallback: compute from the last assistant
 #   message's `usage` block in transcript_path against an inferred window
@@ -57,13 +57,13 @@ TMP="${TMP%/}"
 # 200k and 1M sessions; no window guessing needed.
 USED_PCT=""
 REMAINING_PCT=""
-BRIDGE="$TMP/claude-ctxwin-${SESSION_ID}.json"
+BRIDGE="$TMP/claude-ctx-${SESSION_ID}.json"
 if [ -f "$BRIDGE" ]; then
-  BRIDGE_TS=$(jq -r '.ts // 0' "$BRIDGE" 2>/dev/null || echo 0)
+  BRIDGE_TS=$(jq -r '.timestamp // 0' "$BRIDGE" 2>/dev/null || echo 0)
   NOW=$(date +%s)
   if [ $(( NOW - BRIDGE_TS )) -le "$BRIDGE_STALE_SECONDS" ]; then
-    REMAINING_PCT=$(jq -r '.context_window.remaining_percentage // empty' "$BRIDGE" 2>/dev/null || true)
-    USED_PCT=$(jq -r '.context_window.used_percentage // empty' "$BRIDGE" 2>/dev/null || true)
+    REMAINING_PCT=$(jq -r '.remaining_percentage // empty' "$BRIDGE" 2>/dev/null || true)
+    USED_PCT=$(jq -r '.used_pct // empty' "$BRIDGE" 2>/dev/null || true)
     REMAINING_PCT=${REMAINING_PCT%%.*}  # floats → ints for shell arithmetic
     USED_PCT=${USED_PCT%%.*}
   fi
