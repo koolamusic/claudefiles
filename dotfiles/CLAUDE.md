@@ -84,6 +84,9 @@ If no type-checker or linter is configured for the project, state that explicitl
 ### Write Human Code
 Write code that reads like a human wrote it. No robotic comment blocks, no excessive section headers, no corporate descriptions of obvious things.
 
+### Author for an External Reader
+Assume every repository is public. Write every durable artifact — commit message, code comment, issue, PR — for an external reader: state the what and why it matters, not the internal how; no internal jargon, acronyms, decision IDs, or internal filenames; no AI-attribution trailer; keep mechanics in your working notes, not the artifact.
+
 ---
 
 ## Edit Safety
