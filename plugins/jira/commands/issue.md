@@ -33,6 +33,7 @@ If shape or domain is missing, use `AskUserQuestion` to collect them (bundle int
 
 3. **Read the guide and template.**
    - Always read `${CLAUDE_PLUGIN_ROOT}/templates/issue/GUIDE.md` first — it defines the principles and the domain matrix.
+   - Read `${CLAUDE_PLUGIN_ROOT}/templates/author-conventions.md` too — the public/internal boundary for the body: no internal decision IDs, `.jira/` paths, or jargon; locked decisions become constraints or acceptance criteria.
    - Then read `${CLAUDE_PLUGIN_ROOT}/templates/issue/<shape>.md`.
 
 4. **Draft the issue body.**

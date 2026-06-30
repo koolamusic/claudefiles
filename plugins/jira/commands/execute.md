@@ -50,31 +50,23 @@ Execute the active sprint to completion: every plan executed (parallel within wa
 
    - **Determine the worktree to PR from.** If `worktree: true`, the branch is `<branch>` from PLAN frontmatter and lives in the worktree the executor created. If `worktree: false`, the branch is the current branch (it should not be `main` — if it is, ask the user which branch to push to).
    - Push: `git push -u origin <branch>`
+   - **Write the PR body for an external reader** per `${CLAUDE_PLUGIN_ROOT}/templates/author-conventions.md`: state the WHAT and why it matters, not the internal how. No internal jargon, no `.jira/` paths, no sprint slugs or wave labels, no agent/tool names (e.g. Nyquist, verifier), no AI-attribution trailer.
+   - **Pick the link keyword (base-aware).** `default=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)`. If this PR's base is `$default` (it lands on main), use `Closes #<issue>`. Otherwise — a feature PR into a canary/integration branch — use `Refs #<issue>`. Omit if no `issue` in frontmatter. Auto-close must only ever fire on the default branch.
    - Open PR:
      ```bash
      gh pr create \
        --title "<sprint goal from any PLAN frontmatter>" \
        --body "$(cat <<'EOF'
      ## Summary
-     <one-sentence goal>
+     <one sentence: the outcome — the change in capability or contract>
 
-     ## Sprint
-     `.jira/sprints/<slug>/`
-
-     ## Closes
-     <Closes #<issue> if frontmatter has issue, else omit>
-
-     ## Plans
-     <N> plans across <W> waves.
+     ## What changed
+     <2–4 plain-English bullets: what changed and why it matters>
 
      ## Validation
-     - Nyquist: <count> criteria, all green.
-     - Verifier: PASS — <count> outcomes delivered, <count> CONTEXT decisions implemented.
+     - <how it was checked, in plain English: new behavior covered by tests, goal verified end to end>
 
-     ## Test plan
-     <bullets from each plan's Nyquist criteria>
-
-     🤖 Generated with [Claude Code](https://claude.com/claude-code)
+     <Refs #<issue> — or Closes #<issue> when this PR targets the default branch; omit if no issue>
      EOF
      )"
      ```
@@ -105,3 +97,4 @@ Execute the active sprint to completion: every plan executed (parallel within wa
 - **Never auto-merge the PR.** Open and stop.
 - **Don't auto-clear CURRENT.** User keeps it pointed until they start a new sprint or explicitly close out.
 - **STATE.md updates at every transition** — `executing` on start, `done` on PR open. Resume relies on this.
+- **PR bodies are public artifacts.** Follow `${CLAUDE_PLUGIN_ROOT}/templates/author-conventions.md` — no internal jargon, `.jira/` paths, sprint slugs, wave labels, or AI-attribution trailer. `Closes` only when the PR targets the default branch; `Refs` otherwise.

@@ -8,6 +8,8 @@ This guide teaches jira how to write GitHub issues that reflect an internal **re
 
 Read a few issues from the domain you are writing for before drafting. Pattern-match the tone.
 
+> **Public/internal boundary.** Issue bodies are public artifacts. Read [`../author-conventions.md`](../author-conventions.md) before drafting — it defines what stays out of the body (internal decision IDs, `.jira/` paths, sprint slugs, wave labels, jargon) and how to phrase a locked decision (as a constraint or acceptance criterion). The evidence principles below assume that boundary.
+
 ## The three shapes
 
 A **shape** is *what kind of thing* the issue represents. Shapes are orthogonal to domains.
@@ -179,7 +181,7 @@ When filling a template, use the domain to decide which evidence sections to inc
 ## Before pushing
 
 - Every file citation resolves (grep it).
-- Every D-XX reference exists in CONTEXT.md.
+- No internal decision IDs (`D-XX`), `.jira/` paths, sprint slugs, or wave labels appear in the body — each locked decision reads as a plain-English constraint or acceptance criterion. Verify the decision against CONTEXT.md while drafting, then translate it out before push. See [`../author-conventions.md`](../author-conventions.md).
 - For library/frontend: the minimal reproduction was actually run — don't ship untested repros.
 - For frontend: the screenshot/video is attached and shows the specific state being described.
 - Severity and Impact are set (research shape).
