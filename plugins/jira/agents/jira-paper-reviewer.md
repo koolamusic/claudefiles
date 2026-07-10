@@ -28,6 +28,7 @@ For each, one line of evidence, not a restatement of the section:
 5. **Promotional language.** Title, abstract, and Discussion — flag marketing framing, hero narrative, or a claim that generalizes one system's result into a universal rule.
 6. **Placeholders.** Every `[DATA REQUIRED: ...]` / `[CITATION REQUIRED: ...]` still in the draft is a fact, not a defect to silently accept — list them, don't fill them in yourself.
 7. **Confidentiality.** Scan for anything that looks like a credential, DSN, API key, internal hostname, or customer-identifying detail that shouldn't be in a published artifact.
+8. **Typography.** Outside `<pre>`/`<code>`: any em-dash (`—`), curly/smart quote, or unicode ellipsis (`…`) is a defect — flag with the exact section and the plain-ASCII replacement. Do not flag en-dash ranges, math/technical symbols, or anything inside `<pre>`/`<code>` — those are correct as-is.
 
 ## Output
 
@@ -47,7 +48,7 @@ required_revisions:  # only if REVISE, at most 5, most severe first
 escalate: false  # set true if this is the second review pass and issues didn't drop
 ```
 
-A `BLOCKER` is a claim the evidence doesn't support, an invented figure, hidden confidentiality risk, or a hidden negative result. A `WARNING` is promotional language, a thin reproducibility step, or an unresolved placeholder left unflagged. An `INFO` is a nice-to-have (tighter title, clearer figure).
+A `BLOCKER` is a claim the evidence doesn't support, an invented figure, hidden confidentiality risk, or a hidden negative result. A `WARNING` is promotional language, a thin reproducibility step, an unresolved placeholder left unflagged, or stray em-dash/curly-quote/ellipsis in prose. An `INFO` is a nice-to-have (tighter title, clearer figure).
 
 ## Hard rules
 

@@ -58,6 +58,7 @@ If `--publish <slug>` was given, skip to step 8 now.
    - The 8 fixed sections (Background, Problem, Method, Results & Evidence, Verification & Testing, Discussion, Reproducibility, References) — do not add, remove, or rename sections.
    - Any claim without a traceable source becomes an explicit placeholder — `[DATA REQUIRED: ...]` or `[CITATION REQUIRED: ...]` — never invented. List every placeholder in your eventual report.
    - Preserve negative/mixed results — a regression, a rejected hypothesis, or a cost the evidence surfaced does not get dropped for narrative cleanliness.
+   - Typography, outside `<pre>`/`<code>`: no em-dash (`—`), no curly/smart quotes, no unicode ellipsis character (`…`). Use a plain hyphen, straight quotes, and `...`. En-dash for numeric ranges (`20:13–20:49`), math/technical symbols (`×`, `→`, `±`, `≈`, `Δ`, etc.), and content inside `<pre>`/`<code>` (diagrams, log output, truncated identifiers) are unaffected — this is about avoiding AI-tell punctuation in prose, not stripping meaningful notation.
 
    Save to `<artifacts-dir>/drafts/<slug>.html`, where `<slug>` is `<category>-<kebab-title>` matching the existing naming convention (e.g. `finding-bottleneck-that-wasnt.html`). Prepend the draft-comment header (draft date, proposed category, proposed `index-entry.html` fill-in, sources) and the visible `.draft-banner` div, matching the existing drafts/ convention exactly.
 
@@ -109,3 +110,4 @@ If `--publish <slug>` was given, skip to step 8 now.
 - **Templates live under `${CLAUDE_PLUGIN_ROOT}/templates/paper/`.** Read them fresh every invocation.
 - **Does not touch `.jira/STATE.md`.** Papers are not sprint-scoped — this command has no dependency on an active sprint and doesn't update sprint state.
 - **Section list is fixed at 8.** Do not add an Abstract-as-a-section, Keywords, Related Work, or Threats-to-Validity as literal sections — that rigor lives in the process (steps 1-2), not the page.
+- **No em-dash, curly quotes, or unicode ellipsis in prose.** Plain ASCII punctuation reads more human, not more academic. Math/technical symbols, en-dash ranges, and anything inside `<pre>`/`<code>` are exempt — this rule is about typographic flourish, not meaningful notation.
