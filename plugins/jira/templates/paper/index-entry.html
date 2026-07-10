@@ -1,0 +1,16 @@
+<!--
+  Collections-page snippet for /jira:paper. Read fresh every invocation — do not inline.
+
+  This is not a standalone file — it's the exact fragment to insert into the artifacts
+  index.html, under the matching <h2> section (Innovations / Discovery / Findings,
+  creating the section if the index doesn't have it yet). Badge class must match the
+  one used on the detail page (b-innov / b-disc / b-find).
+
+  {{FILENAME}}  -> the published slug, e.g. finding-bottleneck-that-wasnt.html
+  {{TITLE}}     -> must match the detail page's <h1> exactly
+  {{SUMMARY}}   -> one sentence, plain language, no jargon — this is read by people who
+                    will never open the detail page. State the concrete before/after or
+                    the concrete thing that was found, not "we improved performance."
+-->
+<div class="paper"><span class="badge {{BADGE_CLASS}}">{{CATEGORY}}</span><a href="{{FILENAME}}">{{TITLE}}</a>
+  <p>{{SUMMARY}}</p></div>

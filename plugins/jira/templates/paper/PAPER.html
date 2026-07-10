@@ -1,0 +1,135 @@
+<!--
+  Detail-page skeleton for /jira:paper. Read fresh every invocation — do not inline.
+  Fill every {{placeholder}}, then delete this guidance comment and the draft banner
+  (the draft banner is re-added by the command itself while status is draft/review).
+
+  Canonical section order is fixed at 8 sections — do not add, remove, or rename:
+    1. Background  2. Problem  3. Method  4. Results & Evidence
+    5. Verification & Testing  6. Discussion  7. Reproducibility  8. References
+  This mirrors every existing paper in the corpus exactly; keep it that way so the
+  corpus stays visually and structurally consistent across projects and sessions.
+
+  {{CATEGORY}}      -> Innovation | Discovery | Finding
+  {{BADGE_CLASS}}    -> b-innov | b-disc | b-find (must match index.html's badge classes)
+  {{PROJECT}}        -> e.g. "Lightgate/Orion"
+  {{CONTEXT_LABEL}}  -> e.g. "Milestone 1 (T1) engineering log", "mainnet preparation engineering log"
+  {{DATE}}           -> YYYY-MM-DD, the day the paper was written
+  {{TITLE}}          -> specific, descriptive, searchable. No "revolutionary/groundbreaking/novel/
+                         next-generation" language unless the evidence justifies it (it won't).
+  {{WHY}} / {{WHAT}} / {{HOW}} -> one tight sentence each. No invented numbers — every figure here
+                         must reappear, sourced, in section 4 or 8.
+
+  Never fill a gap with invented information. Use explicit placeholders instead, e.g.:
+    [DATA REQUIRED: p95 latency for baseline period]
+    [CITATION REQUIRED: prior work on X]
+  and list every one of them in the command's report before publish.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  html { background: #fdfdfa; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #fdfdfa;
+    color: #1a1a18;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+    line-height: 1.65;
+    font-size: 1rem;
+  }
+  header { margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; line-height: 1.3; margin: 0.75rem 0 0.5rem; font-weight: 700; }
+  h2 { font-size: 1.15rem; margin-top: 2.4rem; border-bottom: 1px solid #e4e4dc; padding-bottom: .25rem; }
+  .badge {
+    display: inline-block;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+    vertical-align: 2px;
+  }
+  .b-disc  { color: #2563eb; border-color: #2563eb; }
+  .b-find  { color: #b45309; border-color: #b45309; }
+  .b-innov { color: #047857; border-color: #047857; }
+  .byline { color: #555; font-size: 0.9rem; margin: 0.5rem 0 2rem; font-style: italic; }
+  .abstract {
+    background: #f7f5f0;
+    border-left: 3px solid #999;
+    padding: 1rem 1.2rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .abstract p { margin: .4rem 0; }
+  pre {
+    background: #f4f4f0;
+    border: 1px solid #e4e4dc;
+    border-radius: 4px;
+    padding: .8rem 1rem;
+    overflow-x: auto;
+    font-size: .82rem;
+    line-height: 1.5;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: .86rem; margin: 1rem 0; }
+  th, td { border: 1px solid #ddd; padding: .4rem .6rem; text-align: left; }
+  th { background: #f0f0ea; }
+  code { background: #f0f0ea; border-radius: 3px; padding: .05rem .3rem; font-size: .85em; overflow-wrap: anywhere; }
+  .note { color: #555; font-size: .9rem; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e4e4dc; color: #777; font-size: .82rem; }
+  .draft-banner {
+    background: #fff6e0; border: 2px dashed #b45309; color: #7a3e03;
+    padding: .55rem 1rem; font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 1.6rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+<span class="badge {{BADGE_CLASS}}">{{CATEGORY}}</span>
+<h1>{{TITLE}}</h1>
+<div class="byline">{{PROJECT}} — {{CONTEXT_LABEL}} · {{DATE}}</div>
+</header>
+
+<div class="abstract">
+  <p><strong>Why.</strong> {{WHY}}</p>
+  <p><strong>What.</strong> {{WHAT}}</p>
+  <p><strong>How.</strong> {{HOW}}</p>
+</div>
+
+<h2>1. Background</h2>
+<p>{{background — enough system/organizational context for an outside reader to follow the rest; no invented scale claims, only measurable dimensions actually known}}</p>
+
+<h2>2. Problem</h2>
+<p>{{the exact problem, its measurable symptoms, why it mattered enough to write about}}</p>
+
+<h2>3. Method</h2>
+<p>{{how it was investigated or built — the research design in one paragraph: what was measured, compared, or eliminated, and why that design fits the available evidence}}</p>
+
+<h2>4. Results &amp; Evidence</h2>
+<p>{{findings, each claim tagged by strength (measured result / engineering interpretation / hypothesis / etc. — inline, in plain language, not literally the taxonomy word). Include honest caveats on any measurement artifact. Preserve negative or mixed results — do not omit a hypothesis that was eliminated or a regression that occurred.}}</p>
+
+<h2>5. Verification &amp; Testing</h2>
+<p>{{how each claim above was checked — what would have falsified it, and what, if anything, remains unverified at the level claimed}}</p>
+
+<h2>6. Discussion</h2>
+<p>{{what the results mean, why the system behaved this way, tradeoffs, conditions under which the approach should or should not be used — label interpretation as interpretation}}</p>
+
+<h2>7. Reproducibility</h2>
+<p>{{the exact steps another engineer would follow to reproduce the diagnosis or the result}}</p>
+
+<h2>8. References</h2>
+<p class="note">
+  {{provenance — exact source of every figure and claim above: commit SHAs, PR numbers, log paths, query definitions, dates measured. This is not a literature citation list; it is a paper trail back into this repository's own history.}}
+</p>
+
+<footer>{{PROJECT}} — {{CATEGORY}} series · {{DATE}}</footer>
+
+</body>
+</html>

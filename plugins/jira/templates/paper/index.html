@@ -1,0 +1,44 @@
+<!--
+  Bootstrap skeleton for a brand-new artifacts/index.html. Only used by /jira:paper when
+  the resolved artifacts directory has no index.html yet. If one already exists, insert
+  index-entry.html fragments into it instead of touching this file's structure.
+
+  {{PROJECT}}     -> e.g. "Lightgate/Orion"
+  {{SITE_TITLE}}  -> e.g. "Engineering Papers"
+  {{DATE}}        -> YYYY-MM-DD, the day this index was created
+  {{INTRO}}       -> 2-3 sentences on what this collection is, in plain language
+-->
+<meta charset="utf-8">
+<title>{{PROJECT}} — {{SITE_TITLE}}</title>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; background:#fdfdfa; color:#1c1c1a;
+         max-width:46rem; margin:0 auto; padding:3rem 1.5rem; line-height:1.65; }
+  h1 { font-size:1.7rem; margin-bottom:.2rem; }
+  .byline { color:#666; font-size:.9rem; margin-bottom:2rem; }
+  h2 { font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; color:#444;
+       border-bottom:1px solid #ddd; padding-bottom:.3rem; margin-top:2.2rem; }
+  .paper { margin:1.1rem 0; }
+  .paper a { font-size:1.08rem; color:#1a1a18; text-decoration:none; border-bottom:1px solid #bbb; }
+  .paper a:hover { border-bottom-color:#1a1a18; }
+  .paper p { margin:.25rem 0 0; color:#555; font-size:.95rem; }
+  .badge { display:inline-block; font-size:.65rem; letter-spacing:.1em; padding:.1rem .45rem;
+           border:1px solid; border-radius:3px; vertical-align:2px; margin-right:.5rem; }
+  .b-disc { color:#2563eb; border-color:#2563eb; }
+  .b-find { color:#b45309; border-color:#b45309; }
+  .b-innov { color:#047857; border-color:#047857; }
+  .note { background:#f4f4f0; border-left:3px solid #999; padding:.8rem 1rem; font-size:.92rem; margin-top:2.5rem; }
+</style>
+
+<h1>{{SITE_TITLE}}</h1>
+<div class="byline">{{PROJECT}} · a session log rendered as a journal · {{DATE}}</div>
+
+<p>{{INTRO}}</p>
+
+<h2>Innovations</h2>
+
+<h2>Discovery</h2>
+
+<h2>Findings</h2>
+
+<div class="note">Provenance: each paper distinguishes claims verified directly against
+repositories, logs, and audit trails from those attributed to the operator session log.</div>

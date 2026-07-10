@@ -18,6 +18,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 | `/jira:triage [--plan N] [--dry-run]` | Triage sprint plans into independently-grabbable GitHub issues using vertical slices (tracer bullets). AFK/HITL classification. |
 | `/jira:review` | `jira-reviewer` reviews the current branch diff against CONTEXT and PLAN |
 | `/jira:retro` | Opt-in. Generates `RETRO.md` for the active sprint or a date range; rolls workflow lessons into `STATE.md` |
+| `/jira:paper <description>` | Write an evidence-disciplined engineering paper (innovation/discovery/finding) from a freeform description. `jira-paper-reviewer` adversarially reviews before publish. Not sprint-scoped. |
 
 ## State layout
 
@@ -54,6 +55,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 - **Schema-push tasks** are auto-injected for Prisma / Drizzle / Payload / Supabase / TypeORM projects to prevent false-positive verification (types pass, but the live DB hasn't been pushed).
 - **Issue writing has a guide.** `/jira:issue` follows [`templates/issue/GUIDE.md`](templates/issue/GUIDE.md) — evidence-grounded principles distilled from three real conventions (stellar/wallet-backend H-series for backend research, vercel-labs/json-render contributor bugs for libraries, stellar/freighter-mobile for visual/integration). Domain-aware: the shape stays the same; the evidence layer changes per domain.
 - **Research follows a structured synthesis pattern** inspired by [GSD](https://github.com/gsd-build/get-shit-done). Every `RESEARCH.md` carries tiered sources (HIGH/MEDIUM/LOW), Common Pitfalls with warning signs, Don't Hand-Roll calls, an Architectural Responsibility Map for multi-tier work, and a Valid-until date that acknowledges research decay. See [`templates/sprint/RESEARCH.md`](templates/sprint/RESEARCH.md). Wave-style phase numbering from GSD is intentionally not adopted — jira keeps its single-level `NN-PLAN.md` with `wave:` frontmatter.
+- **Papers are not sprint-scoped.** `/jira:paper` writes evidence-disciplined engineering papers (innovation/discovery/finding) from a freeform description, not from `.jira/` state — it doesn't read or update `STATE.md`. Output is a single-file HTML per [`templates/paper/PAPER.html`](templates/paper/PAPER.html), reviewed by `jira-paper-reviewer` before publish, cataloged via [`templates/paper/index-entry.html`](templates/paper/index-entry.html) into an `artifacts/index.html` (resolved from the studio workspace root if `.jira` is studio-managed, else the repo root). The evidence discipline is internal (evidence inventory, claim-strength classification, stop conditions) — the page itself stays lean, matching the existing paper corpus rather than a full academic structure.
 
 ## Install
 
