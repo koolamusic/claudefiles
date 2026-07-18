@@ -1,0 +1,21 @@
+{
+  "start_score": 50,
+  "termination_floor": 20,
+  "award_max": 5,
+  "levels": { "L1": 20, "L2": 40, "L3": 60, "L4": 80 },
+  "level_names": ["Terminated", "Guided", "Delegated", "Exception-based", "Ownership"],
+  "deductions": {
+    "minor": 2,
+    "self_reported": 3,
+    "delivery": 5,
+    "unverified": 8,
+    "drift": 8,
+    "fabrication": 13,
+    "tamper": 21
+  },
+  "readonly_tools": "^(Read|Glob|Grep|LS|TaskGet|TaskList|TaskOutput|TodoWrite|AskUserQuestion|ToolSearch|WebFetch|WebSearch|Skill|LSP|Monitor|BashOutput|ExitPlanMode|EnterPlanMode|ListMcpResourcesTool|ReadMcpResource.*|mcp__.*(search|fetch|get|list|read|view).*)$",
+  "readonly_bash": "^(ls|cat|head|tail|wc|grep|rg|find|fd|jq|yq|pwd|which|type|file|stat|du|df|ps|env|printenv|date|whoami|uname|tree|diff|sort|uniq|cut|column|shellcheck|bash -n|git (status|log|diff|show|branch|remote|describe|rev-parse|ls-files|blame)|gh (pr|issue|run|release|repo) (view|list|status|checks|diff))( |$)",
+  "l3_bash": "(git push|gh pr (create|merge|close|edit|comment|ready)|gh issue (create|edit|comment|close)|gh release (create|edit|delete)|npm publish|yarn publish|pnpm publish|vercel|netlify deploy|fly deploy|railway up|curl [^|]*-X *(POST|PUT|DELETE|PATCH))",
+  "l4_bash": "(push[^|]*(--force|-f( |$))|push[^|]*--delete|rm -rf|git reset --hard|git clean -[a-z]*f|git branch -D|truncate|mkfs|shutdown|reboot)",
+  "tool_levels": { "Edit": 1, "Write": 1, "NotebookEdit": 1, "Agent": 2, "Workflow": 2, "EnterWorktree": 2, "Artifact": 3, "SendMessage": 3, "SendUserFile": 2, "PushNotification": 3 }
+}

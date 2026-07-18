@@ -90,6 +90,34 @@ experimental:
             - matcher: '.*'
               command: '$HOME/.claude/hooks/context-monitor.sh'
               timeout: 5
+    - name: trust-monitor
+      description: >
+        Per-session trust ladder for the agent. Sessions start at 50/100
+        (L2 "Delegated"); the user awards points for good delivery and
+        deducts on Fibonacci-scaled violations via /trust (minor -2,
+        delivery -5, unverified -8, drift -8, fabrication -13, tamper
+        -21); the agent self-reports at a flat -3. PreToolUse hard-gates
+        tools by level (L1 edits, L2 mutating bash/agents, L3 push/PR/
+        deploy/sends, L4 destructive) and terminates the agent below 20
+        points. Statusline: 'trust-monitor.sh statusline <session_id>'
+        renders a colored trust bar — add one guarded call to your local
+        statusline-command.sh (prints nothing when no ledger exists).
+        Requires jq. Files: hooks/trust-monitor.sh,
+        hooks/trust-monitor.json, commands/trust.md.
+      settings:
+        hooks:
+          SessionStart:
+            - matcher: 'startup|clear|resume'
+              command: '$HOME/.claude/hooks/trust-monitor.sh'
+              timeout: 5
+          PreToolUse:
+            - matcher: '.*'
+              command: '$HOME/.claude/hooks/trust-monitor.sh'
+              timeout: 5
+          PostToolUse:
+            - matcher: '.*'
+              command: '$HOME/.claude/hooks/trust-monitor.sh'
+              timeout: 5
     - name: studio
       description: >
         Per-project workflow workspace — hosts `.project/`, `.jira/`,
