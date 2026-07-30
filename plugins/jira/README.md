@@ -1,6 +1,6 @@
 # jira
 
-A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), one state directory (`.jira/`), one motion: **research → plan → execute**. Plus review and retro for closing the loop, and init to bootstrap.
+A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), one state directory (`.jira/`), one motion: **research → plan → execute**. Plus review and retro for closing the loop, init to bootstrap, and `comment` for stakeholder-readable GitHub comments.
 
 > **Inspired by** [GSD](https://github.com/gsd-build/get-shit-done) — `jira` is a leaner take on the same idea, distilled to the parts that proved load-bearing in daily solo work.
 
@@ -19,6 +19,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 | `/jira:review` | `jira-reviewer` reviews the current branch diff against CONTEXT and PLAN |
 | `/jira:retro` | Opt-in. Generates `RETRO.md` for the active sprint or a date range; rolls workflow lessons into `STATE.md` |
 | `/jira:paper <description>` | Write an evidence-disciplined engineering paper (innovation/discovery/finding) from a freeform description. `jira-paper-reviewer` adversarially reviews before publish. Not sprint-scoped. |
+| `/jira:comment` | Draft (default) or post a GitHub issue/PR comment in stakeholder-readable voice, with GitHub autolinks and commit-pinned code permalinks. See [`templates/comment/GUIDE.md`](templates/comment/GUIDE.md). |
 
 ## State layout
 

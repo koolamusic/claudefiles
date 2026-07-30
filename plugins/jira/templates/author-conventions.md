@@ -1,8 +1,10 @@
 # Author conventions
 
-Issues and PRs are public artifacts. Write them for an external reader who has no access to `.jira/`, the sprint handoff, or any internal context. This governs both `/jira:issue` (issue bodies) and `/jira:execute` (PR bodies).
+Issues and PRs are public artifacts. Write them for an external reader who has no access to `.jira/`, the sprint handoff, or any internal context. This governs `/jira:issue` (issue bodies), `/jira:execute` (PR bodies), and `/jira:comment` (issue/PR comments).
 
 It restates the global "author for an external reader" stance — so the rule holds even when this plugin is installed without that global file — then adds the jira-specific layer.
+
+For comment-specific voice and GitHub permalink rules, see [`comment/GUIDE.md`](comment/GUIDE.md).
 
 ## Audience & framing
 
