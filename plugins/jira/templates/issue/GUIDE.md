@@ -8,7 +8,7 @@ This guide teaches jira how to write GitHub issues that reflect an internal **re
 
 Read a few issues from the domain you are writing for before drafting. Pattern-match the tone.
 
-> **Public/internal boundary.** Issue bodies are public artifacts. Read [`../author-conventions.md`](../author-conventions.md) before drafting — it defines what stays out of the body (internal decision IDs, `.jira/` paths, sprint slugs, wave labels, jargon) and how to phrase a locked decision (as a constraint or acceptance criterion). The evidence principles below assume that boundary.
+> **Public/internal boundary.** Read [`../author-conventions.md`](../author-conventions.md) before drafting — it checks repo visibility to pick strict or relaxed mode, then defines what stays out of the body in each (internal decision IDs, `.jira/` paths, sprint slugs, wave labels, jargon) and how to phrase a locked decision (as a constraint or acceptance criterion). The evidence principles below assume that boundary.
 
 ## The three shapes
 

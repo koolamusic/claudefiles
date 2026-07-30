@@ -14,6 +14,8 @@ Assume the reader:
 
 If a sentence only makes sense to someone who was in the room, rewrite it.
 
+This guide, including the checklist at the end, is written for **strict mode** — comments on a public repo. On a private or internal repo the bar relaxes; the visibility table in [`../author-conventions.md`](../author-conventions.md) says which of these rules loosen and which never do.
+
 ## Voice
 
 1. **Lead with the plain situation.** First 1–2 sentences: what happened / what you decided / what you need, in everyday English.
