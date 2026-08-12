@@ -20,6 +20,7 @@ gh repo view --json visibility -q .visibility   # PUBLIC | PRIVATE | INTERNAL
 |---|---|---|
 | Internal names and acronyms | Spell out in plain English or omit | Fine unqualified on first use |
 | Decision IDs (`D-04`) | Restate as a constraint or acceptance criterion | Fine as a shorthand pointer |
+| Predicate IDs (`@req` / `TOK-01`) | Restate as the scenario in plain English | Fine as a shorthand pointer |
 | Sprint slugs, wave labels | Omit | Fine |
 | `.jira/` paths | Omit — summarize the content instead | Fine to cite directly |
 | Hostnames, vendor box names | Describe the role ("the serving database") | Fine when the reader may need to act on it |
@@ -48,7 +49,7 @@ This holds for every durable artifact in a public repo, documentation and templa
 ## Plain English in strict mode
 
 - Translate internal acronyms and names ("the background token cache", "permission checks", "the authentication package boundary") or leave them out.
-- A locked decision travels as its substance — the constraint or acceptance criterion it imposes — so the reader learns what is fixed without needing the identifier.
+- A locked decision travels as its substance — the constraint or acceptance criterion it imposes — so the reader learns what is fixed without needing the identifier. The same goes for acceptance predicates: the scenario's substance travels in plain English, never its `@req` ID.
 
 ## Structure
 

@@ -37,6 +37,15 @@ Cross-check against CONTEXT.md decisions:
 |----------|------|-------------|----------|
 | D-01     | 01-PLAN.md task II | yes | source-audit: `src/foo.ts:42` |
 
+## Predicate coverage
+
+Cross-check against `features/*.feature`. Unsensed predicates are findings, not FAIL — warden owns the final empirical verdict post-sprint.
+
+| @req | Claimed by plan | Sensed | Evidence |
+|------|-----------------|--------|----------|
+| TOK-01 | 01-PLAN.md | yes — nyquist | command: `tests/auth.test.ts` |
+| TOK-02 | 01-PLAN.md | pending — human/warden | N/A: not machine-sensable here |
+
 ## Verdict
 
 **PASS** — all outcomes delivered, all locked decisions implemented.

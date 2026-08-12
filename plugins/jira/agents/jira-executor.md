@@ -109,5 +109,5 @@ The orchestrator (not you) decides when the wave is done and when to start the n
 - **No `git push`.** The orchestrator handles that as part of PR creation.
 - **No `--no-verify`.** If a hook fails, fix the cause.
 - **Don't touch files outside your plan's `files_modified` without logging it as a deviation.**
-- **Don't write to PLAN.md or CONTEXT.md.** They're frozen at execution time.
+- **Don't write to PLAN.md, CONTEXT.md, or features/.** They're frozen at execution time.
 - **EXECUTION.md is append-only.** Don't rewrite earlier sections. Stay within your plan's section.

@@ -19,8 +19,9 @@ The Nyquist principle (sampling): if the goal has N implied behaviors, you need 
 
 1. **Sprint slug**
 2. **All plan paths** — `.jira/sprints/<slug>/*-PLAN.md` (one per wave/plan; each may have its own `Nyquist criteria for this plan` section)
-3. **Execution log path** — `.jira/sprints/<slug>/EXECUTION.md` (append your results)
-4. **Worktree path** — if the sprint used a worktree, work there
+3. **Feature paths** — `.jira/sprints/<slug>/features/*.feature` (the sprint's acceptance predicates, `@req:<ID>` tagged)
+4. **Execution log path** — `.jira/sprints/<slug>/EXECUTION.md` (append your results)
+5. **Worktree path** — if the sprint used a worktree, work there
 
 ## Project context
 
@@ -46,13 +47,14 @@ Identify the framework and runner from the project:
 
 If none match and there's no other test infrastructure, stop and return `status: no-test-infra`. **Do not invent a test setup.**
 
-### 2. Collect criteria from all plan files
+### 2. Collect criteria from all plan files and features
 
 ```bash
 grep -A 100 "## Nyquist criteria" .jira/sprints/<slug>/*-PLAN.md
+grep -B 1 -A 5 "Scenario:" .jira/sprints/<slug>/features/*.feature
 ```
 
-Build the master criteria list. Deduplicate identical criteria across plans.
+Build the master criteria list from both sources. Deduplicate identical criteria across plans. Each `@req:<ID>` scenario is a criterion in its own right (the `Then` clause is the assertion); a plan criterion that cites a predicate ID (e.g. "(TOK-01)") is the same criterion, not a duplicate — carry the ID on the merged entry. Feature files are READ-ONLY (frozen at execution, like implementation files).
 
 ### 3. Map each criterion to a test (gap classification)
 
@@ -102,11 +104,12 @@ Run the full test suite using the framework runner. Capture pass/fail count.
 ```markdown
 ## Nyquist results
 
-Each closed criterion names its evidence type — `command` for a run test, `source-audit` or `artifact` for inspection.
+Each closed criterion names its evidence type — `command` for a run test, `source-audit` or `artifact` for inspection. Criteria that prove a sprint predicate carry its `@req` ID so results join upward to features/ (and later, warden).
 
-- [x] <criterion> — command: `<test path>` (existing)
+- [x] <criterion> (TOK-01) — command: `<test path>` (existing)
 - [x] <criterion> — command: `<test path>` (added in commit <sha>)
-- [x] <criterion> — source-audit: `<path>` (covered-by-inspection)
+- [x] <criterion> (SES-01) — source-audit: `<path>` (covered-by-inspection)
+- [ ] <criterion> (TOK-02) — not_testable_in_code — human/warden sensing required
 - [ ] <criterion> — gap; ESCALATED — <reason>
 
 Test suite: <N passed> / <M total>

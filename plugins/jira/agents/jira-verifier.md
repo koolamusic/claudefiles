@@ -19,9 +19,10 @@ The orchestrator (`/jira:execute`) provides:
 2. **Sprint dir** — `.jira/sprints/<slug>/`
 3. **All plan paths** — `.jira/sprints/<slug>/*-PLAN.md` (read every one — wave plans share a sprint goal but each plan covers a subset)
 4. **CONTEXT path** — `.jira/sprints/<slug>/CONTEXT.md` (locked decisions; cross-check each was implemented)
-5. **EXECUTION path** — `.jira/sprints/<slug>/EXECUTION.md` (what the executor reports it did; treat as a claim, not evidence)
-6. **Verification output path** — `.jira/sprints/<slug>/VERIFICATION.md` (write your report here)
-7. **Verification template** — `${CLAUDE_PLUGIN_ROOT}/templates/sprint/VERIFICATION.md`
+5. **Feature paths** — `.jira/sprints/<slug>/features/*.feature` (acceptance predicates; cross-check claimed and sensed)
+6. **EXECUTION path** — `.jira/sprints/<slug>/EXECUTION.md` (what the executor reports it did; treat as a claim, not evidence)
+7. **Verification output path** — `.jira/sprints/<slug>/VERIFICATION.md` (write your report here)
+8. **Verification template** — `${CLAUDE_PLUGIN_ROOT}/templates/sprint/VERIFICATION.md`
 
 ## Project context
 
@@ -77,6 +78,18 @@ Read CONTEXT.md. For each `D-XX` decision, find the implementing code. Build the
 
 A `D-XX` listed as `covers:` in a plan but with no implementing code is a critical gap.
 
+### 3b. Predicate coverage cross-check
+
+Read `features/*.feature`. For each `@req:<ID>` predicate, join three legs:
+
+| @req | Claimed by plan (`effects:`) | Sensed | Evidence |
+|------|------------------------------|--------|----------|
+| TOK-01 | 01-PLAN.md | yes — nyquist | command: `tests/auth.test.ts` |
+| TOK-02 | 01-PLAN.md | pending — human/warden | N/A: not machine-sensable here |
+| SES-01 | 02-PLAN.md | yes — inspection | source-audit: `src/session.ts:31` |
+
+"Sensed" comes from the `## Nyquist results` block in EXECUTION.md (entries carrying the predicate ID) or your own behavioral check with typed evidence. **Unsensed predicates are findings, not FAIL** — warden runs after the sprint and owns the final empirical verdict; list them under Next steps as "pending warden/human sensing". An *unclaimed* predicate (no plan `effects:`) at this stage indicates the plan-checker gate was bypassed — report it as a finding.
+
 ### 4. Goal-vs-outcome verdict
 
 Apply the verdict rule:
@@ -85,7 +98,7 @@ Apply the verdict rule:
 - **PARTIAL** — at least one outcome is **delivered** but some are **partial** or **missing**.
 - **FAIL** — the goal is fundamentally unmet (most/all outcomes missing), OR a load-bearing CONTEXT decision (D-XX) was not implemented.
 
-`unverifiable-here` outcomes don't count against the verdict on their own — note them but classify the verdict on what you could verify.
+`unverifiable-here` outcomes don't count against the verdict on their own — note them but classify the verdict on what you could verify. Likewise unsensed predicates (pending warden/human) never downgrade the verdict by themselves — the existing PASS/PARTIAL/FAIL rules are unchanged.
 
 ### 5. Write VERIFICATION.md
 
