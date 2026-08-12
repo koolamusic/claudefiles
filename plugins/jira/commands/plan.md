@@ -25,7 +25,9 @@ Convert the active sprint's RESEARCH.md into one or more executable PLAN files (
    - Brief path, research path
    - Context path: `.jira/sprints/<slug>/CONTEXT.md` (may not exist; planner creates it)
    - Plan output dir: `.jira/sprints/<slug>/`
-   - References: PLAN template + CONTEXT template
+   - References: PLAN template + CONTEXT template + feature template (`templates/sprint/feature.feature`)
+
+   The planner writes `features/*.feature` (the sprint's acceptance predicates, `@req:<ID>` tagged) before the plans; plans claim predicates via `effects:` frontmatter.
 
    The planner may use `AskUserQuestion` (≤ 4 questions, bundled) for load-bearing ambiguity. Answers become CONTEXT.md decisions (D-XX).
 
@@ -34,7 +36,7 @@ Convert the active sprint's RESEARCH.md into one or more executable PLAN files (
    - `## ⚠ Source Audit: Unplanned Items Found` — surface the gap list via `AskUserQuestion`. Three options: A) re-spawn planner with instruction to add covering plans, B) split sprint, C) defer items to CONTEXT.md `## Deferred ideas`. Then proceed.
    - `## SPRINT SPLIT RECOMMENDED` — surface the proposal via `AskUserQuestion`. If user accepts, create the sub-sprint dirs and re-route to research. If user proceeds anyway, re-spawn planner with "force-fit" instruction.
 
-5. **Audit pass — spawn `jira-plan-checker`** with all `*-PLAN.md` paths + brief + research + context. Returns a YAML block with `verdict`, `issue_count`, `findings`, `required_revisions`.
+5. **Audit pass — spawn `jira-plan-checker`** with all `*-PLAN.md` paths + `features/*.feature` paths + brief + research + context. Returns a YAML block with `verdict`, `issue_count`, `findings`, `required_revisions`.
 
 6. **Stall-aware revision loop (max 2 iterations):**
 
@@ -61,13 +63,14 @@ Convert the active sprint's RESEARCH.md into one or more executable PLAN files (
 
 9. **Commit:**
    ```bash
-   git add .jira/sprints/<slug>/CONTEXT.md .jira/sprints/<slug>/*-PLAN.md .jira/sprints/<slug>/BRIEF.md .jira/STATE.md
+   git add .jira/sprints/<slug>/CONTEXT.md .jira/sprints/<slug>/*-PLAN.md .jira/sprints/<slug>/features/ .jira/sprints/<slug>/BRIEF.md .jira/STATE.md
    git commit -m "plan(<slug>): <one-sentence goal from PLAN.md>"
    ```
 
 10. **Report:**
     - Goal (from any PLAN frontmatter — they all share it)
     - Plan count + wave breakdown ("3 plans across 2 waves: [I,II] then [III]")
+    - Predicate count ("5 predicates in features/, all claimed")
     - CONTEXT decisions: locked count, deferred count, claude's-discretion count
     - Schema push required (yes / no — from planner return)
     - Worktree decision

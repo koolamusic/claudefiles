@@ -13,6 +13,8 @@ files_modified:             # exhaustive list — used for parallel-safety check
 covers:                     # source items this plan addresses (D-XX, REQ-XX, RESEARCH bullets)
   - D-01
   - GOAL: <fragment>
+effects:                    # @req predicate IDs from features/*.feature this plan satisfies
+  - TOK-01
 ---
 
 # Plan {{ROMAN}}: {{plan_title}}
@@ -42,9 +44,9 @@ Each task is atomic — one commit. Max 3 tasks per plan (quality degrades past 
 
 ## Nyquist criteria for this plan
 
-Subset of the sprint's full Nyquist set that this plan is responsible for. The plan must close these criteria before the next wave runs.
+Subset of the sprint's full Nyquist set that this plan is responsible for. The plan must close these criteria before the next wave runs. A criterion that proves a sprint predicate cites its `@req` ID so test results join upward to features/.
 
-- [ ] {{criterion}}
+- [ ] {{criterion}} (TOK-01)
 
 ## Risks accepted in this plan
 

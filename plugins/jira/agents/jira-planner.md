@@ -18,6 +18,7 @@ The orchestrator (`/jira:plan`) provides:
 5. **Plan output dir** — `.jira/sprints/<slug>/` (write `01-PLAN.md`, `02-PLAN.md`, ...)
 6. **Plan template** — `${CLAUDE_PLUGIN_ROOT}/templates/sprint/PLAN.md`
 7. **Context template** — `${CLAUDE_PLUGIN_ROOT}/templates/sprint/CONTEXT.md`
+8. **Feature template** — `${CLAUDE_PLUGIN_ROOT}/templates/sprint/feature.feature` (write `features/*.feature` into the sprint dir)
 
 ## Project context
 
@@ -49,6 +50,17 @@ Rewrite path: propose a measurable restatement (completion threshold + verificat
 
 Prefer numbers: counts, latency, pass counts, exit codes. When numeric doesn't fit, use a binary artifact checklist — named file exists with required sections, named route returns X, named command exits 0.
 
+## Acceptance predicates (features/)
+
+The goal decomposition from the measurable outcome gate is written down as Gherkin scenarios in `features/*.feature` at the sprint root, using the feature template. This is **mandatory every sprint** — refactor/mechanical sprints write behavior-preservation scenarios ("Given the existing test suite, When the refactor lands, Then every test still passes").
+
+- One scenario = one predicate: `Given` precondition, `When` operator, `Then` postcondition.
+- Every scenario is tagged `@req:<ID>` — **domain prefix + sequential, unique per sprint** (`TOK-01`, `SES-01`). Uppercase, no whitespace (`_halt` is reserved by warden).
+- Tag `@plan:<ROMAN>` / `@wave:<N>` once plans exist, matching the claiming plan's `effects:`.
+- Feature files are lowercase kebab (`tok-sessions.feature`), one file per Feature block.
+- Predicates are **declared once, here**. Plans claim them via `effects:`; tests and warden sense them by the same ID. Never redeclare elsewhere.
+- Write features **before** plans: the goal is fixed first, then decomposition claims it. Features are frozen at execution time, like CONTEXT.md.
+
 ## Scope reduction prohibition
 
 You may not silently degrade ambitious goals. PROHIBITED language in task actions:
@@ -72,8 +84,9 @@ Before finalizing, every source item must be covered by some plan. Sources:
 - **GOAL** — the sprint goal sentence (from BRIEF)
 - **CONTEXT** — every `D-XX` decision in CONTEXT.md
 - **RESEARCH** — every concrete recommendation/finding in RESEARCH.md
+- **FEATURES** — every `@req:<ID>` predicate in `features/*.feature`
 
-For each source item, walk your plans and confirm a plan claims it via the `covers:` frontmatter field. If anything is uncovered, return `## ⚠ Source Audit: Unplanned Items Found` to the orchestrator with the gap list. Do NOT finalize silently with gaps.
+For each source item, walk your plans and confirm a plan claims it via the `covers:` frontmatter field — for FEATURES, via `effects:`. Every declared predicate must appear in exactly one plan's `effects:` (orphan predicate = gap), and every `effects:` entry must exist in features/ (phantom effect = gap). If anything is uncovered, return `## ⚠ Source Audit: Unplanned Items Found` to the orchestrator with the gap list. Do NOT finalize silently with gaps.
 
 **Exclusions (not gaps):** items in CONTEXT.md `## Deferred ideas`, items in RESEARCH.md explicitly marked "out of scope".
 
@@ -126,6 +139,8 @@ files_modified:
 covers:
   - D-01
   - GOAL: <goal fragment this plan addresses>
+effects:
+  - TOK-01                 # @req predicate IDs from features/ this plan satisfies
 ```
 
 ## Task anatomy
@@ -162,12 +177,13 @@ If any sprint task modifies schema-relevant files, you MUST inject a `[BLOCKING]
 2. Apply the measurable outcome gate to the sprint goal; if it fails, rewrite with the user before going further.
 3. Resolve open questions: use judgment first, `AskUserQuestion` only for load-bearing ambiguity (≤ 4 questions, bundled).
 4. Write/update CONTEXT.md from answers.
-5. Decompose into tasks → group into plans (≤ 3 tasks each) → group into waves.
-6. Detect schema files; inject schema-push task if needed.
-7. Run multi-source coverage audit. If gaps, return `## ⚠ Source Audit: Unplanned Items Found`.
-8. If sprint exceeds budget, return `## SPRINT SPLIT RECOMMENDED`.
-9. Otherwise, write `01-PLAN.md`, `02-PLAN.md`, ... using the template.
-10. Return summary to orchestrator: plan count, wave count, decisions in CONTEXT.md.
+5. Write `features/*.feature` from the goal decomposition + D-XX decisions, minting `@req` IDs (feature template).
+6. Decompose into tasks → group into plans (≤ 3 tasks each) → group into waves. Each plan claims its predicates via `effects:`; back-fill `@plan`/`@wave` tags on the scenarios.
+7. Detect schema files; inject schema-push task if needed.
+8. Run multi-source coverage audit (GOAL / CONTEXT / RESEARCH / FEATURES). If gaps, return `## ⚠ Source Audit: Unplanned Items Found`.
+9. If sprint exceeds budget, return `## SPRINT SPLIT RECOMMENDED`.
+10. Otherwise, write `01-PLAN.md`, `02-PLAN.md`, ... using the template.
+11. Return summary to orchestrator: plan count, wave count, predicate count, decisions in CONTEXT.md.
 
 ## Structured returns
 
@@ -178,6 +194,7 @@ If any sprint task modifies schema-relevant files, you MUST inject a `[BLOCKING]
 Sprint: <slug>
 Plans: <N> across <W> waves
 Wave breakdown: I: [I,II], II: [III], III: [IV,V]
+Predicates: <count> declared in features/, all claimed
 CONTEXT.md decisions: <count> locked, <count> deferred, <count> claude's discretion
 Schema push required: <yes ORM=prisma | no>
 ```
@@ -191,6 +208,7 @@ Uncovered items:
 - [GOAL] <fragment of goal not addressed by any plan>
 - [D-04] <decision from CONTEXT.md>
 - [RESEARCH] <bullet from RESEARCH.md>
+- [TOK-03] <predicate declared in features/ with no claiming plan>
 
 Options for orchestrator:
 A. Add a plan to cover each (recommended)
@@ -219,4 +237,5 @@ Proposed sub-sprints:
 - **No prohibited language.** "v1", "static for now", etc. are immediate revision triggers.
 - **Schema push task is BLOCKING.** Never optional when schema files change.
 - **Source audit before finalizing.** No silent gaps.
+- **Features before plans.** Every sprint declares its predicates in `features/*.feature`; every predicate is claimed by exactly one plan's `effects:`.
 - **Risks accepted is mandatory.** Per plan and across the sprint.

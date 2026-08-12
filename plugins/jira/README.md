@@ -34,7 +34,8 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
         ├── BRIEF.md           (from --issue or user prompt)
         ├── RESEARCH.md        (parallel researcher synthesis)
         ├── CONTEXT.md         (locked decisions D-XX, deferred ideas, canonical refs)
-        ├── 01-PLAN.md         (one file per wave-plan, ≤3 tasks each)
+        ├── features/          (acceptance predicates — *.feature, @req:<ID> tagged)
+        ├── 01-PLAN.md         (one file per wave-plan, ≤3 tasks each; claims predicates via effects:)
         ├── 02-PLAN.md
         ├── EXECUTION.md       (commits, deviations, results — append-only)
         ├── VERIFICATION.md    (goal-backward post-execution audit)
@@ -46,6 +47,7 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 - **Sprints, not phases.** A sprint is one research → plan → execute cycle.
 - **Multi-plan per sprint, wave-based parallelism.** The planner emits `01-PLAN.md`, `02-PLAN.md`, ... grouped into waves. Plans within a wave touch disjoint files and execute in parallel; later waves depend on earlier waves. Each plan is ≤ 3 tasks (executor quality degrades past that point in a single context).
 - **CONTEXT.md is the source of truth.** Locked decisions (`D-01`, `D-02`, ...) come from `AskUserQuestion` answers during planning. Plans reference D-XX in task actions; the verifier cross-checks every D-XX has implementing code.
+- **features/ is the goal set.** Every sprint declares its acceptance predicates as Gherkin scenarios in `features/*.feature`, each tagged `@req:<ID>` (domain prefix + sequential, e.g. `TOK-01`). Plans claim predicates via `effects:` frontmatter; the plan-checker blocks orphan predicates (declared, unclaimed) and phantom effects (claimed, undeclared). Feature files are lowercase — the contract; UPPERCASE.md files are working papers. Frozen at execution time.
 - **Worktree decision happens in `/jira:plan`**, not always-on. Plan declares whether the work needs isolation; execute reads that.
 - **Three validation gates by default:**
   1. **Plan-checker** (pre-execute) — goal-backward audit of plans, source-coverage matrix, stall detection
@@ -57,6 +59,10 @@ A lean, opinionated sprint workflow for Claude Code. One namespace (`jira:`), on
 - **Issue writing has a guide.** `/jira:issue` follows [`templates/issue/GUIDE.md`](templates/issue/GUIDE.md) — evidence-grounded principles distilled from three real conventions (stellar/wallet-backend H-series for backend research, vercel-labs/json-render contributor bugs for libraries, stellar/freighter-mobile for visual/integration). Domain-aware: the shape stays the same; the evidence layer changes per domain.
 - **Research follows a structured synthesis pattern** inspired by [GSD](https://github.com/gsd-build/get-shit-done). Every `RESEARCH.md` carries tiered sources (HIGH/MEDIUM/LOW), Common Pitfalls with warning signs, Don't Hand-Roll calls, an Architectural Responsibility Map for multi-tier work, and a Valid-until date that acknowledges research decay. See [`templates/sprint/RESEARCH.md`](templates/sprint/RESEARCH.md). Wave-style phase numbering from GSD is intentionally not adopted — jira keeps its single-level `NN-PLAN.md` with `wave:` frontmatter.
 - **Papers are not sprint-scoped.** `/jira:paper` writes evidence-disciplined engineering papers (innovation/discovery/finding) from a freeform description, not from `.jira/` state — it doesn't read or update `STATE.md`. Output is a single-file HTML per [`templates/paper/PAPER.html`](templates/paper/PAPER.html), reviewed by `jira-paper-reviewer` before publish, cataloged via [`templates/paper/index-entry.html`](templates/paper/index-entry.html) into an `artifacts/index.html` (resolved from the studio workspace root if `.jira` is studio-managed, else the repo root). The evidence discipline is internal (evidence inventory, claim-strength classification, stop conditions) — the page itself stays lean, matching the existing paper corpus rather than a full academic structure.
+
+## The model
+
+The sprint workflow is classical planning with an untrusted executor. A Gherkin scenario is one predicate — `Given` precondition, `When` operator, `Then` postcondition — the same triple as a [STRIPS](https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver) operator and a [Hoare logic](https://en.wikipedia.org/wiki/Hoare_logic) triple `{P} C {Q}`, written in [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development) syntax. Sprint decomposition into waves of parallel-safe plans is [HTN](https://en.wikipedia.org/wiki/Hierarchical_task_network)-style ordered task decomposition. The predicate spine threads one goal set through three sensors: declared once in `features/` at plan time, claimed by plans (`effects:`), then sensed by nyquist (machine tests, at execute), `/jira:flow` (human steps), and warden (deterministic acceptance, post-sprint). Gates are hard at plan (cheapest fix point) and soft at verify — the empirical verdict belongs to the sensor that runs last.
 
 ## Install
 
