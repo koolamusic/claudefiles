@@ -22,10 +22,19 @@ with checkouts of the same project clean themselves up on their next session
    the `workspace` field's basename is the slug. If neither yields a slug,
    stop and ask.
 
-2. **Verify the workspace.** Confirm `~/.studio/$SLUG` exists and
-   `~/.studio/.git` exists. If `~/.studio/_archive/$SLUG` already exists,
-   STOP — a previous archive of the same slug is in place; never overwrite.
-   Surface via `AskUserQuestion` (suffix the new archive, or cancel).
+2. **Verify the workspace.** Confirm `~/.studio/.git` exists, then branch on
+   where the slug lives:
+   - `~/.studio/$SLUG` exists, `_archive/$SLUG` does not — normal case;
+     continue with step 3.
+   - `~/.studio/$SLUG` does not exist but `_archive/$SLUG` does — **already
+     archived** (another machine or collaborator did the store-side move,
+     e.g. after a `git pull` in `~/.studio`). Skip steps 3–5 and jump
+     straight to step 6: this machine only needs its local cleanup. Say so
+     in the report.
+   - Both exist — STOP. A previous archive of the same slug is in place and
+     a live workspace has reappeared beside it; never overwrite. Surface via
+     `AskUserQuestion` (suffix the new archive, or cancel).
+   - Neither exists — STOP; nothing to archive under that slug.
 
 3. **Confirm intent.** Archiving is meant for completed work. Use
    `AskUserQuestion` to confirm: show the slug, its last workspace commit
