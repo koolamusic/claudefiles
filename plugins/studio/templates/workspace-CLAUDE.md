@@ -15,7 +15,7 @@ This workspace hosts cross-session state for the `{{workspace_slug}}` project. I
 ## Workspace layout
 
 - `memory/archive/<host>/<iso>/` — append-only memory snapshots (one dir per sync).
-- `planning/`, `jira/`, `retrospective/`, `uat/` — workflow state mirrored from project symlinks.
+- `planning/`, `jira/`, `retrospective/`, `warden/` — workflow state mirrored from project symlinks.
 - `skills/`, `hooks/` — project-scoped tools copied at setup time.
 
 ## How adoption works

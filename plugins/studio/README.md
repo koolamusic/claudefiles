@@ -1,6 +1,6 @@
 # studio
 
-Studio moves workflow state (`.project/`, `.uat/`, `.jira/`, `.warden/`, local memory) out of project repos into a single private git repo at `~/.studio/`. Project roots get symlinks pointing into per-project subdirs. Tools and skills that expect `.project/`, `.jira/`, etc. see exactly those paths — no modifications needed.
+Studio moves workflow state (`.project/`, `.jira/`, `.warden/`, local memory) out of project repos into a single private git repo at `~/.studio/`. Project roots get symlinks pointing into per-project subdirs. Tools and skills that expect `.project/`, `.jira/`, etc. see exactly those paths — no modifications needed.
 
 ## Commands
 
@@ -18,7 +18,6 @@ Studio moves workflow state (`.project/`, `.uat/`, `.jira/`, `.warden/`, local m
 └── <project-slug>/
     ├── jira/
     ├── project/
-    ├── uat/
     ├── warden/
     ├── skills/
     └── hooks/
@@ -27,7 +26,7 @@ Studio moves workflow state (`.project/`, `.uat/`, `.jira/`, `.warden/`, local m
 ## Project-root effects
 
 - `.workspacerc` — gitignored via the managed block; machine-local breadcrumb pointing at the workspace.
-- `.jira`, `.project`, `.uat`, `.warden` — symlinks into `~/.studio/<slug>/`, gitignored via the studio-managed block.
+- `.jira`, `.project`, `.warden` — symlinks into `~/.studio/<slug>/`, gitignored via the studio-managed block.
 - `.gitignore` — gains a studio-managed block delimited by markers; Studio owns the contents between the markers and replaces it wholesale on sync.
 
 ## Install

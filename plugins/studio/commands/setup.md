@@ -1,5 +1,5 @@
 ---
-description: Initialize the current project against ~/.studio/<slug>. Creates the workspace subdir, moves pre-existing .jira/.project/.uat content into it, writes symlinks, syncs the managed .gitignore block (which also gitignores .workspacerc as a machine-local breadcrumb), writes .workspacerc at the project root. Idempotent. Reads studio.yaml for all configurable values.
+description: Initialize the current project against ~/.studio/<slug>. Creates the workspace subdir, moves pre-existing .jira/.project/.warden content into it, writes symlinks, syncs the managed .gitignore block (which also gitignores .workspacerc as a machine-local breadcrumb), writes .workspacerc at the project root. Idempotent. Reads studio.yaml for all configurable values.
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion
 argument-hint: (no arguments — slug derived from repo basename)
 ---
@@ -29,7 +29,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
    - one directory per value in the parsed `symlinks` map (i.e. each `target_name`), and
    - one directory per entry in `workspace_dirs`.
 
-   For the shipped config this resolves to: `~/.studio/$SLUG/{jira,project,uat,memory,memory/archive,skills,hooks}`. The command must compute this list from the parsed YAML, not from a hardcoded list.
+   For the shipped config this resolves to: `~/.studio/$SLUG/{jira,project,warden,memory,memory/archive,skills,hooks}`. The command must compute this list from the parsed YAML, not from a hardcoded list.
 
 6. **Move existing project state.** Iterate over each `(link_name, target_name)` pair from the parsed `symlinks` map. For each pair:
    - If `$PROJECT_ROOT/$link_name` exists as a **real directory** (not a symlink) and is non-empty:
@@ -65,7 +65,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
     {
       "version": 1,
       "workspace": "~/.studio/<slug>",
-      "symlinks": [".jira", ".project", ".uat"]
+      "symlinks": [".jira", ".project", ".warden"]
     }
     ```
 
@@ -113,7 +113,7 @@ Initialize a studio workspace for the current project. All symlink pairs, worksp
 
 ## Hard rules
 
-- **Idempotent.** Re-running `/studio:setup` on an already-initialized project is a safe no-op for the move/symlink/hook-install steps, but it always re-syncs the managed `.gitignore` block (which is the only part that may legitimately change on re-run when `studio.yaml` is updated upstream).
+- **Idempotent.** Re-running `/studio:setup` on an already-initialized project is a safe no-op for the move/symlink/hook-install steps, and it always re-syncs the managed `.gitignore` block. Re-run is also the adoption path for symlink pairs newly declared in `studio.yaml` after the project was initialized (e.g. `.warden`): steps 5–7 create the missing workspace dir and symlink, and step 11 rewrites `.workspacerc`'s `symlinks` array to the now-current set. Symlinks that studio.yaml no longer declares are left untouched — `/studio:sync` reports them as `retired` with removal guidance.
 - **Never auto-push.** Both commits (project repo and `~/.studio`) stop at `git commit`. The user pushes manually — there is no `git push` anywhere in this command.
 - **`studio.yaml` is the source of truth.** No hardcoded symlink names, workspace directory names, gitignore entries, marker strings, or hook commands live inside this command. Every such value is read at runtime from `${CLAUDE_PLUGIN_ROOT}/templates/studio.yaml` and used by name. Literal examples in the prose above are illustrative only.
 - **Managed gitignore block is replaced wholesale** between the two markers. Content outside the markers is preserved byte-for-byte — do not touch it, do not reorder it, do not normalize whitespace around it.

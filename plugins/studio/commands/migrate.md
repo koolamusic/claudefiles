@@ -16,7 +16,7 @@ This section is READ-ONLY. No filesystem or git index mutations occur here. Ever
    - `symlinks` (map of `link_name` → `target_name`). The **set of `link_name` keys** is what subsequent steps refer to as `SYMLINK_NAMES`: the paths at project root to detect, untrack, and symlink.
    - `gitignore.marker_start` and `gitignore.marker_end` (consumed by the managed-block re-sync in "## Setup (shared)").
 
-   Every literal that appears below as `.jira`, `.project`, `.uat`, `.warden` is illustrative; the command's decision source is the parsed YAML, not the inline examples. A future contributor adding a fifth managed directory in `studio.yaml` should not need to edit this command.
+   Every literal that appears below as `.jira`, `.project`, `.warden` is illustrative; the command's decision source is the parsed YAML, not the inline examples. A future contributor adding a fifth managed directory in `studio.yaml` should not need to edit this command.
 
 1. **Verify project context.** Run `git rev-parse --show-toplevel`. If it fails (not inside a git repo), stop with: "Not a git repository — run `git init` first. Studio workspaces are keyed to a git repo's basename." On success, record the stdout as `PROJECT_ROOT` and use it for every subsequent path.
 
@@ -85,7 +85,7 @@ Apply steps 3–N of `/studio:setup` (see `plugins/studio/commands/setup.md`) �
   {
     "version": 1,
     "workspace": "~/.studio/<slug>",
-    "symlinks": [".jira", ".project", ".uat", ".warden"]
+    "symlinks": [".jira", ".project", ".warden"]
   }
   ```
 

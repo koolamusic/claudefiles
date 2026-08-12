@@ -14,7 +14,7 @@ Studio's default behaviour creates filesystem symlinks at the project root point
 
 | Concern | Normal mode | Fallback mode |
 |---|---|---|
-| State access | Symlinks at project root (`.project`, `.jira`, `.uat`, `.warden`) | `additionalDirectories` in `.claude/settings.local.json` pointing at `~/.studio/<slug>/` |
+| State access | Symlinks at project root (`.project`, `.jira`, `.warden`) | `additionalDirectories` in `.claude/settings.local.json` pointing at `~/.studio/<slug>/` |
 | Shell discoverability | `ls .project/` works from any shell in the project root | Does NOT work — only Claude Code's tools see the workspace paths |
 | Session-start hook | Wired via workspace's `settings.json` (reached through the symlinked `.claude/` if present, or via the project's own `settings.json`) | Registered with an absolute path in the project's `.claude/settings.local.json` |
 | `.workspacerc` | Written at project root (gitignored via studio-managed block — machine-local) | Same — still written, same format, still gitignored |
@@ -30,7 +30,7 @@ Studio's default behaviour creates filesystem symlinks at the project root point
 2. Create the workspace directory manually (matching what `/studio:setup` would create — see `plugins/studio/templates/studio.yaml` for the exact subdir list):
 
    ```bash
-   mkdir -p ~/.studio/<slug>/{project,uat,jira,memory,memory/archive,skills,hooks}
+   mkdir -p ~/.studio/<slug>/{project,jira,warden,memory,memory/archive,skills,hooks}
    ```
 
 3. Copy the session-start hook into the workspace:

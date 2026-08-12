@@ -85,7 +85,11 @@ Resolve `WORKSPACE` first (same as step 3 below): `PROJECT_ROOT=$(git rev-parse 
    - `wrong-target` — symlink exists but its resolved target does not start with `$WORKSPACE/$target_name`; record as drift.
    - `ok` — symlink exists and resolves correctly into the workspace.
 
-   Collect the drift report as `{missing: [...], not-a-symlink: [...], wrong-target: [...]}`. This step MUST be strictly report-only: do not create, remove, or modify any symlink; do not `mv` or `rm` any real directory. If drift count > 0, print the report at the end of step 8 and recommend `/studio:setup` to repair. Continue to step 5 regardless — gitignore re-sync is independent of symlink health.
+   Then scan the other direction for **retired** links: read the `symlinks` array from `.workspacerc` and check each recorded `link_name` against the studio.yaml `symlinks` map. A link recorded in `.workspacerc` (or any project-root symlink resolving into `$WORKSPACE/`) that is no longer declared in studio.yaml is `retired` — e.g. `.uat` after its retirement. Record it as drift with guidance: remove the symlink (`rm` the link only, never its target) and prune the entry from `.workspacerc`'s `symlinks` array; the workspace directory and its contents stay put as archive.
+
+   Note that pairs newly declared upstream (e.g. `.warden` on projects initialized before it existed) surface here as `missing` even though `.workspacerc` never listed them — compare against studio.yaml, not `.workspacerc`, for this category. Re-running `/studio:setup` adopts them.
+
+   Collect the drift report as `{missing: [...], not-a-symlink: [...], wrong-target: [...], retired: [...]}`. This step MUST be strictly report-only: do not create, remove, or modify any symlink; do not `mv` or `rm` any real directory; do not rewrite `.workspacerc`. If drift count > 0, print the report at the end of step 8 and recommend `/studio:setup` to repair (`missing`/`wrong-target`) or the manual removal above (`retired`). Continue to step 5 regardless — gitignore re-sync is independent of symlink health.
 
 5. **Re-sync managed .gitignore block.** Identical logic to `/studio:setup` step 9:
    - Read `$PROJECT_ROOT/.gitignore` into memory (create empty if missing).
@@ -106,7 +110,7 @@ Resolve `WORKSPACE` first (same as step 3 below): `PROJECT_ROOT=$(git rev-parse 
 7. **Commit workspace repo if anything changed (future-proof scaffold).** `cd "$WORKSPACE/.." && git diff --quiet HEAD -- "$(basename "$WORKSPACE")/" || (git add "$(basename "$WORKSPACE")/" && git commit -m "chore: sync workspace")`. In P1, nothing under the workspace is modified by `/studio:sync`, so this commit is normally a no-op — the check is future-proofing for P3 when memory archival runs here. Never `git push`. Under `--dry-run`, print-only.
 
 8. **Report.** Print:
-   - Drift summary by category (counts for `missing`, `not-a-symlink`, `wrong-target`). If any drift > 0, recommend `/studio:setup` to repair.
+   - Drift summary by category (counts for `missing`, `not-a-symlink`, `wrong-target`, `retired`). If any drift > 0, recommend `/studio:setup` to repair (`retired` gets the manual-removal guidance from step 4 instead).
    - Gitignore action: `unchanged` / `updated` / `malformed-stopped`.
    - Whether a project-side commit was created (and its short SHA) or skipped.
    - Whether a workspace-side commit was created (expected: skipped in P1).
@@ -120,7 +124,7 @@ Resolve `WORKSPACE` first (same as step 3 below): `PROJECT_ROOT=$(git rev-parse 
 
 - **Idempotent.** A healthy project produces zero file changes and zero commits on a second run.
 - **Never auto-push.** Neither the project repo nor the workspace repo is pushed by this command. If a user runs `/studio:sync` and the workspace remote has diverged from HEAD, surface the situation at report time and let the user choose what to do — never force-push.
-- **Never moves project state.** If symlink drift is detected (missing, not-a-symlink, wrong-target), this command reports it and recommends `/studio:setup`. It does NOT silently repair drift by moving files — the user may have uncommitted work inside a misplaced real directory, and only `/studio:setup` is authorized to move project state.
+- **Never moves project state.** If symlink drift is detected (missing, not-a-symlink, wrong-target, retired), this command reports it and recommends `/studio:setup`. It does NOT silently repair drift by moving files — the user may have uncommitted work inside a misplaced real directory, and only `/studio:setup` is authorized to move project state.
 - **`studio.yaml` is the source of truth.** Symlink pairs, markers, and gitignore entries are read at runtime from `${CLAUDE_PLUGIN_ROOT}/templates/studio.yaml`. No hardcoded values in this command.
 - **Managed-block replacement is wholesale.** Between `MARKER_START` and `MARKER_END`, the block is replaced byte-for-byte. Content outside the markers is preserved verbatim.
 - **Malformed `.gitignore` stops the command.** If only one marker is present, or they appear in reversed order, the command stops and asks the user to repair by hand rather than guessing.

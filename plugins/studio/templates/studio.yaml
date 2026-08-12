@@ -2,8 +2,10 @@ version: 1
 symlinks:
   .jira: jira
   .project: project
-  .uat: uat
   .warden: warden
+# .uat retired: /jira:uat was replaced by /jira:flow + warden acceptance, so no
+# tool writes .uat/ anymore. New setups don't create it; /studio:sync reports
+# existing .uat symlinks as retired. It stays gitignored below for legacy checkouts.
 workspace_dirs:
   - memory
   - memory/archive
@@ -15,6 +17,7 @@ gitignore:
   entries:
     - .jira
     - .project
+    # legacy: retired symlink, kept ignored so old checkouts never commit it
     - .uat
     - .warden
     - .studio
