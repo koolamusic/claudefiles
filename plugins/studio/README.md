@@ -8,6 +8,7 @@ Studio moves workflow state (`.project/`, `.jira/`, `.warden/`, local memory) ou
 |---|---|
 | `/studio:setup` | Initialize the current project against `~/.studio/<slug>`: create workspace dirs, move existing state, write symlinks, sync the managed `.gitignore` block (which also gitignores `.workspacerc` as a machine-local breadcrumb), write `.workspacerc` at the project root. |
 | `/studio:sync` | Re-sync the managed `.gitignore` block and validate symlinks. Idempotent; safe no-op on a healthy project. |
+| `/studio:archive` | Archive a completed project's workspace into `~/.studio/_archive/<slug>/` (git mv, history preserved) and clean up the local checkout's symlinks, `.workspacerc`, and session hook. |
 
 ## Workspace layout
 
