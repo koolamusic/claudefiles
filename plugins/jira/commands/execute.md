@@ -34,13 +34,13 @@ Execute the active sprint to completion: every plan executed (parallel within wa
    - **If any executor returns `deviation` or `blocked`:** stop the wave loop. Surface the EXECUTION.md notes via `AskUserQuestion`: revise plan, retry from current wave, or abort. Don't auto-revise.
    - **If all executors return `complete`:** proceed to next wave.
 
-8. **All waves done — spawn `jira-nyquist`** with sprint slug + all plan paths + execution log path + worktree path (if any). Returns `GAPS FILLED` (green), `PARTIAL` (red), `ESCALATE` (red), or `NO TEST INFRA`.
+8. **All waves done — spawn `jira-nyquist`** with sprint slug + all plan paths + feature paths (`features/*.feature`) + execution log path + worktree path (if any). Returns `GAPS FILLED` (green), `PARTIAL` (red), `ESCALATE` (red), or `NO TEST INFRA`.
 
 9. **If Nyquist `red`:** surface the failing/escalated criteria via `AskUserQuestion`: route back to executor (with new task), accept-as-is and proceed with caveat, or abort.
 
 10. **If Nyquist `NO TEST INFRA`:** ask user via `AskUserQuestion` whether to proceed without test validation or pause to set up testing.
 
-11. **If Nyquist green** (or user accepts caveat) — **spawn `jira-verifier`** with sprint slug + sprint dir + all plan paths + context path + execution path + verification output path + verification template. Returns `verdict: PASS | PARTIAL | FAIL`.
+11. **If Nyquist green** (or user accepts caveat) — **spawn `jira-verifier`** with sprint slug + sprint dir + all plan paths + feature paths (`features/*.feature`) + context path + execution path + verification output path + verification template. Returns `verdict: PASS | PARTIAL | FAIL`.
 
 12. **If verifier `FAIL`:** the goal isn't actually delivered. Surface VERIFICATION.md findings via `AskUserQuestion`: route back to planner with the gap list, route back to executor for specific outcomes, or abort. **Do NOT open a PR on a FAIL.**
 

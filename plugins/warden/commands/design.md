@@ -98,7 +98,7 @@ Sources, in priority order:
 1. **`--from-plan <path>`** if passed: model on that plan.
 2. **`--issue N`** if passed: that GitHub issue is the source.
 3. **`$ARGUMENTS` free text** if non-empty: starting point for refinement.
-4. **`.jira/sprints/<current>/`** if present: read `.jira/CURRENT`, then read `BRIEF.md`, `CONTEXT.md`, `VERIFICATION.md`, and any `*-PLAN.md` in the active sprint. These already encode acceptance criteria the jira workflow produced.
+4. **`.jira/sprints/<current>/`** if present: read `.jira/CURRENT`, then read `features/*.feature` first — the sprint's declared acceptance predicates, each scenario tagged `@req:<ID>`, are the highest-signal spec artifact — then `BRIEF.md`, `CONTEXT.md`, `VERIFICATION.md`, `FLOW.md` (human verification steps, if present: feeds Prerequisites and Identity scope), and any `*-PLAN.md`. These already encode acceptance criteria the jira workflow produced.
 5. **`.planning/active/`** if present (GSD): read `SPEC.md`, `PLAN.md`, `RESEARCH.md` from the active phase. GSD discuss-phase output is high-signal.
 6. **`.project/ROADMAP.md`** if present (studio): goals + phase breakdown.
 7. **`.warden/plans/`** existing: surface as "extend an existing plan" candidates.
@@ -211,6 +211,7 @@ Required sections in the plan:
 - One or more `### Step` headings with bash blocks
 - First bash block starts with `set -uo pipefail` and `source "$WARDEN_LIB/assert.sh"`
 - Every check produces a `warden_pass` or `warden_fail` (see `references/antipatterns.md`)
+- **When the spec source is a jira sprint with `features/*.feature`: assertion IDs are the `@req` predicate IDs** (`warden_pass TOK-01`), one assertion per scenario, so acceptance results join the sprint's predicate spine (plans claim via `effects:`, nyquist senses in tests, warden senses here). Feature files stay in the sprint dir — the runner discovers `.md` plans only; reference scenarios from the plan's prose, don't copy `.feature` files into `.warden/plans/`.
 - For multi-identity scenarios, use `warden_signin_as <slot>` and assert authorization via `warden_api_status_eq`
 
 Write to `$PHASE_DIR/<NN>-<slug>.md`.

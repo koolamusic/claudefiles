@@ -104,6 +104,7 @@ Glob `.warden/plans/**/*.md`. For each:
 - Has at least one fenced ```bash block. Missing → error (the runner will skip it as a no-op).
 - The first ```bash block starts with `source` of `assert.sh` or contains a `warden_pass`/`warden_fail`/`warden_skip` call. Otherwise → advisory ("plan has no assertions; will run silently green").
 - File matches the `NN-<slug>.md` naming convention. Off-convention → advisory.
+- **Predicate join** (only when a jira sprint with `features/*.feature` is active — `cat .jira/CURRENT` and check the sprint dir): collect `@req:<ID>` tags from the sprint's features and assertion IDs across `.warden/plans/`. A predicate with no matching assertion ID → advisory ("predicate declared but not sensed by any warden plan"); an assertion ID matching the `@req` naming shape (`PREFIX-NN`) with no matching predicate → advisory ("assertion references a predicate that doesn't exist in the sprint's features").
 
 ## Output format
 

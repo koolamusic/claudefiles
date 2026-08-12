@@ -33,4 +33,4 @@ Serve the sprint corpus as a browsable review site: sidebar of sprints (collapsi
 - Read-only with respect to the repository: the site is built OUTSIDE the repo; never add build output or server artifacts to git.
 - Re-running rebuilds from scratch (the out dir is wiped first) — safe to run after every doc change.
 - The server is a convenience for review, not a deployment: bind-all is fine on trusted networks; mention `ssh -L` tunneling for anything else.
-- Sprints are ordered most-recently-modified first; docs within a sprint follow read order (BRIEF, RESEARCH, CONTEXT, numbered plans, CHECK, ISSUE-DRAFT, then the rest).
+- Sprints are ordered most-recently-modified first; docs within a sprint follow read order (BRIEF, RESEARCH, CONTEXT, features/*.feature, numbered plans, CHECK, ISSUE-DRAFT, then the rest).

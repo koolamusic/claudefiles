@@ -78,7 +78,7 @@ Path: `.warden/remediation/<NN>-<slug>.md` where:
 
 For each remediation file, populate:
 - The one-line summary in the heading
-- Plan and step (assertion id is the step)
+- Plan and step (assertion id is the step; when the id is a sprint predicate — `PREFIX-NN` shape — record it as `req: <ID>` in the frontmatter so the failure routes back to the sprint's features)
 - First/last seen dates from JSONL
 - Priority (P0/P1/P2/P3) inferred from severity and cascading impact
 - Category (from classification above)

@@ -156,10 +156,12 @@ const main = async () => {
       const dir = join(SPRINTS_DIR, slug)
       let docs = orderDocs(readdirSync(dir).filter((f) => f.endsWith('.md')))
       if (ONLY) docs = docs.filter((n) => ONLY.includes(n))
+      const featDir = join(dir, 'features')
+      const features = existsSync(featDir) ? readdirSync(featDir).filter((f) => f.endsWith('.feature')).sort() : []
       let verdict = null
       const check = join(dir, 'CHECK.md')
       if (existsSync(check)) { const m = readFileSync(check, 'utf8').match(/VERDICT:\s*(APPROVE|REVISE)(?![\s\S]*VERDICT:)/); verdict = m?.[1] ?? null }
-      return { slug, dir, docs, mtime: statSync(dir).mtimeMs, verdict }
+      return { slug, dir, docs, features, mtime: statSync(dir).mtimeMs, verdict }
     })
     .filter((s) => s.docs.length)
     .sort((a, b) => b.mtime - a.mtime)
@@ -176,7 +178,11 @@ const main = async () => {
     for (const s of sprints) {
       const badge = s.verdict ? `<span class="badge ${s.verdict === 'APPROVE' ? 'ok' : 'rev'}">${s.verdict === 'APPROVE' ? 'OK' : 'REV'}</span>` : ''
       h += `<details${active.startsWith(`s/${s.slug}/`) ? ' open' : ''}><summary>${esc(s.slug)}${badge}</summary>`
-      for (const d of s.docs) h += `<a class="item${active === `s/${s.slug}/${d}` ? ' active' : ''}" href="/s/${s.slug}/${d}.html">${esc(d)}</a>`
+      for (const d of s.docs) {
+        h += `<a class="item${active === `s/${s.slug}/${d}` ? ' active' : ''}" href="/s/${s.slug}/${d}.html">${esc(d)}</a>`
+        if (d === 'CONTEXT') for (const f of s.features) { const n = f.replace(/\.feature$/, ''); h += `<a class="item${active === `s/${s.slug}/features/${n}` ? ' active' : ''}" href="/s/${s.slug}/features/${n}.html">${esc(f)}</a>` }
+      }
+      if (!s.docs.includes('CONTEXT')) for (const f of s.features) { const n = f.replace(/\.feature$/, ''); h += `<a class="item${active === `s/${s.slug}/features/${n}` ? ' active' : ''}" href="/s/${s.slug}/features/${n}.html">${esc(f)}</a>` }
       h += `</details>`
     }
     for (const inc of includes) {
@@ -197,6 +203,11 @@ const main = async () => {
     mkdirSync(join(OUT, 's', s.slug), { recursive: true })
     for (const d of s.docs) {
       writeFileSync(join(OUT, 's', s.slug, `${d}.html`), shell({ title: `${s.slug} · ${d}`, crumbs: `<a href="/index.html">review</a> / ${esc(s.slug)}`, body: `<h1 style="margin-top:0">${esc(s.slug)} · ${esc(d)}</h1>` + render(readFileSync(join(s.dir, `${d}.md`), 'utf8')), active: `s/${s.slug}/${d}` })); pages++
+    }
+    if (s.features.length) mkdirSync(join(OUT, 's', s.slug, 'features'), { recursive: true })
+    for (const f of s.features) {
+      const n = f.replace(/\.feature$/, '')
+      writeFileSync(join(OUT, 's', s.slug, 'features', `${n}.html`), shell({ title: `${s.slug} · ${f}`, crumbs: `<a href="/index.html">review</a> / ${esc(s.slug)} / features`, body: `<h1 style="margin-top:0">${esc(s.slug)} · ${esc(f)}</h1><pre><code>${esc(readFileSync(join(s.dir, 'features', f), 'utf8'))}</code></pre>`, active: `s/${s.slug}/features/${n}` })); pages++
     }
   }
   for (const inc of includes) {

@@ -115,7 +115,11 @@ If `DESTRUCTIVE=1` in `warden.config.sh`, the runner shows a 5-second countdown 
 
 ## Composes with jira
 
-The jira plugin's `/jira:uat design` writes plans into `.warden/plans/` directly. Use `/jira:uat` when you have an active sprint and want sprint-coupled UAT lifecycle. Use `/warden:*` for project-wide coverage that outlives sprints, or in repos without jira.
+When a jira sprint is active, `/warden:design` reads the sprint's `features/*.feature` as its preferred spec source and names assertions after the `@req` predicate IDs (`warden_pass TOK-01`), so acceptance results join the sprint's predicate spine. `/jira:flow` writes the human verification walkthrough that feeds design's Prerequisites and Identity-scope. Warden stays fully usable standalone — in repos without jira, design falls back to its other spec sources.
+
+## The model
+
+Warden is the goal test of a classical planning loop with an untrusted executor. The sprint declares its goal as [Gherkin](https://en.wikipedia.org/wiki/Behavior-driven_development) predicates — each scenario a `{P} C {Q}` [Hoare triple](https://en.wikipedia.org/wiki/Hoare_logic), the same precondition/effects shape as a [STRIPS](https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver) operator. Tests sense predicates at execution; warden senses them last, deterministically, against the running system — [execution monitoring](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling), because a plan proven correct is not a plan executed correctly. Never trust a single source; nothing checks itself.
 
 ## What lives in the plugin vs the project
 
