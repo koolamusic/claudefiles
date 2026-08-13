@@ -99,12 +99,19 @@ experimental:
         -21); the agent self-reports at a flat -3. PreToolUse hard-gates
         tools by level (L1 edits, L2 mutating bash/agents, L3 push/PR/
         deploy/sends, L4 destructive) and terminates the agent below 20
-        points. Statusline: 'trust-monitor.sh statusline <session_id>'
-        renders a colored trust bar — add one guarded call to your local
-        statusline-command.sh (prints nothing when no ledger exists).
+        points. Statusline: opting in also points settings.json's
+        statusLine at hooks/statusline-wrapper.sh, which renders the base
+        statusline (gsd-statusline.js when installed, a minimal
+        model/dir/context line otherwise) and appends the colored trust
+        bar from 'trust-monitor.sh statusline <session_id>' (prints
+        nothing when no ledger exists, so the line degrades cleanly).
         Requires jq. Files: hooks/trust-monitor.sh,
-        hooks/trust-monitor.json, commands/trust.md.
+        hooks/trust-monitor.json, hooks/statusline-wrapper.sh,
+        commands/trust.md.
       settings:
+        statusLine:
+          type: command
+          command: 'bash "$HOME/.claude/hooks/statusline-wrapper.sh"'
         hooks:
           SessionStart:
             - matcher: 'startup|clear|resume'
