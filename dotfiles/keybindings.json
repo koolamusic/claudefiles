@@ -5,8 +5,19 @@
     {
       "context": "Scroll",
       "bindings": {
-        "up": "scroll:lineUp",
-        "down": "scroll:lineDown"
+        "up": null,
+        "down": null,
+        "alt+j": "scroll:lineDown",
+        "alt+k": "scroll:lineUp",
+        "alt+shift+j": "scroll:pageDown",
+        "alt+shift+k": "scroll:pageUp"
+      }
+    },
+    {
+      "context": "Transcript",
+      "bindings": {
+        "up": null,
+        "down": null
       }
     }
   ]
