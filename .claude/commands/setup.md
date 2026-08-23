@@ -163,8 +163,8 @@ Read the `env` section from `claudefiles.yaml`. For each variable declared:
 4. If present but with a different value, update it to match the manifest
 
 ```bash
-# Example for USER_TYPE=ant
-grep -q 'export USER_TYPE=' ~/.zshrc || echo 'export USER_TYPE="ant"' >> ~/.zshrc
+# Example for MY_VAR=value
+grep -q 'export MY_VAR=' ~/.zshrc || echo 'export MY_VAR="value"' >> ~/.zshrc
 ```
 
 ### Step 10: Install external dependencies
