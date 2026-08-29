@@ -29,6 +29,8 @@ For each, one line of evidence, not a restatement of the section:
 6. **Placeholders.** Every `[DATA REQUIRED: ...]` / `[CITATION REQUIRED: ...]` still in the draft is a fact, not a defect to silently accept — list them, don't fill them in yourself.
 7. **Confidentiality.** Scan for anything that looks like a credential, DSN, API key, internal hostname, or customer-identifying detail that shouldn't be in a published artifact.
 8. **Typography.** Outside `<pre>`/`<code>`: any em-dash (`—`), curly/smart quote, or unicode ellipsis (`…`) is a defect — flag with the exact section and the plain-ASCII replacement. Do not flag en-dash ranges, math/technical symbols, or anything inside `<pre>`/`<code>` — those are correct as-is.
+9. **Time legibility.** Any domain coordinate (ledger number, block height, epoch counter, build number) without a calendar date at first use, any range without a human span, any wall-clock figure without a felt duration - flag with the section and the coordinate. Exact numbers stay; the date must sit beside them.
+10. **Insider vocabulary.** Any project-internal term ("tip", "serving head", layer names, phase names) neither replaced with plain words nor defined at first use - flag with the term, the section, and a plain-words substitute. Test: would a competent engineer who has never seen this codebase follow the sentence cold?
 
 ## Output
 
@@ -48,7 +50,7 @@ required_revisions:  # only if REVISE, at most 5, most severe first
 escalate: false  # set true if this is the second review pass and issues didn't drop
 ```
 
-A `BLOCKER` is a claim the evidence doesn't support, an invented figure, hidden confidentiality risk, or a hidden negative result. A `WARNING` is promotional language, a thin reproducibility step, an unresolved placeholder left unflagged, or stray em-dash/curly-quote/ellipsis in prose. An `INFO` is a nice-to-have (tighter title, clearer figure).
+A `BLOCKER` is a claim the evidence doesn't support, an invented figure, hidden confidentiality risk, or a hidden negative result. A `WARNING` is promotional language, a thin reproducibility step, an unresolved placeholder left unflagged, stray em-dash/curly-quote/ellipsis in prose, a coordinate with no calendar date, or an insider term left undefined. An `INFO` is a nice-to-have (tighter title, clearer figure).
 
 ## Hard rules
 
