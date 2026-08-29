@@ -149,6 +149,19 @@ The title should survive being the only thing a triager reads. It names the subs
 - `Improve performance`
 - `Fix the icon`
 
+### 13. Write for a reader with zero context
+
+Assume the reader has never opened `.jira/`, has no idea what a sprint, wave, or decision ID is, and may not even have the repo cloned. Every issue must stand on its own.
+
+- **No internal identifiers in the body.** `D-09`, `Nyquist`, sprint slugs, plan numerals, and `.jira/` paths mean nothing outside the repo. Translate each decision into the plain statement it encodes ("`deployments.json` is kept for one release as a generated alias") and, if the source matters, link to the committed file with a full GitHub URL, not a relative path.
+- **Orient in the first line.** For wave issues, open with one line that places the slice: what the overall effort is, which step this is, and how many steps there are — e.g. *"Part of moving the Stellar contracts to soroban-sdk 27 — step 2 of 6."*
+- **Name dependencies as issues, not plans.** "Depends on #123 (registry export)" — never "depends on Plan IV". Push in dependency order so the numbers exist when you need them.
+- **Define terms on first use.** Project nouns (registry, resolver, authority, indexer) get a half-sentence gloss the first time they appear.
+- **Links must resolve for an outsider.** Full URLs to files on the default branch, to docs, to advisories. A bare `path:line` is fine as evidence *alongside* a link, not instead of one.
+- **The Verification list is the contract.** A reader with no context should be able to run each item and get a yes/no without asking anyone.
+
+The test: hand the issue to a competent engineer who joined yesterday. If they need to ask "what's a D-09?" or "which sprint?", the issue is not done.
+
 ## Domain → section matrix
 
 When filling a template, use the domain to decide which evidence sections to include:
@@ -178,8 +191,9 @@ When filling a template, use the domain to decide which evidence sections to inc
 
 ## Before pushing
 
-- Every file citation resolves (grep it).
-- Every D-XX reference exists in CONTEXT.md.
+- Every file citation resolves (grep it) and is paired with a full URL.
+- No `D-XX`, `Nyquist`, sprint slug, plan numeral, or `.jira/` path appears in the body (principle 13). Decision IDs may live in the draft's frontmatter for traceability, not in the pushed body.
+- The first line orients a stranger (what effort, which step, how many).
 - For library/frontend: the minimal reproduction was actually run — don't ship untested repros.
 - For frontend: the screenshot/video is attached and shows the specific state being described.
 - Severity and Impact are set (research shape).
