@@ -151,6 +151,18 @@ The title should survive being the only thing a triager reads. It names the subs
 - `Improve performance`
 - `Fix the icon`
 
+### 13. Orient a reader who has none
+
+The body is read by someone who has never opened `.jira/`, does not know what a sprint or a wave is, and may not have the repo cloned. [`../author-conventions.md`](../author-conventions.md) decides which internal identifiers survive into the body (strict mode omits them, relaxed keeps them as shorthand); this principle covers what the body must supply either way.
+
+- **Orient in the first line.** A slice issue opens with one line placing it in the larger effort: what the effort is, which step this is, how many steps there are - e.g. *"Part of moving the Stellar contracts to soroban-sdk 27 - step 2 of 6."* The reader should never have to derive the shape of the work from the Goal.
+- **Name dependencies as issues, not plans.** "Depends on #123 (registry export)" - never "depends on Plan IV" or a wave numeral. Push in dependency order so the numbers exist when you cite them.
+- **Define project terms on first use.** Registry, resolver, authority, indexer: each gets a half-sentence gloss the first time it appears. Relaxed mode lowers the bar on internal identifiers, not on nouns nobody outside the sprint can parse.
+- **Links must resolve for an outsider.** Full URLs to files, docs, and advisories. A bare `path:line` is evidence *alongside* a link, not instead of one - in strict mode the link is a permalink pinned to a commit SHA.
+- **The Verification list is the contract.** Each item is something a stranger can run or observe and answer yes/no without asking anyone. "The tests pass" is not an item; the specific test and what it asserts is.
+
+The test: hand the issue to a competent engineer who joined yesterday. If they have to ask "which effort is this part of?" or "what's a resolver?", it is not done.
+
 ## Domain → section matrix
 
 When filling a template, use the domain to decide which evidence sections to include:
@@ -180,7 +192,9 @@ When filling a template, use the domain to decide which evidence sections to inc
 
 ## Before pushing
 
-- Every file citation resolves (grep it).
+- Every file citation resolves (grep it) and is paired with a link an outsider can open.
+- The first line orients a stranger: which effort, which step, how many steps (principle 13).
+- Every dependency is named as an issue number, not a plan or wave label.
 - No internal decision IDs (`D-XX`), `.jira/` paths, sprint slugs, or wave labels appear in the body — each locked decision reads as a plain-English constraint or acceptance criterion. Verify the decision against CONTEXT.md while drafting, then translate it out before push. See [`../author-conventions.md`](../author-conventions.md).
 - For library/frontend: the minimal reproduction was actually run — don't ship untested repros.
 - For frontend: the screenshot/video is attached and shows the specific state being described.

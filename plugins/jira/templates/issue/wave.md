@@ -1,60 +1,73 @@
 <!--
 WAVE ISSUE TEMPLATE (single executable slice)
 Source: one NN-PLAN.md from the active sprint.
-Read ../GUIDE.md before filling. Delete comments and [guidance] brackets before pushing.
+Read ../GUIDE.md before filling - principle 13 (orient a reader who has none) governs this
+template, and ../author-conventions.md decides whether internal identifiers survive into the
+body at all. Sprint slug, wave numeral, and decision IDs stay in the draft frontmatter for
+traceability; strict mode keeps them out of the pushed body entirely.
+Delete comments and [guidance] brackets before pushing.
 -->
 
-**Sprint**: {{sprint-slug}}
-**Wave**: {{Roman numeral, e.g. II}}
-**Parent spec**: {{#N if the sprint issue exists, else sprint-slug}}
+Part of {{one-line description of the overall effort, in plain words}} — step {{N}} of {{total}}.
+
 **Domain**: {{backend | library | frontend | integration | infra}}
+**Depends on**: {{#N (short title), #M (short title) — or "nothing; can start now"}}
+**Blocks**: {{#N (short title) — or "nothing"}}
 
 ## Goal
 
-{{One sentence. What this wave delivers. Should fit inside the sprint's overall Goal without overlap with other waves.}}
+{{One sentence. What this step delivers, stated so someone who has not read the other steps understands it.}}
 
-## Context
+## Background
 
-{{2-3 sentences pointing the reader to the minimum they need to read: which RESEARCH.md section, which CONTEXT.md decisions (D-XX), which parent plan files. Don't duplicate content — link to it.}}
+{{2-4 sentences a newcomer needs: what exists today, what is wrong or missing, and why this step is the fix. Gloss any project term on first use (e.g. "the registry — the JSON file listing deployed contract addresses per network"). Link to the files or docs that establish the current state.}}
 
-- Depends on: {{prior wave(s) or external work}}
-- Decisions locked in: {{D-XX, D-YY}}
-- Deferred from this wave: {{what's intentionally out of scope}}
+Decisions already made that this step must respect:
+
+- {{the decision as a plain constraint or acceptance criterion, with a link to where it is recorded if useful}}
+- {{decision}}
+
+Intentionally out of scope for this step:
+
+- {{what is deferred and where it lands — "handled in #N" or "a later effort"}}
 
 ## Changes
 
-<!-- The concrete edits. For backend/library: file:line + what changes. For frontend: component + behavior. -->
+<!-- The concrete edits. backend/library: file + what changes and why. frontend: component + behaviour. Link each path so an outsider can open it. -->
 
-- `{{path/to/file.ext}}` — {{what changes and why}}
-- `{{path/to/file.ext}}` — {{what changes and why}}
-- `{{path/to/file.ext}}` — {{what changes and why}}
+- [`{{path/to/file.ext}}`]({{link}}) — {{what changes and why}}
+- [`{{path/to/file.ext}}`]({{link}}) — {{what changes and why}}
+- [`{{path/to/file.ext}}`]({{link}}) — {{what changes and why}}
 
 ## Verification
 
-<!-- How you'll know this wave delivered. Nyquist-style: every acceptance item has a test or observable check. -->
+<!-- The contract. Every item is a command or observation a stranger can run and answer yes/no. "Tests pass" is not an item; the specific test and what it asserts is. -->
 
-- [ ] {{test or observable behavior — e.g. "new unit test covers the null-input case"}}
-- [ ] {{integration or E2E check}}
-- [ ] {{manual check, if any — for frontend this is often the visual confirmation}}
+- [ ] {{`command` → expected output}}
+- [ ] {{observable behaviour}}
+- [ ] {{manual/visual check — for frontend, name the page and the state in the screenshot}}
 
 ## Rollout
 
-<!-- How this lands. Pick one; delete the others. -->
+<!-- Pick one; delete the others. -->
 
 <!-- No rollout considerations: -->
 N/A — direct merge, no flag or migration needed.
 
 <!-- Feature flag: -->
-Behind `{{flag-name}}`. Default off. Ramp plan: {{when/how to enable}}.
+Behind `{{flag-name}}`. Default off. Enabled when {{condition}}.
 
 <!-- Migration: -->
-Requires schema push before merge: {{prisma migrate dev / drizzle push / ...}}. {{Backfill notes if any.}}
+Requires a schema change before merge: {{command}}. {{Backfill notes if any.}}
 
 <!-- Coordinated release: -->
-Ships with {{related PR / other service change}}. Must land {{before / after / together with}}.
+Ships together with {{#N / other change}}. Must land {{before / after / together}}.
+
+<!-- Operator action: -->
+Requires an operator action: {{who does what, where — e.g. "set `INDEX_CONTRACT_IDS` in the service settings"}}.
 
 ## Risks
 
-<!-- Optional for waves. Include only if this slice has non-obvious risk not covered by the spec. -->
+<!-- Include only real, non-obvious risk for this slice, and how the Verification list catches it. -->
 
-- {{risk — and how verification catches it}}
+- {{risk — caught by verification item N}}
