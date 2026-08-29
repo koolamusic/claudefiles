@@ -1,5 +1,7 @@
 # claudefiles
 
+![claudefiles](docs/featured.jpg)
+
 Portable Claude Code configuration. Like dotfiles, but for Claude.
 
 At the moment, this repo is **opinionated toward Claude Code**. It does not support other AI coding assistants.
