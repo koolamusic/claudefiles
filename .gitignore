@@ -14,9 +14,10 @@
 
 # >>> studio (managed) >>>
 .jira
-.planning
-.retrospective
+.project
 .uat
+.warden
 .studio
 .workspacerc
+.claude/settings.local.json
 # <<< studio (managed) <<<
