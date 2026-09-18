@@ -23,6 +23,21 @@ on `codex_app.*` thread tools). The port is not faithful, deliberately:
   agents on one checkout *will* conflict — worktree isolation is the correct
   default, so the skill requires it for concurrent children.
 
+## Why slots are generic and personas are not
+
+The three slots — surveyor, executor, auditor — are the separations that every
+agent framework converges on: find, produce, check. They are written as contracts
+because the contract is what does the work. An auditor that cannot fix what it
+found stays useful whether it is playing a security engineer or a film director;
+an auditor allowed to fix its own findings is just a second executor.
+
+So the slot is fixed and the persona is named at dispatch. That keeps the skill
+out of the business of maintaining a role catalog, and it keeps the war room
+useful for work that is not code. Planning stays in the orchestrator session
+rather than becoming a fourth slot, because vague task boundaries are the
+documented cause of children duplicating each other's work — the session that
+holds the cross-branch picture is the one that can draw sharp boundaries.
+
 ## Relation to `spawn`
 
 They coexist. `spawn` is finite, wave-based fan-out: decompose a plan, dispatch
