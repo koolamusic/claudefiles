@@ -65,7 +65,6 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | Skill | Description | Source |
 |-------|-------------|--------|
 | agent-browser | Browser automation with Playwright | [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) |
-| brainstorming | Structured brainstorming sessions | [obra/superpowers](https://github.com/obra/superpowers) |
 | breadboarding | UI breadboarding (Shape Up) | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | docx | Word document creation and editing | [anthropics/skills](https://github.com/anthropics/skills) |
 | golang-best-practices | Go concurrency, microservices, gRPC, generics | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
@@ -74,7 +73,6 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | pptx | PowerPoint creation | [anthropics/skills](https://github.com/anthropics/skills) |
 | react-best-practices | React/Next.js performance patterns | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) |
 | rust-best-practices | Idiomatic Rust, ownership, error handling, testing | [apollographql/skills](https://github.com/apollographql/skills) |
-| shaping | Shape Up project shaping | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | skill-creator | Create and test new skills (TDD methodology) | [anthropics/skills](https://github.com/anthropics/skills) + [obra/superpowers](https://github.com/obra/superpowers) |
 | xlsx | Excel spreadsheet processing | [anthropics/skills](https://github.com/anthropics/skills) |
 
@@ -147,7 +145,6 @@ claudefiles/
 ├── sounds/                   # SCV audio files (.wav)
 └── skills/                   # Skill directories
     ├── agent-browser/
-    ├── brainstorming/
     ├── breadboarding/
     │   ├── SKILL.md
     │   ├── references/       # Progressive-disclosure docs (8 files)
@@ -242,9 +239,9 @@ Tools and skills we don't use in claudefiles but are worth knowing about:
 Most skills here weren't written by me. This repo curates and organizes work from:
 
 - [Anthropic](https://github.com/anthropics/skills) — official skills (pdf, docx, xlsx, pptx, skill-creator)
-- [obra/superpowers](https://github.com/obra/superpowers) — brainstorming, writing-skills, TDD methodology
+- [obra/superpowers](https://github.com/obra/superpowers) — writing-skills, TDD methodology
 - [vercel-labs](https://github.com/vercel-labs) — agent-browser, react-best-practices
-- [rjs/shaping-skills](https://github.com/rjs/shaping-skills) — Shape Up shaping and breadboarding
+- [rjs/shaping-skills](https://github.com/rjs/shaping-skills) — Shape Up breadboarding
 - [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) — NestJS best practices
 - [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles) — git config, templates, and hooks
 - [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) — golang-best-practices
