@@ -88,7 +88,11 @@ The command reads `claudefiles.yaml` (the manifest) and:
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
-| shaping-ripple | PostToolUse (Write\|Edit) | When editing a file with `shaping: true` frontmatter, prints a ripple-check reminder to keep tables, diagrams, and requirements in sync. Silent for all other files. |
+| context-monitor | PostToolUse | Warns when context usage runs high, and suggests checkpointing the sprint before you lose the thread. |
+| retro-reminder | SessionStart | Flags a retrospective left pending from an earlier session. |
+| retro-trigger | PostToolUse (Write\|Edit\|Bash) | Spots a phase finishing and starts a retrospective, depending on the configured mode. |
+| trust-monitor | SessionStart, PreToolUse, PostToolUse | Runs a per-session trust ladder that gates tools by level. Opt-in. |
+| statusline-wrapper | statusLine | Appends the trust bar to whatever statusline you already have. |
 
 ### Sounds
 
@@ -141,7 +145,6 @@ claudefiles/
 │   │   └── claudecode.lua    # coder/claudecode.nvim
 │   └── templates/hooks/
 ├── hooks/                    # Claude Code hook scripts
-│   └── shaping-ripple.sh
 ├── sounds/                   # SCV audio files (.wav)
 └── skills/                   # Skill directories
     ├── agent-browser/
