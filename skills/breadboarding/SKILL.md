@@ -17,7 +17,7 @@ You have a workflow you're trying to understand. Provide code repo(s) and a work
 
 ### 2. Designing from Shaped Parts
 
-You have a new system sketched as an assembly of parts (mechanisms) per shaping. Provide the parts list, the R (requirement/outcome), and optionally the existing system. Output: affordance tables + optional Mermaid.
+You have a new system sketched as an assembly of parts (mechanisms), which is what a shaping pass produces — `/grill shape` is one way to get there. Provide the parts list, the R (requirement/outcome), and optionally the existing system. Output: affordance tables + optional Mermaid.
 
 ### 3. Mixtures
 

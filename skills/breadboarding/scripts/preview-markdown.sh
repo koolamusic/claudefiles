@@ -5,7 +5,7 @@
 #   Render a markdown file through GitHub's markdown API (same renderer
 #   as github.com) and check for broken tables, unclosed code blocks,
 #   and unrendered Mermaid keywords. Useful for validating breadboarding
-#   and shaping SKILL.md files before committing.
+#   SKILL.md and reference files before committing.
 # usage: ./preview-markdown.sh [file] [--open]
 # dependencies: gh (GitHub CLI), jq
 # output: .gfm-preview.html in the current directory
