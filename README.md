@@ -95,14 +95,24 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | trust-monitor | SessionStart, PreToolUse, PostToolUse | Runs a per-session trust ladder that gates tools by level. Opt-in. |
 | statusline-wrapper | statusLine | Appends the trust bar to whatever statusline you already have. |
 
+### Plugins
+
+Installed by Claude Code from the `claudefiles` marketplace on the first startup after `/setup`.
+
+| Plugin | What it does |
+|--------|-------------|
+| feature-dev | Guided feature development (official Claude plugins marketplace) |
+| ux | Frontend design and review commands |
+| jira | Sprint workflow — research, plan, execute, review. The primary workflow; see `plugins/jira/README.md`. |
+| warden | Acceptance-test playbook; see `plugins/warden/README.md` |
+| studio | Per-project workflow workspace — keeps `.project/`, `.jira/`, `.uat/` state as symlinks into a private `~/.studio/` git repo. Clone or create `~/.studio/` before running `/studio:setup`; see `plugins/studio/README.md`. |
+
 ### Experimental features
 
 Opt-in during `/setup`; declared under `experimental.features` in `claudefiles.yaml`.
 
 | Feature | What it does | Prerequisites |
 |---------|-------------|---------------|
-| context-monitor | PostToolUse hook that warns when context usage runs high and suggests a handoff. | `jq` |
-| studio | Per-project workflow workspace plugin (`/studio:setup`, `/studio:sync`, ...). Clone or create `~/.studio/` before running `/studio:setup`. | `~/.studio/` git repo |
 | trust-monitor | Per-session trust ladder that gates tools by level and adds a trust bar to the statusline. `/trust` awards and deducts. | `jq` |
 | tower | Runs the `orchestrator` skill's war room on visible [Herdr](https://herdr.dev) panes so you can watch every child agent work. `tower on`, `tower off`, `tower status`. Installs the `tower` skill only when enabled. | `herdr` on PATH and a session inside a Herdr-managed pane; the `orchestrator` skill (installed by default) |
 

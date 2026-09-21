@@ -37,11 +37,15 @@ settings:
       - matcher: 'Edit|Write|Bash'
         command: '$HOME/.claude/hooks/retro-trigger.sh'
         timeout: 10
+      - matcher: '.*'
+        command: '$HOME/.claude/hooks/context-monitor.sh'  # context-usage warnings; requires jq
+        timeout: 5
   plugins:
     - feature-dev@claude-plugins-official
     - ux@claudefiles
     - jira@claudefiles                    # primary sprint workflow — see plugins/jira/README.md
     - warden@claudefiles                  # acceptance test playbook, see plugins/warden/README.md
+    - studio@claudefiles                  # per-project workflow workspace — clone or create ~/.studio/ before /studio:setup, see plugins/studio/README.md
   extraKnownMarketplaces:
     claudefiles:
       source:
@@ -83,20 +87,6 @@ experimental:
   # those on/off later by editing settings.json directly; a `skills:`
   # feature is toggled by re-running /setup or removing the skill dir.
   features:
-    - name: context-monitor
-      description: >
-        PostToolUse hook that warns the agent when context usage crosses
-        thresholds (35% remaining = WARNING, 20% = CRITICAL). Reads exact
-        window metrics from the statusline bridge file, falling back to
-        transcript math. Debounces to avoid spam. CRITICAL drives a
-        handoff: suggests /jira:retro when a .jira/ sprint is active,
-        /handoff otherwise. Requires jq. File: hooks/context-monitor.sh.
-      settings:
-        hooks:
-          PostToolUse:
-            - matcher: '.*'
-              command: '$HOME/.claude/hooks/context-monitor.sh'
-              timeout: 5
     - name: trust-monitor
       description: >
         Per-session trust ladder for the agent. Sessions start at 50/100
@@ -132,17 +122,6 @@ experimental:
             - matcher: '.*'
               command: '$HOME/.claude/hooks/trust-monitor.sh'
               timeout: 5
-    - name: studio
-      description: >
-        Per-project workflow workspace — hosts `.project/`, `.jira/`,
-        `.uat/` state as symlinks into a private
-        `~/.studio/` git repo, keeping the project repo clean. Ships
-        `/studio:setup`, `/studio:sync`, `/studio:adopt`, `/studio:migrate`.
-        Enabling this will install the studio plugin; you'll separately
-        need to clone or create `~/.studio/` before running
-        `/studio:setup`. See plugins/studio/README.md for the full story
-        including Windows / container fallback.
-      enablePlugin: studio@claudefiles
     - name: tower
       description: >
         Runs the orchestrator skill's war room on visible Herdr panes so

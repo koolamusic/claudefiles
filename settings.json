@@ -48,6 +48,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/context-monitor.sh",
+            "timeout": 5
+          }
+        ]
       }
     ]
   },
@@ -55,7 +65,8 @@
     "feature-dev@claude-plugins-official": true,
     "ux@claudefiles": true,
     "jira@claudefiles": true,
-    "warden@claudefiles": true
+    "warden@claudefiles": true,
+    "studio@claudefiles": true
   },
   "extraKnownMarketplaces": {
     "claudefiles": {
