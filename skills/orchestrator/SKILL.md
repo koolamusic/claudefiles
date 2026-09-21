@@ -82,6 +82,9 @@ external context intake, asking which child owns a branch.
 
 ## Child Agent Substrate
 
+If `HERDR_ENV=1`, load the `tower` skill: it replaces this section with visible
+Herdr panes and leaves everything else in this file unchanged.
+
 - **Spawn:** `Agent` with `run_in_background: true` and a branch-keyed description.
 - **Continue:** `SendMessage` to the agent's ID or name. This is what makes a
   child reusable for follow-up work on the same branch.

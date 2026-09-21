@@ -69,10 +69,19 @@ experimental:
   #     the plugin from its marketplace on next startup. Use for plugins
   #     that ship commands/agents and are NOT listed under top-level
   #     `settings.plugins:` (i.e. not default-enabled).
-  # A feature MAY declare both keys; opt-in runs both actions. The backing
-  # files (hook scripts, etc.) are still copied by default — opt-in just
-  # wires them up. Users can flip features on/off later by editing
-  # settings.json directly.
+  #   - `skills:` — a list of skill directory names under `skills/` that
+  #     are copied into `<target>/skills/` ONLY on opt-in. Step 5 of /setup
+  #     skips them; every other skill is still copied by default. Use for
+  #     a skill that only makes sense with an external tool installed.
+  #   - `requires:` — external prerequisites checked before the feature is
+  #     installed. Each entry names a `command:` looked up on PATH and an
+  #     `install:` pointer (URL or one-liner) printed when it is missing.
+  #     A missing prerequisite skips the feature and says why.
+  # A feature MAY declare several keys; opt-in runs every declared action.
+  # The backing files for `settings:` features (hook scripts, etc.) are
+  # still copied by default — opt-in just wires them up. Users can flip
+  # those on/off later by editing settings.json directly; a `skills:`
+  # feature is toggled by re-running /setup or removing the skill dir.
   features:
     - name: context-monitor
       description: >
@@ -134,6 +143,19 @@ experimental:
         `/studio:setup`. See plugins/studio/README.md for the full story
         including Windows / container fallback.
       enablePlugin: studio@claudefiles
+    - name: tower
+      description: >
+        Runs the orchestrator skill's war room on visible Herdr panes so
+        you can watch every child agent work instead of waiting on
+        invisible background subagents. Commands: `tower on`, `tower off`,
+        `tower status`. Assumes Herdr (https://herdr.dev) is installed and
+        the session runs inside a Herdr-managed pane; depends on the
+        `orchestrator` skill, which is installed by default. File:
+        skills/tower/SKILL.md.
+      skills: [tower]
+      requires:
+        - command: herdr
+          install: https://herdr.dev
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)

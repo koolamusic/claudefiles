@@ -57,6 +57,7 @@ The command reads `claudefiles.yaml` (the manifest) and:
 2. Copies skills, commands, hooks, and sounds to `~/.claude/`
 3. Smart-merges settings into `~/.claude/settings.json` (backs up existing settings first)
 4. Resolves platform-specific template variables (e.g., `afplay` vs `aplay` for sound)
+5. Asks which experimental features to enable — off unless you say yes, and a feature whose prerequisite tool is not on your PATH is skipped with a pointer to its install
 
 ## What's included
 
@@ -93,6 +94,17 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | retro-trigger | PostToolUse (Write\|Edit\|Bash) | Spots a phase finishing and starts a retrospective, depending on the configured mode. |
 | trust-monitor | SessionStart, PreToolUse, PostToolUse | Runs a per-session trust ladder that gates tools by level. Opt-in. |
 | statusline-wrapper | statusLine | Appends the trust bar to whatever statusline you already have. |
+
+### Experimental features
+
+Opt-in during `/setup`; declared under `experimental.features` in `claudefiles.yaml`.
+
+| Feature | What it does | Prerequisites |
+|---------|-------------|---------------|
+| context-monitor | PostToolUse hook that warns when context usage runs high and suggests a handoff. | `jq` |
+| studio | Per-project workflow workspace plugin (`/studio:setup`, `/studio:sync`, ...). Clone or create `~/.studio/` before running `/studio:setup`. | `~/.studio/` git repo |
+| trust-monitor | Per-session trust ladder that gates tools by level and adds a trust bar to the statusline. `/trust` awards and deducts. | `jq` |
+| tower | Runs the `orchestrator` skill's war room on visible [Herdr](https://herdr.dev) panes so you can watch every child agent work. `tower on`, `tower off`, `tower status`. Installs the `tower` skill only when enabled. | `herdr` on PATH and a session inside a Herdr-managed pane; the `orchestrator` skill (installed by default) |
 
 ### Sounds
 
@@ -153,6 +165,7 @@ claudefiles/
     │   ├── references/       # Progressive-disclosure docs (8 files)
     │   └── scripts/          # preview-markdown.sh
     ├── ...
+    ├── tower/                # Opt-in: copied only when the tower feature is enabled
     └── xlsx/
 ```
 

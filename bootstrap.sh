@@ -30,6 +30,9 @@ done
 if ! command -v gh &>/dev/null; then
   echo -e "${YELLOW}Note:${NC} gh (GitHub CLI) not found — preview-markdown.sh won't work without it."
 fi
+if ! command -v herdr &>/dev/null; then
+  echo -e "${YELLOW}Note:${NC} herdr not found — the tower experimental feature needs it (https://herdr.dev); /setup will skip tower until it is installed."
+fi
 
 # Clone or update
 if [ -d "$TARGET/.git" ]; then

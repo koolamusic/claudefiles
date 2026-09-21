@@ -1,6 +1,6 @@
 ---
 name: setup
-allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Bash(npx:*), Read, Write, Glob
+allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Bash(npx:*), Bash(command:*), Read, Write, Glob
 description: Install claudefiles — copy skills, commands, sounds, hooks, and plugins into ~/.claude/
 ---
 
@@ -39,11 +39,19 @@ mkdir -p <target>/hooks
 
 ### Step 5: Copy files
 
-Copy the contents declared in `install.targets`:
+Copy the contents declared in `install.targets`.
+
+Skills come with one exception: any skill directory named in an experimental feature's `skills:` list (e.g. `tower`) is opt-in and is copied in Step 8.5 only if the user enables that feature. Collect those names from the manifest first, then copy everything else:
 
 ```bash
-# Skills — copy each skill directory
-cp -R skills/* <target>/skills/
+# Skills — copy each skill directory, skipping opt-in skills declared under
+# experimental.features[].skills (space-separated; taken from the manifest)
+OPT_IN_SKILLS="<experimental.features[].skills, space-separated>"
+for src in skills/*/; do
+  name=$(basename "$src")
+  case " $OPT_IN_SKILLS " in *" $name "*) continue ;; esac
+  cp -R "$src" <target>/skills/
+done
 
 # Commands — copy all .md files
 cp commands/*.md <target>/commands/
@@ -135,21 +143,31 @@ Write the merged settings to `<target>/settings.json`.
 
 ### Step 8.5: Prompt for experimental features
 
-Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default**. Some enable hook entries (e.g. `context-monitor`); some enable plugins that ship commands and agents (e.g. `studio`). The backing scripts are still copied by Step 5; opting in wires them into `settings.json` and/or activates a plugin. You can toggle features later by editing `settings.json` or re-running `/setup`.
+Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default**. Some enable hook entries (e.g. `trust-monitor`); some enable plugins that ship commands and agents; some install a skill that is otherwise skipped (e.g. `tower`). Hook scripts are still copied by Step 5; opting in wires them into `settings.json`, activates a plugin, or copies the skill. You can toggle features later by editing `settings.json` or re-running `/setup`.
 
-Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include the preamble above so users understand some features install plugins, not just hook entries.
+Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include the preamble above so users understand some features install plugins or skills, not just hook entries.
 
-For each feature the user opts into, apply the feature's declared effects. A feature may declare `settings:`, `enablePlugin:`, both, or neither:
+For each feature the user opts into, apply the feature's declared effects. A feature may declare `settings:`, `enablePlugin:`, `skills:`, `requires:`, several of these, or none:
+
+0. **If the feature has a `requires:` list**, check it before anything else. Print the prerequisite so the user sees what the feature assumes, then look each `command:` up on PATH:
+   ```bash
+   command -v herdr
+   ```
+   A non-zero exit status means the command is missing. If any command is missing, say so, point at its `install:` value (for `tower`: Herdr, https://herdr.dev), and **skip the feature entirely** — do not copy its skills, merge its settings, or enable its plugin. Record it as skipped for the summary. If everything is present, continue with the actions below.
 
 1. **If the feature has a `settings:` fragment**: **Deep-merge** that fragment into the settings.json being written — same strategy as Step 8. For array-valued keys like `hooks.PostToolUse`, **array-append** (don't replace).
-2. **If the feature has an `enablePlugin:` key** (string plugin name, e.g. `studio@claudefiles`): add the named plugin to the `enabledPlugins` object in the target `settings.json`, setting its value to `true`. **No-op guard**: if the plugin is already enabled (e.g. it appears under the manifest's top-level `settings.plugins:` list and was therefore already written in Step 8), adding it again is a harmless no-op — do not error.
-3. **If the feature has both keys**: run both actions independently (deep-merge the settings fragment AND add the plugin to `enabledPlugins`). No cross-interference.
-4. **If the feature has neither key**: record the feature name for the summary but do not mutate `settings.json`. This is a legal shape (useful for documentation-only experimental flags).
-5. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name) for the final summary in Step 11.
+2. **If the feature has an `enablePlugin:` key** (string plugin name, e.g. `<plugin>@claudefiles`): add the named plugin to the `enabledPlugins` object in the target `settings.json`, setting its value to `true`. **No-op guard**: if the plugin is already enabled (e.g. it appears under the manifest's top-level `settings.plugins:` list and was therefore already written in Step 8), adding it again is a harmless no-op — do not error.
+3. **If the feature has a `skills:` list**: copy each named skill directory now — it was deliberately skipped in Step 5:
+   ```bash
+   cp -R skills/tower <target>/skills/
+   ```
+4. **If the feature declares several keys**: run each action independently (e.g. deep-merge the settings fragment AND add the plugin to `enabledPlugins`). No cross-interference.
+5. **If the feature has none of these keys**: record the feature name for the summary but do not mutate `settings.json`. This is a legal shape (useful for documentation-only experimental flags).
+6. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name; if `skills:` was set, the skill names) for the final summary in Step 11.
 
 If the user opts into none (or the list is empty), proceed with base settings only. Do NOT prompt if `experimental.features` is absent or `[]`.
 
-Users can enable later by hand: copy the relevant `settings:` fragment from `claudefiles.yaml` into their `~/.claude/settings.json` (or project-local `.claude/settings.json`), or set `"enabledPlugins": { "<plugin>": true }` for an `enablePlugin:` feature, and restart Claude Code.
+Users can enable later by hand: copy the relevant `settings:` fragment from `claudefiles.yaml` into their `~/.claude/settings.json` (or project-local `.claude/settings.json`), set `"enabledPlugins": { "<plugin>": true }` for an `enablePlugin:` feature, or `cp -R skills/<name> ~/.claude/skills/` for a `skills:` feature, and restart Claude Code.
 
 ### Step 9: Set required environment variables
 
@@ -195,7 +213,8 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
-- Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)` so the user knows a plugin was activated. Example line: `- studio (plugin: studio@claudefiles)`.
+- Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)`; if it declared `skills:`, annotate with `(skill: <name>)`. Example lines: `- trust-monitor`, `- tower (skill: tower)`.
+- Experimental features skipped because a prerequisite was missing (e.g. `- tower — herdr not on PATH, see https://herdr.dev`), or omit the line if none.
 - GSD install status (success or skipped)
 - Environment variables set (or already present)
 
