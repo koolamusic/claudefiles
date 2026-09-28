@@ -200,6 +200,13 @@ claudefiles/
 3. Add the corresponding trigger to `claudefiles.yaml` under `settings.hooks`
 4. Run `/setup` from inside the claudefiles repo to deploy
 
+### Add an experimental feature
+
+1. Add an entry under `experimental.features` in `claudefiles.yaml` with a `name` and `description`
+2. Declare what opting in does: a `settings:` fragment to merge, `enablePlugin:` for a plugin, `skills:` for a skill copied only on opt-in, or `run:` for commands an external tool's own installer provides (the catalogue then points at the tool instead of carrying a copy of its files)
+3. List external prerequisites under `requires:` so `/setup` skips the feature, with an install pointer, when the command is not on PATH
+4. Add a row to the experimental features table above
+
 ## Other skills worth checking out
 
 Skills that didn't make the bootstrap cut — too project-specific, experimental, or better added per-project:

@@ -81,6 +81,11 @@ experimental:
   #     installed. Each entry names a `command:` looked up on PATH and an
   #     `install:` pointer (URL or one-liner) printed when it is missing.
   #     A missing prerequisite skips the feature and says why.
+  #   - `run:` — shell commands executed in order after the `requires:`
+  #     check passes. Use for a tool that installs its own command and
+  #     hooks (so the catalogue points at it instead of carrying a copy
+  #     that goes stale). A failing command stops the feature and is
+  #     reported in the summary.
   # A feature MAY declare several keys; opt-in runs every declared action.
   # The backing files for `settings:` features (hook scripts, etc.) are
   # still copied by default — opt-in just wires them up. Users can flip
