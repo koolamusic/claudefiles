@@ -115,6 +115,7 @@ Opt-in during `/setup`; declared under `experimental.features` in `claudefiles.y
 |---------|-------------|---------------|
 | trust-monitor | Per-session trust ladder that gates tools by level and adds a trust bar to the statusline. `/trust` awards and deducts. | `jq` |
 | tower | Runs the `orchestrator` skill's war room on visible [Herdr](https://herdr.dev) panes so you can watch every child agent work. `tower on`, `tower off`, `tower status`. Installs the `tower` skill only when enabled. | `herdr` on PATH and a session inside a Herdr-managed pane; the `orchestrator` skill (installed by default) |
+| raydar | Hear your sessions: [raydar](https://github.com/tensorkithq/raydar) speaks replies, permission prompts, and notifications on your phone. `/raydar` turns it on or off per session. Nothing is copied from this repo; opting in runs `raydar command --install` and `raydar hooks install`, which write the `/raydar` command and its hooks into `~/.claude/` and keep them current with the CLI. Then `raydar init`, `raydar start`, `raydar doctor`. | `raydar` on PATH (`npm i -g raydar`; the repo is private until its first release, so until then clone it and `pnpm install && pnpm -r build && cd packages/cli && npm link`) |
 
 ### Sounds
 
