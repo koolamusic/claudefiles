@@ -10,11 +10,11 @@ One command, four output formats (rungs), ordered from cheapest to most expensiv
 | Rung | Output | Reference to load | Status |
 |------|--------|-------------------|--------|
 | `ste` | Prose rewritten in Simplified Technical English at a chosen strictness | `references/ste-rules.md`; `references/ste-dictionary.md` at strict (and for substitutions at 80%) | ready |
-| `diagram` | A diagram of the mechanism, with STE captions | `references/diagram.md` | planned, not yet available |
-| `html` | A standalone HTML explainer page | `references/html.md` | planned, not yet available |
+| `diagram` | A Mermaid or SVG diagram of the mechanism, with an STE caption | `references/diagram.md` | ready |
+| `html` | A standalone explainer page, published as an artifact or a public page | `references/html.md` | ready |
 | `video` | A narrated video built from the HTML or diagram | `references/video.md` and `scripts/` pipeline | planned, not yet available |
 
-If a rung's reference file does not exist yet, say so in one line and fall back to `ste`.
+If a rung's reference file does not exist yet, say so in one line and fall back to the highest rung below it that is ready.
 
 ## Invocation
 
@@ -26,11 +26,13 @@ If a rung's reference file does not exist yet, say so in one line and fall back 
 
 ## Escalation rule
 
-Pick the lowest rung that answers the question. A question about what something does is answered in prose. A question about how parts connect or flow is where a diagram starts to pay for itself. A page or video is only worth it when the explanation has to live on its own, away from this conversation, or when the reader asked for it.
+Pick the lowest rung that answers the question. A question about what something does is answered in prose (`ste`). A question about how parts connect, flow, or change state, where prose would run past two paragraphs, is where a diagram starts to pay for itself (`diagram`). A page is worth it when the explanation gains from interaction or side-by-side layout, or when the reader wants to keep it or share it outside this conversation (`html`). A video is the step above a page; it is offered once that rung is available and never built before then.
 
 Always end the answer with one line that offers the next rung up, for example:
 
 > Want this as a diagram? `/explain <topic> --as diagram`
+
+From `ste` offer `diagram`; from `diagram` offer `html`; from `html` offer `video` only if `references/video.md` exists, otherwise close without an offer.
 
 Never escalate silently. If the reader asked for `--as html` and prose would have done, still deliver the page and say so in that closing line.
 
