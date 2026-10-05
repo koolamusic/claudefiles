@@ -9,6 +9,7 @@ out="$root/machine.toml"
 venv="$here/.venv"
 # raydr is a personal voice tool; its env file is only grepped for the key NAME, never read for a value.
 raydr_env="${RAYDR_ENV_FILE:-$HOME/.config/raydr/env}"
+model_dir="${KOKORO_MODEL_DIR:-$HOME/.cache/explainer-formats/kokoro}"
 
 rows=()   # name|status|detail
 add() { rows+=("$1|$2|$3"); }
@@ -31,13 +32,14 @@ else
   add uv-python-3.12 missing "needs uv"
 fi
 
-for tool in ffmpeg manim espeak-ng; do
+for tool in ffmpeg espeak-ng latex; do
   if command -v "$tool" >/dev/null 2>&1; then
     add "$tool" present "$(command -v "$tool")"
   else
     add "$tool" missing "-"
   fi
 done
+if [ -x "$venv/bin/manim" ]; then add manim present "scripts/.venv"; else add manim missing "bash scripts/setup.sh"; fi
 
 if [ -x "$venv/bin/python" ]; then
   py="$venv/bin/python"; where="scripts/.venv"
@@ -49,6 +51,7 @@ if "$py" -c 'import kokoro_onnx' >/dev/null 2>&1; then
 else
   add kokoro-onnx missing "not importable from $where"
 fi
+if [ -s "$model_dir/kokoro-v1.0.onnx" ] && [ -s "$model_dir/voices-v1.0.bin" ]; then add kokoro-models present "$model_dir"; else add kokoro-models missing "bash scripts/setup.sh"; fi
 
 if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
   add ELEVENLABS_API_KEY present "set in environment"

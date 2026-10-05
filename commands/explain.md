@@ -1,6 +1,6 @@
 ---
 name: explain
-allowed-tools: Read, Bash(python3:*), Bash(bash:*)
+allowed-tools: Read, Bash(python3:*), Bash(bash:*), Bash(uv:*), Bash(ffmpeg:*)
 description: Explain a topic as Simplified Technical English prose, a diagram, an HTML page, or a video, with a strictness dial
 ---
 

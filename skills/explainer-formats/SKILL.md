@@ -12,7 +12,7 @@ One command, four output formats (rungs), ordered from cheapest to most expensiv
 | `ste` | Prose rewritten in Simplified Technical English at a chosen strictness | `references/ste-rules.md`; `references/ste-dictionary.md` at strict (and for substitutions at 80%) | ready |
 | `diagram` | A Mermaid or SVG diagram of the mechanism, with an STE caption | `references/diagram.md` | ready |
 | `html` | A standalone explainer page, published as an artifact or a public page | `references/html.md` | ready |
-| `video` | A narrated video built from the HTML or diagram | `references/video.md` and `scripts/` pipeline | planned, not yet available |
+| `video` | A narrated Manim video, one scene per beat, published as an artifact player page | `references/video.md`; `scripts/` pipeline run as `uv run --project scripts python scripts/<file>.py` | ready |
 
 If a rung's reference file does not exist yet, say so in one line and fall back to the highest rung below it that is ready.
 
@@ -26,13 +26,13 @@ If a rung's reference file does not exist yet, say so in one line and fall back 
 
 ## Escalation rule
 
-Pick the lowest rung that answers the question. A question about what something does is answered in prose (`ste`). A question about how parts connect, flow, or change state, where prose would run past two paragraphs, is where a diagram starts to pay for itself (`diagram`). A page is worth it when the explanation gains from interaction or side-by-side layout, or when the reader wants to keep it or share it outside this conversation (`html`). A video is the step above a page; it is offered once that rung is available and never built before then.
+Pick the lowest rung that answers the question. A question about what something does is answered in prose (`ste`). A question about how parts connect, flow, or change state, where prose would run past two paragraphs, is where a diagram starts to pay for itself (`diagram`). A page is worth it when the explanation gains from interaction or side-by-side layout, or when the reader wants to keep it or share it outside this conversation (`html`). A video is the step above a page: build one only when the reader asked for it, or when a page would still leave the order of events unclear.
 
 Always end the answer with one line that offers the next rung up, for example:
 
 > Want this as a diagram? `/explain <topic> --as diagram`
 
-From `ste` offer `diagram`; from `diagram` offer `html`; from `html` offer `video` only if `references/video.md` exists, otherwise close without an offer.
+From `ste` offer `diagram`; from `diagram` offer `html`; from `html` offer `video`; from `video` offer an edit to the narration, since there is no rung above it.
 
 Never escalate silently. If the reader asked for `--as html` and prose would have done, still deliver the page and say so in that closing line.
 
@@ -66,7 +66,7 @@ Output format for `ste`: the rewritten text, then a short line naming the level 
 
 ## Machine check
 
-`bash scripts/doctor.sh` prints what the later rungs need on this machine (Python, uv, ffmpeg, manim, kokoro-onnx, espeak-ng, an ElevenLabs key by name only). It installs nothing; it writes only `machine.toml` (gitignored) in the skill root. Run it before attempting `video` once that rung is available.
+`bash scripts/doctor.sh` prints what the video rung needs on this machine (Python, uv and its 3.12, ffmpeg, manim, kokoro-onnx and its model files, espeak-ng, LaTeX, an ElevenLabs key by name only). It installs nothing; it writes only `machine.toml` (gitignored) in the skill root. `bash scripts/setup.sh` is the one script that installs; run doctor first, then setup, before the first `video`.
 
 ## Not affiliated
 
