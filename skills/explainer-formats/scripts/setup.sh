@@ -19,26 +19,38 @@ bash "$here/doctor.sh"
 echo
 
 apt_updated=0
-apt_install() {   # apt_install <package> <command to test for>
-  if command -v "$2" >/dev/null 2>&1; then
-    echo "$1: present"; return 0
+sudo_ok=1
+sudo -n true >/dev/null 2>&1 || sudo_ok=0
+
+apt_get() {   # apt_get <package>  installs one package, or says how to do it by hand
+  if [ "$sudo_ok" = 0 ]; then
+    echo "$1: sudo needs a password. Run by hand:"
+    echo "  $apt install -y $1"
+    return 1
   fi
   if [ "$apt_updated" = 0 ]; then $apt update -qq >/dev/null 2>&1 || true; apt_updated=1; fi
-  if $apt install -y -qq "$1" >/dev/null 2>&1; then
+  local err
+  if err=$($apt install -y -qq "$1" 2>&1 >/dev/null); then
     echo "$1: installed"
   else
-    echo "$1: needs a password. Run by hand:  sudo apt-get install -y $1"
+    echo "$1: apt-get install failed; last lines of its output:"
+    printf '%s\n' "$err" | tail -n 5 | sed 's/^/  /'
+    return 1
   fi
+}
+
+apt_install() {   # apt_install <package> <command to test for>
+  if command -v "$2" >/dev/null 2>&1; then echo "$1: present"; return 0; fi
+  apt_get "$1"
 }
 
 apt_pkg() {   # apt_pkg <package>  (library packages with no command to test for)
   if dpkg -s "$1" >/dev/null 2>&1; then echo "$1: present"; return 0; fi
-  if [ "$apt_updated" = 0 ]; then $apt update -qq >/dev/null 2>&1 || true; apt_updated=1; fi
-  if $apt install -y -qq "$1" >/dev/null 2>&1; then echo "$1: installed"
-  else echo "$1: needs a password. Run by hand:  sudo apt-get install -y $1"; fi
+  apt_get "$1"
 }
 
 echo "== system packages"
+[ "$sudo_ok" = 1 ] || echo "sudo -n failed; apt steps are printed, not run"
 apt_install ffmpeg ffmpeg
 apt_install espeak-ng espeak-ng
 # manim's pycairo and manimpango have no Linux wheels and build against these
@@ -54,23 +66,29 @@ extras=()
 if [ -n "${ELEVENLABS_API_KEY:-}" ] || grep -qE '^(export )?ELEVENLABS_API_KEY=' "$raydr_env" 2>/dev/null; then
   extras=(--extra elevenlabs); echo "ELEVENLABS_API_KEY is named, so the elevenlabs extra is included"
 fi
-uv sync --project "$here" --python 3.12 "${extras[@]}" && echo "uv sync: ok" || { echo "uv sync: failed"; exit 1; }
+uv sync --locked --project "$here" --python 3.12 "${extras[@]}" && echo "uv sync: ok" || { echo "uv sync: failed (a stale uv.lock fails here; run uv lock in scripts/ and commit it)"; exit 1; }
 echo
 
 echo "== kokoro model files -> $model_dir"
 mkdir -p "$model_dir"
-fetch() {   # fetch <file> <minimum bytes>
+# sha256 values are the asset digests GitHub publishes for release model-files-v1.1
+fetch() {   # fetch <file> <sha256>
   local f="$model_dir/$1"
-  if [ -f "$f" ] && [ "$(stat -c %s "$f")" -ge "$2" ]; then echo "$1: present"; return 0; fi
-  echo "$1: downloading"
-  if curl -L --fail --progress-bar -o "$f.part" "$release/$1" && [ "$(stat -c %s "$f.part")" -ge "$2" ]; then
-    mv "$f.part" "$f"; echo "$1: ok, sha256 $(sha256sum "$f" | cut -c1-16)..."
+  if [ -f "$f" ]; then
+    if [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$2" ]; then echo "$1: present, sha256 ok"; return 0; fi
+    echo "$1: present but sha256 differs from the release; re-downloading"
   else
-    rm -f "$f.part"; echo "$1: download failed or file too small; re-run setup"; return 1
+    echo "$1: downloading"
+  fi
+  if curl -L --fail --progress-bar -o "$f.part" "$release/$1" \
+     && [ "$(sha256sum "$f.part" | cut -d' ' -f1)" = "$2" ]; then
+    mv "$f.part" "$f"; echo "$1: ok, sha256 matches the release"
+  else
+    rm -f "$f.part"; echo "$1: download failed or sha256 mismatch; re-run setup"; return 1
   fi
 }
-fetch kokoro-v1.0.onnx 300000000
-fetch voices-v1.0.bin 25000000
+fetch kokoro-v1.0.onnx beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a
+fetch voices-v1.0.bin bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d
 echo
 
 echo "== doctor, after"

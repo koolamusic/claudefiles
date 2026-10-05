@@ -32,7 +32,7 @@ visual: the three commits lift off the old base and land on a new one
 A rebase moves your commits onto a new base. Each commit gets a new parent, so each one gets a new hash.
 
 ## Beat 3
-visual: the old chain fades but stays on screen, labelled "reflog"
+visual: the old chain fades but stays on screen, labeled "reflog"
 The old commits are not deleted at once. They stay in the reflog until Git prunes them.
 ```
 
@@ -87,7 +87,7 @@ Pick once per session and say which in the reply.
 
 ## Delivery
 
-- Under the caps (final.mp4 under 15 MB): publish a player page as an artifact. The page is a short HTML document with a `<video controls>` tag; declare the `assets` capability (load `artifact-capabilities` first), publish the page, then `upload_asset` the mp4 to it and set the `<video>` source to the returned url. Load `artifact-design` before writing the page, as the html rung requires.
+- Under the asset cap (final.mp4 under 20 MiB; the 15 MB figure is the supporting-file cap, which this route does not use): publish a player page as an artifact. The page is a short HTML document with a `<video controls>` tag; declare the `assets` capability (load `artifact-capabilities` first), publish the page, then `upload_asset` the mp4 to it and set the `<video>` source to the returned url. Load `artifact-design` before writing the page, as the html rung requires.
 - Over the caps: use the `publish-page` skill, which serves the file behind a local proxy for 24 or 48 hours. Or re-encode with `--target-mb` first if the quality loss is acceptable.
 - A file on disk only when the reader asked for the file; say where it is.
 

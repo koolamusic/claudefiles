@@ -127,6 +127,8 @@ def main():
     if not beats:
         sys.exit("no '## Beat N' sections with narration found")
     if args.only is not None:
+        if args.only not in beats:
+            sys.exit(f"beat {args.only} is not in {args.beats} (found {sorted(beats)})")
         beats = {args.only: beats[args.only]}
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     speak = BACKENDS[args.backend](args.voice, args.speed)

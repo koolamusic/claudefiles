@@ -21,6 +21,7 @@ from pathlib import Path
 CAP_SUPPORTING_FILE = 15 * 1000 * 1000   # artifact supporting file, 15 MB
 CAP_ASSET = 20 * 1024 * 1024             # artifact asset, 20 MiB
 AUDIO_KBPS = 128
+ONE_FRAME = 0.07                         # a video shorter than the narration by more than this gets clipped
 
 
 def run(cmd, **kw):
@@ -68,7 +69,11 @@ def mux(video, wav, dest):
 
 def concat(parts, dest):
     listing = dest.with_suffix(".txt")
-    listing.write_text("".join(f"file '{p.resolve()}'\n" for p in parts))
+    lines = []
+    for p in parts:
+        quoted = str(p.resolve()).replace("'", "'\\''")
+        lines.append(f"file '{quoted}'\n")
+    listing.write_text("".join(lines))
     run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", str(listing),
          "-c", "copy", "-movflags", "+faststart", str(dest)])
     return dest
@@ -105,7 +110,8 @@ def main():
     ap.add_argument("--target-mb", type=float, default=None, help="re-encode final.mp4 to fit this size")
     args = ap.parse_args()
 
-    need("ffmpeg"), need("ffprobe")
+    need("ffmpeg")
+    need("ffprobe")
     durations = json.loads((args.beats / "durations.json").read_text())
     numbers = [int(k) for k in durations]
     if args.only is not None:
@@ -122,9 +128,9 @@ def main():
         video = render_beat(args.scenes, n, args.quality, args.out, args.beats)
         part = mux(video, wav, args.out / f"beat_{n:02d}.mp4")
         vs, as_ = probe_seconds(video), durations[str(n)]
-        if vs + 0.25 < as_:
-            print(f"  warning: Beat{n:02d} video is {vs:.1f}s but narration is {as_:.1f}s; "
-                  f"-shortest will cut the narration. Add self.wait() to the scene.")
+        if vs + ONE_FRAME < as_:
+            print(f"  warning: Beat{n:02d} video is {vs:.2f}s but narration is {as_:.2f}s; "
+                  f"-shortest will cut the narration. The scene's wait() budget must cover the full narration.")
         parts.append(part)
 
     if args.only is not None:
