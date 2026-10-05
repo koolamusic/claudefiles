@@ -140,29 +140,27 @@ experimental:
       requires:
         - command: herdr
           install: https://herdr.dev
-    - name: raydar
+    - name: raydr
       description: >
-        Hear your Claude Code sessions: raydar speaks replies, permission
-        prompts, and notifications on your phone, and `/raydar` turns it
+        Hear your Claude Code sessions: raydr speaks replies, permission
+        prompts, and notifications on your phone, and `/raydr` turns it
         on or off per session (`on`, `off`, `status`, or no argument to
-        toggle). Nothing is copied from this repo. The raydar CLI owns
-        the `/raydar` command and its three hooks (Stop, PreToolUse,
-        Notification), so opting in runs its installer: `raydar command
-        --install` writes ~/.claude/commands/raydar.md and `raydar hooks
+        toggle). Nothing is copied from this repo. The raydr CLI owns
+        the `/raydr` command and its three hooks (Stop, PreToolUse,
+        Notification), so opting in runs its installer: `raydr hooks
         install` adds the hooks to ~/.claude/settings.json after backing
-        it up. Both stay current with the CLI. Then run `raydar init`
-        once, `raydar start`, and `raydar doctor` to check the setup.
-        Requires the raydar CLI (https://github.com/tensorkithq/raydar,
-        private until its first release); until `npm i -g raydar` works,
-        install from source with `git clone
-        https://github.com/tensorkithq/raydar && pnpm install && pnpm -r
-        build && cd packages/cli && npm link`.
+        it up and writes ~/.claude/commands/raydr.md beside it. Both stay
+        current with the CLI. Then run `raydr init` once per machine to
+        pick providers and write ~/.config/raydr/env, `raydr start`, and
+        `raydr doctor` to check the setup. Requires the raydr CLI from
+        the `@tensorkit/raydr` npm package
+        (https://www.npmjs.com/package/@tensorkit/raydr, Node 24 or
+        newer): `npm i -g @tensorkit/raydr`.
       requires:
-        - command: raydar
-          install: npm i -g raydar
+        - command: raydr
+          install: npm i -g @tensorkit/raydr
       run:
-        - raydar command --install
-        - raydar hooks install
+        - raydr hooks install
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)

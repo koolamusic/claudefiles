@@ -1,6 +1,6 @@
 ---
 name: setup
-allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Bash(npx:*), Bash(command:*), Bash(raydar:*), Read, Write, Glob
+allowed-tools: Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(mv:*), Bash(rm:*), Bash(date:*), Bash(uname:*), Bash(chmod:*), Bash(npx:*), Bash(command:*), Bash(raydr:*), Read, Write, Glob
 description: Install claudefiles — copy skills, commands, sounds, hooks, and plugins into ~/.claude/
 ---
 
@@ -143,7 +143,7 @@ Write the merged settings to `<target>/settings.json`.
 
 ### Step 8.5: Prompt for experimental features
 
-Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default**. Some enable hook entries (e.g. `trust-monitor`); some enable plugins that ship commands and agents; some install a skill that is otherwise skipped (e.g. `tower`); some run an external tool's own installer (e.g. `raydar`). Hook scripts are still copied by Step 5; opting in wires them into `settings.json`, activates a plugin, copies the skill, or runs the installer. You can toggle features later by editing `settings.json` or re-running `/setup`.
+Check the manifest for an `experimental.features` list. If present and non-empty, ask the user which (if any) to enable. Experimental features are **off by default**. Some enable hook entries (e.g. `trust-monitor`); some enable plugins that ship commands and agents; some install a skill that is otherwise skipped (e.g. `tower`); some run an external tool's own installer (e.g. `raydr`). Hook scripts are still copied by Step 5; opting in wires them into `settings.json`, activates a plugin, copies the skill, or runs the installer. You can toggle features later by editing `settings.json` or re-running `/setup`.
 
 Use `AskUserQuestion` with `multiSelect: true` — one option per feature, labeled by `name`, described by the `description` field from the manifest. Include the preamble above so users understand some features install plugins or skills, not just hook entries.
 
@@ -161,7 +161,7 @@ For each feature the user opts into, apply the feature's declared effects. A fea
    ```bash
    cp -R skills/tower <target>/skills/
    ```
-4. **If the feature has a `run:` list**: execute each command in order, from the repo root, after the `requires:` check has passed. These are the external tool's own installers, so they may write outside `<target>` (for `raydar`: `~/.claude/commands/raydar.md` and hook entries in `~/.claude/settings.json`, backed up first). Print each command before running it. If one exits non-zero, stop the list, do not run the remaining commands, and record the feature as failed for the summary with the command that failed. Run this after Step 8 has written `settings.json`, so an installer that edits the file is not overwritten.
+4. **If the feature has a `run:` list**: execute each command in order, from the repo root, after the `requires:` check has passed. These are the external tool's own installers, so they may write outside `<target>` (for `raydr`: `~/.claude/commands/raydr.md` and hook entries in `~/.claude/settings.json`, backed up first). Print each command before running it. If one exits non-zero, stop the list, do not run the remaining commands, and record the feature as failed for the summary with the command that failed. Run this after Step 8 has written `settings.json`, so an installer that edits the file is not overwritten.
 5. **If the feature declares several keys**: run each action independently (e.g. deep-merge the settings fragment AND add the plugin to `enabledPlugins`). No cross-interference.
 6. **If the feature has none of these keys**: record the feature name for the summary but do not mutate `settings.json`. This is a legal shape (useful for documentation-only experimental flags).
 7. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name; if `skills:` was set, the skill names; if `run:` was set, the commands run) for the final summary in Step 11.
@@ -214,8 +214,8 @@ List what was installed:
 - Whether a backup was made
 - The target directory
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
-- Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)`; if it declared `skills:`, annotate with `(skill: <name>)`; if it declared `run:`, annotate with `(ran: <commands>)`. Example lines: `- trust-monitor`, `- tower (skill: tower)`, `- raydar (ran: raydar command --install, raydar hooks install)`. For `raydar`, also print the next steps: `raydar init` once, `raydar start`, then `raydar doctor`.
-- Experimental features skipped because a prerequisite was missing (e.g. `- tower — herdr not on PATH, see https://herdr.dev`, `- raydar — raydar not on PATH, see npm i -g raydar`) or because a `run:` command failed (name the command), or omit the line if none.
+- Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)`; if it declared `skills:`, annotate with `(skill: <name>)`; if it declared `run:`, annotate with `(ran: <commands>)`. Example lines: `- trust-monitor`, `- tower (skill: tower)`, `- raydr (ran: raydr hooks install)`. For `raydr`, also print the next steps: `raydr init` once per machine, `raydr start`, then `raydr doctor`.
+- Experimental features skipped because a prerequisite was missing (e.g. `- tower — herdr not on PATH, see https://herdr.dev`, `- raydr — raydr not on PATH, see npm i -g @tensorkit/raydr`) or because a `run:` command failed (name the command), or omit the line if none.
 - GSD install status (success or skipped)
 - Environment variables set (or already present)
 
