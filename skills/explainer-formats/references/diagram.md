@@ -15,7 +15,7 @@ Do not draw when the question is "what does this do" (prose answers it), when th
 | Form | Use it for | Why |
 |------|-----------|-----|
 | Mermaid | flowcharts, sequence, state, class, ER, Gantt, timelines | Renders natively in Claude artifacts from a ```mermaid fence; no library, no layout work. Also readable as text in the terminal. |
-| Inline SVG | precise layout, annotation callouts, a figure that must read in both light and dark themes | Full control of position, colour tokens, and callout lines. |
+| Inline SVG | precise layout, annotation callouts, a figure that must read in both light and dark themes | Full control of position, color tokens, and callout lines. |
 | Image file (PNG, SVG file) | only when the user asks for a file | Loses editability and theme handling; the user has to want it. |
 
 Default to Mermaid. Move to SVG only when Mermaid cannot place a callout where it is needed, when two parts must sit at exact positions, or when the figure is going into a page that has to work in both themes.
@@ -33,7 +33,7 @@ Mermaid alone needs neither; write the fence directly.
 
 Every diagram ships with a caption of one to three sentences at the current STE level (`light` by default; see `ste-rules.md`). The caption says what the reader is looking at and what the one important path or state is. It does not repeat every label.
 
-Labels inside the diagram follow the STE word choices: approved verbs in the command form ("Start the pump", not "Pump initiation"), no Latinate nouns ("check", not "verification"), one noun phrase per node, three nouns at most. Code, command names, and identifiers stay exact, in backticks when the renderer allows it.
+Labels inside the diagram follow the STE word choices: approved verbs in the command form ("Start the pump", not "Pump initiation"), no Latinate nouns ("check", not "verification"), one noun phrase per node, three nouns at most. Code, command names, and identifiers stay exact. In Mermaid write them plain, with no backticks: Mermaid renders backticks inside labels as literal characters. In SVG or HTML put them in a monospace `tspan` or `<code>`.
 
 Keep the diagram to what the source says. If the source does not state an order, do not draw an arrow that implies one.
 
@@ -47,18 +47,18 @@ flowchart TD
     A -->|not full| B[Fill the reservoir]
     B --> C
     C --> D[Do a check of the pressure gauge]
-    D -->|30 bar or more| E[Continue the operation]
+    D -->|30 bar or more| E([End of the stated procedure])
     D -->|below 30 bar| F[Stop the pump]
     F --> G[Tell the supervisor]
 ```
 
 Caption (light): The procedure starts with a check of the reservoir and ends in one of two places. If the gauge shows less than 30 bar after you start, stop the pump and tell the supervisor.
 
-Everything in the chart is in the source: the two conditions, the 30 bar threshold, the two end states. The chart adds no step the source did not state.
+Everything in the chart is in the source: the two conditions, the 30 bar threshold, the stop-and-tell branch. The source does not say what to do at 30 bar or above, so the chart ends that branch with an end marker rather than inventing a step.
 
 ## SVG callout snippet
 
-A callout points at one part of a figure and names it. The shapes use `currentColor` so they follow the page's text colour in either theme; load `artifact-diagramming` for the full pattern.
+A callout points at one part of a figure and names it. The shapes use `currentColor` so they follow the page's text color in either theme; load `artifact-diagramming` for the full pattern.
 
 ```html
 <svg viewBox="0 0 320 120" width="320" role="img" aria-label="Pressure gauge with callout">

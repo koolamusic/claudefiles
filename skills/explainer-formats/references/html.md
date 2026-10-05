@@ -30,14 +30,11 @@ Use Mermaid fences (```mermaid or `<pre class="mermaid">`) for flow, sequence, a
 
 Default: the Artifact tool. The page gets a private URL on claude.ai, renders in the viewer's theme, and works at phone width. Share by sending the link; the reader decides who else sees it.
 
-Use the personal `publish-page` skill (`~/.claude/skills/publish-page`) instead when:
-
-- a public URL is needed, with no claude.ai account on the reader's side; it serves through the existing Caddy proxy at `<port>.host.selfbrain.net` and tears the page down after 24 or 48 hours;
-- the page carries a file over the artifact caps below.
+Use the `publish-page` skill instead when a public URL is needed with no claude.ai account on the reader's side, or when the page carries a file over the artifact caps below. It serves the page behind a local proxy and tears it down after 24 or 48 hours.
 
 Artifact caps to respect: the rendered page 16 MB (embedded data URIs included); a binary supporting file 15 MB; an uploaded asset 20 MiB. Over any of those, split the page, link to the file instead of embedding it, or use `publish-page`.
 
-External scripts and stylesheets load only from the hosts `artifact-design` lists; everything else is inlined. Do not promise a download link from inside an artifact; the sandbox blocks page-initiated downloads.
+The Artifact tool's sandbox allows external scripts and stylesheets only from a short list of hosts (the Artifact tool's description names them); everything else is inlined. Do not promise a download link from inside an artifact; the sandbox blocks page-initiated downloads.
 
 ## Page content rules
 
