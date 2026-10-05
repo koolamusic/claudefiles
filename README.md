@@ -115,6 +115,7 @@ Opt-in during `/setup`; declared under `experimental.features` in `claudefiles.y
 |---------|-------------|---------------|
 | trust-monitor | Per-session trust ladder that gates tools by level and adds a trust bar to the statusline. `/trust` awards and deducts. | `jq` |
 | tower | Runs the `orchestrator` skill's war room on visible [Herdr](https://herdr.dev) panes so you can watch every child agent work. `tower on`, `tower off`, `tower status`. Installs the `tower` skill only when enabled. | `herdr` on PATH and a session inside a Herdr-managed pane; the `orchestrator` skill (installed by default) |
+| raydr | Hear your sessions: [raydr](https://www.npmjs.com/package/@tensorkit/raydr) speaks replies, permission prompts, and notifications on your phone. Nothing is copied from this repo; opting in runs `raydr hooks install`, which writes the `/raydr` command and its hooks into `~/.claude/` and keeps them current with the CLI. Quickstart: `npm i -g @tensorkit/raydr`, then `raydr init`.<br>Using the CLI: `raydr init` picks providers, writes `~/.config/raydr/env`, and generates the access key (`--force` re-picks and keeps keys); `raydr start` runs the server; `raydr doctor` checks node, the env file, providers, hooks, and the server; `/raydr` in a session opts it in. Full command table on the [npm page](https://www.npmjs.com/package/@tensorkit/raydr). | `raydr` on PATH (`npm i -g @tensorkit/raydr`, Node 24 or newer) |
 
 ### Sounds
 
@@ -199,6 +200,13 @@ claudefiles/
 2. Include a YAML-style documentation header in comments
 3. Add the corresponding trigger to `claudefiles.yaml` under `settings.hooks`
 4. Run `/setup` from inside the claudefiles repo to deploy
+
+### Add an experimental feature
+
+1. Add an entry under `experimental.features` in `claudefiles.yaml` with a `name` and `description`
+2. Declare what opting in does: a `settings:` fragment to merge, `enablePlugin:` for a plugin, `skills:` for a skill copied only on opt-in, or `run:` for commands an external tool's own installer provides (the catalogue then points at the tool instead of carrying a copy of its files)
+3. List external prerequisites under `requires:` so `/setup` skips the feature, with an install pointer, when the command is not on PATH
+4. Add a row to the experimental features table above
 
 ## Other skills worth checking out
 

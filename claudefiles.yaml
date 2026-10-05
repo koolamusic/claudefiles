@@ -81,6 +81,11 @@ experimental:
   #     installed. Each entry names a `command:` looked up on PATH and an
   #     `install:` pointer (URL or one-liner) printed when it is missing.
   #     A missing prerequisite skips the feature and says why.
+  #   - `run:` — shell commands executed in order after the `requires:`
+  #     check passes. Use for a tool that installs its own command and
+  #     hooks (so the catalogue points at it instead of carrying a copy
+  #     that goes stale). A failing command stops the feature and is
+  #     reported in the summary.
   # A feature MAY declare several keys; opt-in runs every declared action.
   # The backing files for `settings:` features (hook scripts, etc.) are
   # still copied by default — opt-in just wires them up. Users can flip
@@ -135,6 +140,27 @@ experimental:
       requires:
         - command: herdr
           install: https://herdr.dev
+    - name: raydr
+      description: >
+        Hear your Claude Code sessions: raydr speaks replies, permission
+        prompts, and notifications on your phone, and `/raydr` turns it
+        on or off per session (`on`, `off`, `status`, or no argument to
+        toggle). Nothing is copied from this repo. The raydr CLI owns
+        the `/raydr` command and its three hooks (Stop, PreToolUse,
+        Notification), so opting in runs its installer: `raydr hooks
+        install` adds the hooks to ~/.claude/settings.json after backing
+        it up and writes ~/.claude/commands/raydr.md beside it. Both stay
+        current with the CLI. Then run `raydr init` once per machine to
+        pick providers and write ~/.config/raydr/env, `raydr start`, and
+        `raydr doctor` to check the setup. Requires the raydr CLI from
+        the `@tensorkit/raydr` npm package
+        (https://www.npmjs.com/package/@tensorkit/raydr, Node 24 or
+        newer): `npm i -g @tensorkit/raydr`.
+      requires:
+        - command: raydr
+          install: npm i -g @tensorkit/raydr
+      run:
+        - raydr hooks install
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)
