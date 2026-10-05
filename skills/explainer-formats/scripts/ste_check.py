@@ -3,12 +3,11 @@
 
 Thin wrapper around the open-source `ste100-checker`, run through uvx.
 
-Usage:
-    ste_check.py FILE
-    cat text.txt | ste_check.py
+Usage: ste_check.py FILE   or   cat text.txt | ste_check.py
 
 Needs uv and Python 3.11+. The first run downloads the checker and the spaCy
-model en_core_web_sm. Set STE_SPACY_MODEL to override the model wheel.
+model en_core_web_sm (wheel 3.8.0, which assumes the checker pins spaCy 3.8;
+set STE_SPACY_MODEL to another wheel URL or spec if that changes).
 """
 
 import os
@@ -16,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
 HINT = (
     "ste_check.py: needs uv on PATH (https://docs.astral.sh/uv/) and Python 3.11+; "
     "the first run downloads ste100-checker and the spaCy model en_core_web_sm."

@@ -10,9 +10,9 @@ One command, four output formats (rungs), ordered from cheapest to most expensiv
 | Rung | Output | Reference to load | Status |
 |------|--------|-------------------|--------|
 | `ste` | Prose rewritten in Simplified Technical English at a chosen strictness | `references/ste-rules.md`; `references/ste-dictionary.md` at strict (and for substitutions at 80%) | ready |
-| `diagram` | A diagram of the mechanism, with STE captions | `references/diagram.md` | Phase 2, not yet written |
-| `html` | A standalone HTML explainer page | `references/html.md` | Phase 2, not yet written |
-| `video` | A narrated video built from the HTML or diagram | `references/video.md` and `scripts/` pipeline | Phase 3, not yet written |
+| `diagram` | A diagram of the mechanism, with STE captions | `references/diagram.md` | planned, not yet available |
+| `html` | A standalone HTML explainer page | `references/html.md` | planned, not yet available |
+| `video` | A narrated video built from the HTML or diagram | `references/video.md` and `scripts/` pipeline | planned, not yet available |
 
 If a rung's reference file does not exist yet, say so in one line and fall back to `ste`.
 
@@ -22,7 +22,7 @@ If a rung's reference file does not exist yet, say so in one line and fall back 
 /explain <topic> [--as ste|diagram|html|video] [--level strict|80|light]
 ```
 
-Defaults: `--as ste`, `--level light`. `<topic>` is anything the reader points at: a question, a pasted paragraph, a file path, a function name, a feature. When the topic is a file or symbol, read it first and explain what is there, not what it is named.
+`/explain` is the `explain` command in `~/.claude/commands/`; it loads this skill and passes its arguments through. Defaults: `--as ste`, `--level light`. `<topic>` is anything the reader points at: a question, a pasted paragraph, a file path, a function name, a feature. When the topic is a file or symbol, read it first and explain what is there, not what it is named.
 
 ## Escalation rule
 
@@ -41,19 +41,16 @@ These are not optional and they do not relax at `light`. A rewrite that reads we
 - Keep every fact, number, unit, caveat, condition, and domain term from the source. Hedges in the source ("usually", "unless the cache is cold") are facts; keep them.
 - Never invent. If the source does not say why, the rewrite does not say why. If something is unclear, say it is unclear rather than guessing.
 - Leave code, commands, flags, file paths, identifiers, error messages, and quoted output exactly as written. Do not rewrite them into prose, change their case, or "simplify" them.
-- A domain term that is not an approved word stays in the text. Declare it as a technical name on first use ("the hydraulic reservoir, a technical name for the tank that holds the fluid") and then use it unchanged. Do not swap it for a near-synonym.
+- A domain term that is not an approved word stays in the text as written. Never swap it for a near-synonym. (At `strict` only, also declare it as a technical name on first use; see the rung below.)
 - One source of truth: when a fact appears twice in the source with different numbers, keep both and flag the conflict. Do not pick one.
 
-Why this is strict: a published test of a prompt that said only "write this in ASD-STE100" lost 47% of the code-specific facts in the source. The vocabulary rules pulled the model toward fluent sentences and away from the content. The guardrails above and the `light` default exist to prevent that.
+Why this is strict: a published test of a prompt that said only "write this in ASD-STE100" lost 47% of the code-specific facts in the source (allaboutcoding.ghinda.com/explain-to-me-in-simple-technical-english). The vocabulary rules pulled the model toward fluent sentences and away from the content. The guardrails above and the `light` default exist to prevent that.
 
 ## The `ste` rung
 
-1. Read `references/ste-rules.md`. It has the nine rule sections, the numeric limits, the verb forms table, the safety instruction format, and the three-level dial.
-2. Apply the level:
-   - `light` (default): short sentences, one idea each, plain-verb substitutions. Reads like a careful technical writer, not like a specification.
-   - `80`: the word and paragraph limits, active voice, approved verb forms, the substitution table. Domain nouns are free.
-   - `strict`: everything in the specification. Load `references/ste-dictionary.md` and use approved vocabulary only; undeclared domain terms are an error.
-3. At `80` and `strict`, consult the substitution table in `references/ste-dictionary.md` for every verb and connector you are unsure about. At `light`, use the table from memory for the common swaps (ensure, utilize, prior to, in order to) and do not load the file.
+1. Read `references/ste-rules.md`. It has the nine rule sections, the numeric limits, the verb forms table, the safety instruction format, and the dial table. The dial table is the single definition of what `strict`, `80`, and `light` allow; do not work from memory of it.
+2. Apply the level from the dial table. In one line each: `light` (default) reads like a careful technical writer, not a specification; `80` applies the limits, active voice, and the substitution table while domain nouns stay free and undeclared; `strict` is everything in the specification, with every domain term declared as a technical name on first use ("the hydraulic reservoir, a technical name for the tank that holds the fluid").
+3. Vocabulary authority: if `references/ste-dictionary-full.md` exists, use it as the authority. Otherwise use `references/ste-dictionary.md`, which is partial. Load it at `strict`; at `80` consult its substitution table for every verb and connector you are unsure about; at `light` use the common swaps from memory (ensure, utilize, prior to, in order to) and do not load the file.
 4. Run the guardrails above as a checklist against the source before answering. Count the facts in the source; count them in the output.
 5. For `strict` output, optionally lint with the bundled checker:
 
@@ -67,8 +64,8 @@ Output format for `ste`: the rewritten text, then a short line naming the level 
 
 ## Machine check
 
-`bash scripts/doctor.sh` prints what the later rungs need on this machine (Python, uv, ffmpeg, manim, kokoro-onnx, espeak-ng, an ElevenLabs key by name only) and writes `machine.toml` in the skill root. Read-only; it installs nothing. Run it before attempting `video` once Phase 3 lands.
+`bash scripts/doctor.sh` prints what the later rungs need on this machine (Python, uv, ffmpeg, manim, kokoro-onnx, espeak-ng, an ElevenLabs key by name only). It installs nothing; it writes only `machine.toml` (gitignored) in the skill root. Run it before attempting `video` once that rung is available.
 
 ## Not affiliated
 
-The STE references summarize the public outline of ASD-STE100 Issue 9 (January 2025) and a seminar reference sheet. This skill is unofficial and is not affiliated with or endorsed by ASD. The dictionary bundled here is partial; the full Issue 9 word list is held under the maintainer's company licence and is added separately.
+The STE references summarize the public outline of ASD-STE100 Issue 9 (January 2025) and a seminar reference sheet. This skill is unofficial and is not affiliated with or endorsed by ASD. ASD-STE100 is free of charge but copyright ASD; the bundled dictionary is partial and the full word list is not redistributed here.

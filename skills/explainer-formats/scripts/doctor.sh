@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Read-only check of what the explainer-formats rungs need on this machine.
-# Prints a table and writes machine.toml in the skill root. Installs nothing.
+# Prints a table. Installs nothing; writes only machine.toml (gitignored) in the skill root.
 set -u
 
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/.." && pwd)"
 out="$root/machine.toml"
 venv="$here/.venv"
+# raydr is a personal voice tool; its env file is only grepped for the key NAME, never read for a value.
+raydr_env="${RAYDR_ENV_FILE:-$HOME/.config/raydr/env}"
 
 rows=()   # name|status|detail
 add() { rows+=("$1|$2|$3"); }
@@ -50,8 +52,8 @@ fi
 
 if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
   add ELEVENLABS_API_KEY present "set in environment"
-elif grep -qE '^(export )?ELEVENLABS_API_KEY=' "$HOME/.config/raydr/env" 2>/dev/null; then
-  add ELEVENLABS_API_KEY present "named in ~/.config/raydr/env"
+elif grep -qE '^(export )?ELEVENLABS_API_KEY=' "$raydr_env" 2>/dev/null; then
+  add ELEVENLABS_API_KEY present "named in $raydr_env"
 else
   add ELEVENLABS_API_KEY missing "-"
 fi

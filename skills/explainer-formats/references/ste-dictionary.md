@@ -1,8 +1,8 @@
 # Simplified Technical English: word list (partial)
 
-A partial Part 2 word list for the `ste` rung at the `strict` and `80` levels. The source specification is ASD-STE100, Issue 9 (January 2025). This file is unofficial and is not affiliated with or endorsed by ASD. The maintainer's company attended an ASD-STE100 seminar and holds the rights to use the specification, which is what allows the word list to be bundled here for internal use.
+A partial Part 2 word list for the `ste` rung at the `strict` and `80` levels. The source specification is ASD-STE100, Issue 9 (January 2025). ASD-STE100 is free of charge but copyright ASD; the full word list is not redistributed here. This file is unofficial and is not affiliated with or endorsed by ASD.
 
-What is here: the examples from the seminar reference sheet, plus common unapproved-to-approved pairs that public STE training materials and open-source STE tooling agree on. Nothing was invented; a pair that could not be confirmed was left out. The full Issue 9 dictionary (about 900 approved words) is not here yet; see the placeholder at the end.
+What is here: the examples from a seminar reference sheet, plus common unapproved-to-approved pairs taken from public STE training material and open-source STE tooling. These pairs have not been checked against Part 2 of the specification, so treat any one of them as a strong hint rather than a ruling. If `ste-dictionary-full.md` exists next to this file, it is the authority and supersedes anything here; see the note at the end.
 
 Convention, from the sheet: approved words are UPPERCASE and keep only their listed part of speech and one meaning. Unapproved words are lowercase, with the approved alternative in the third column. "Close" is a verb only, never an adjective meaning "near".
 
@@ -12,16 +12,16 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 
 | Word (part of speech) | Status | Meaning or alternative | Example |
 |---|---|---|---|
-| ABOUT (adv) | approved | Approximately | Wait for ABOUT 10 minutes. |
+| about (adv) | not approved | APPROXIMATELY | Wait for APPROXIMATELY 10 minutes. |
 | accomplish (v) | not approved | DO | DO the test. |
 | achieve (v) | not approved | GET | GET the correct pressure. |
 | additionally (adv) | not approved | ALSO | ALSO do a check of the seal. |
-| adequate (adj) | not approved | ENOUGH | Make sure there is ENOUGH fluid. |
-| adjacent (adj) | not approved | NEAR | Put the tool NEAR the panel. |
+| adequate (adj) | not approved | SUFFICIENT | Make sure there is SUFFICIENT fluid. |
+| ADJACENT (adj) | approved | Next to | Put the tool on the ADJACENT panel. |
 | AFTER (prep) | approved | Later in time than | Do a leak check AFTER the test. |
 | ALSO (adv) | approved | In addition | ALSO examine the hose. |
 | alter (v) | not approved | CHANGE | CHANGE the setting. |
-| approximately (adv) | not approved | ABOUT | Wait for ABOUT 10 minutes. |
+| APPROXIMATELY (adv) | approved | Near to a quantity, not exact | Wait for APPROXIMATELY 10 minutes. |
 | as required (phrase) | not approved | AS NECESSARY | Add fluid AS NECESSARY. |
 | assist (v) | not approved | HELP | A second person must HELP you lift the unit. |
 | assure (v) | not approved | MAKE SURE | MAKE SURE that the cover is closed. |
@@ -56,7 +56,7 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | elevate (v) | not approved | LIFT | LIFT the cover. |
 | eliminate (v) | not approved | REMOVE | REMOVE the air from the line. |
 | employ (v) | not approved | USE | USE a torque wrench. |
-| ENOUGH (adj) | approved | As much as is necessary | Make sure there is ENOUGH fluid. |
+| enough (adj) | not approved | SUFFICIENT | Make sure there is SUFFICIENT fluid. |
 | ensure (v) | not approved | MAKE SURE | MAKE SURE THAT the switch is off. |
 | EXAMINE (v) | approved | To look at carefully | EXAMINE the hose for cracks. |
 | exceed (v) | not approved | BE MORE THAN | The pressure must not BE MORE THAN 30 bar. |
@@ -68,7 +68,7 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | FIND (v) | approved | To get the location of | FIND the drain valve. |
 | fit (v) | not approved | INSTALL | INSTALL the new seal. |
 | following (prep) | not approved | AFTER | AFTER the test, close the valve. |
-| frequently (adv) | not approved | OFTEN | Examine the filter OFTEN. |
+| FREQUENTLY (adv) | approved | Many times; at short intervals | Examine the filter FREQUENTLY. |
 | function (v) | not approved | OPERATE | Make sure that the pump OPERATES. |
 | gain access (phrase) | not approved | GET ACCESS | Remove the panel to GET ACCESS to the valve. |
 | GET (v) | approved | To obtain; to receive | GET the correct tool. |
@@ -90,7 +90,7 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | initiate (v) | not approved | START | START the sequence. |
 | inspect (v) | not approved | EXAMINE; DO AN INSPECTION | EXAMINE the cable for damage. |
 | INSTALL (v) | approved | To put a part in its position | INSTALL the filter. |
-| insufficient (adj) | not approved | NOT ENOUGH | There is NOT ENOUGH oil. |
+| insufficient (adj) | not approved | NOT SUFFICIENT | The oil quantity is NOT SUFFICIENT. |
 | KEEP (v) | approved | To hold; to continue to have | KEEP the cover closed. |
 | lessen (v) | not approved | DECREASE | DECREASE the load. |
 | LET (v) | approved | To permit | LET the engine become cool. |
@@ -107,12 +107,11 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | MOVE (v) | approved | To change position | MOVE the lever to the left. |
 | NEAR (prep) | approved | A short distance from | Put the tool NEAR the panel. |
 | NECESSARY (adj) | approved | Required | Eye protection is NECESSARY. |
-| NEED (v) | approved | To have a requirement for | You NEED two people to lift the unit. |
 | notify (v) | not approved | TELL | TELL the supervisor. |
 | numerous (adj) | not approved | MANY | There are MANY connectors. |
 | obtain (v) | not approved | GET | GET a replacement seal. |
 | occasionally (adv) | not approved | SOMETIMES | The pump SOMETIMES makes a noise. |
-| OFTEN (adv) | approved | Many times | Examine the filter OFTEN. |
+| often (adv) | not approved | FREQUENTLY | Examine the filter FREQUENTLY. |
 | on completion of (phrase) | not approved | AFTER | AFTER the test, close the valve. |
 | OPERATE (v) | approved | To function; to cause to function | OPERATE the switch. |
 | perform (v) | not approved | DO | DO the test. |
@@ -134,7 +133,7 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | REPAIR (v) | approved | To make serviceable again | REPAIR the hose. |
 | REPLACE (v) | approved | To install a new part in place of the old one | REPLACE the filter. |
 | replenish (v) | not approved | FILL | FILL the reservoir. |
-| require (v) | not approved | NEED; MUST (as a modal) | You NEED a torque wrench. You MUST wear gloves. |
+| require (v) | not approved | MUST; BE NECESSARY | You MUST wear gloves. A torque wrench IS NECESSARY. |
 | retain (v) | not approved | KEEP | KEEP the old part for the inspection. |
 | rotate (v) | not approved | TURN | TURN the knob clockwise. |
 | satisfactory (adj) | not approved | CORRECT | Make sure that the reading is CORRECT. |
@@ -147,7 +146,7 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | STOP (v) | approved | To cause to end | STOP the motor. |
 | subsequently (adv) | not approved | THEN; AFTER | THEN close the valve. |
 | substitute (v) | not approved | REPLACE | REPLACE the seal. |
-| sufficient (adj) | not approved | ENOUGH | Make sure there is ENOUGH fluid. |
+| SUFFICIENT (adj) | approved | As much as is necessary | Make sure there is SUFFICIENT fluid. |
 | SUPPLY (v) | approved | To give what is needed | The pump will SUPPLY fuel to the engine. |
 | take care (phrase) | not approved | BE CAREFUL | BE CAREFUL when you lift the cover. |
 | take out (v) | not approved | REMOVE | REMOVE the filter. |
@@ -173,6 +172,6 @@ Three ways to resolve a word that is not in this list, in order: find it in the 
 | whilst (conj) | not approved | WHILE | Hold the lever WHILE you push the button. |
 | within (prep) | not approved | IN | Do the test IN 10 minutes. |
 
-## Placeholder: full Issue 9 dictionary
+## The full word list
 
-TODO: add the complete Part 2 word list from the company's ASD-STE100 seminar sheets. Keep the same four columns and the same convention (approved in UPPERCASE with one part of speech and one meaning; unapproved in lowercase with the alternative). Entries above that conflict with the official list are to be corrected to match it, not kept.
+The complete Part 2 word list is copyright ASD and is not committed to this repository. To use it locally, put it in `references/ste-dictionary-full.md` next to this file (that path is gitignored) with the same four columns and the same convention: approved in UPPERCASE with one part of speech and one meaning, unapproved in lowercase with the alternative. When that file exists, it is the authority; entries above that conflict with it are wrong, not alternatives.

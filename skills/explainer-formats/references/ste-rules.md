@@ -10,7 +10,7 @@ Contents: how the spec is organized; the nine rule sections; numeric limits; ver
 - Part 2, Dictionary: about 900 approved words, each with one part of speech and one meaning, plus unapproved words with their approved alternative. See `ste-dictionary.md`.
 - Technical names and technical verbs: company-specific terms in defined categories (parts, tools, materials, locations, system states, operations on them). They are allowed on top of the dictionary. This is the escape hatch for domain terms, and it is why "declare it as a technical name" is the answer to most vocabulary conflicts.
 
-History, for orientation: AECMA started the controlled-English work for airline maintenance in 1979, published the first Simplified English guide in 1986, and the spec became ASD-STE100 in 2005 after AECMA joined ASD. It is maintained by the STEMG and is a free download. Originally aircraft maintenance; now also defence, rail, and general industry.
+History, for orientation: AECMA started the controlled-English work for airline maintenance in 1979, published the first Simplified English guide in 1986, and the spec became ASD-STE100 in 2005 after AECMA joined ASD. It is maintained by the Simplified Technical English Maintenance Group (STEMG) and is a free download. Originally aircraft maintenance; now also defence, rail, and general industry.
 
 ## The nine rule sections
 
@@ -19,8 +19,8 @@ Section 1, Words
 - Use an approved word only in its listed part of speech and meaning. CLOSE is a verb; it never means "near".
 - Use the same word for the same thing, every time. No elegant variation.
 
-Section 2, Noun clusters
-- A noun cluster is at most three words ("hydraulic reservoir", "brake unit assembly").
+Section 2, Noun phrases (noun clusters)
+- A noun phrase has at most three nouns ("brake unit assembly"); adjectives do not count. Some reference sheets, including the seminar sheet this summary draws on, say "3 words", which is the stricter reading.
 - Longer clusters are split with prepositions or hyphens, or the cluster is declared a technical name.
 
 Section 3, Verbs
@@ -33,7 +33,7 @@ Section 4, Sentences
 - Keep sentences short. One topic per sentence.
 - Do not drop words to hit the count. Keep "the", "a", "this", and the verb.
 - Use a vertical list when a sentence has more than one instruction or a long series of items.
-- Join related short sentences with connecting words (then, but, because) rather than packing them into one.
+- Use connecting words (then, but, because) at the start of a sentence to link it to the one before.
 
 Section 5, Procedures
 - At most 20 words per sentence.
@@ -69,7 +69,7 @@ Section 9, Writing practices
 | Procedural sentence | 20 words |
 | Descriptive sentence | 25 words |
 | Descriptive paragraph | 6 sentences |
-| Noun cluster | 3 words |
+| Noun phrase (noun cluster) | 3 nouns; adjectives do not count (the seminar sheet says 3 words) |
 | Instructions in one sentence | 1, except actions done at the same time |
 
 ## Verb forms (Section 3)
@@ -111,13 +111,13 @@ WARNING for injury, CAUTION for damage. Command first, risk second. Never bury t
 | Paragraphs | max 6 sentences, one topic | max 6 sentences, one topic | one idea per sentence; paragraphs free |
 | Verb forms | approved forms only | approved forms; "is/are" plus -ing allowed when it reads naturally | free |
 | Voice | active | active | free |
-| Vocabulary | approved words only; domain terms only when declared as technical names or technical verbs | substitution table applied; domain nouns are free | plain-verb substitutions from the table (ensure, utilize, prior to, in order to, and similar); everything else free |
+| Vocabulary | approved words only; domain terms only when declared as technical names or technical verbs on first use | substitution table applied; domain nouns are free and need no declaration | plain-verb substitutions from the table (ensure, utilize, prior to, in order to, and similar); everything else free |
 | Instructions per sentence | one, except simultaneous actions | one preferred | free |
 | Semicolons, contractions, Latin abbreviations (e.g., i.e., etc.) | none | allowed sparingly | free |
 | Consistent terms | required | required | encouraged |
 | Source facts, numbers, caveats, hedges | all kept | all kept | all kept |
 
-The last row is the one that never moves. See the guardrails in SKILL.md.
+The last row is the one that never moves, and at every level a domain term is kept as written, never swapped for a near-synonym. See the guardrails in SKILL.md. This table is the single definition of the three levels; SKILL.md points here rather than restating it.
 
 ## Annotated example
 
