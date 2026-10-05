@@ -1,0 +1,4 @@
+machine.toml
+.venv/
+__pycache__/
+references/ste-dictionary-full.md

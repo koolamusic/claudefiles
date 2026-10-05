@@ -68,6 +68,7 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | agent-browser | Browser automation with Playwright | [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser) |
 | breadboarding | UI breadboarding (Shape Up) | [rjs/shaping-skills](https://github.com/rjs/shaping-skills) |
 | docx | Word document creation and editing | [anthropics/skills](https://github.com/anthropics/skills) |
+| explainer-formats | Explain a topic as Simplified Technical English prose, a diagram, an HTML page, or a video; `/explain` with a strictness dial | original |
 | golang-best-practices | Go concurrency, microservices, gRPC, generics | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
 | nestjs-best-practices | NestJS architecture and patterns | [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) |
 | pdf | PDF processing and manipulation | [anthropics/skills](https://github.com/anthropics/skills) |
