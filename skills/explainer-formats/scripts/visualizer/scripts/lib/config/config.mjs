@@ -15,7 +15,6 @@ export const DEFAULTS = {
   duration: 'auto',
   outputDir: 'diagrams',
   profile: null,
-  watermark: true,
 };
 
 const KNOWN = new Set(Object.keys(DEFAULTS).concat(['brand']));

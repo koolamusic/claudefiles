@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { el, esc } from './svg.mjs';
 import { DIAGRAM_CSS, SKINS, skinCss } from './tokens.mjs';
 import { localFontCss, encoderScripts } from './fonts-local.mjs';
-import { watermarkOn, watermarkSvg, MARK, FAVICON } from './mark.mjs';
 import { MOTION_CSS, motionVars } from './motion.mjs';
 import { VIEWER_CSS } from './viewer/viewer.css.mjs';
 
@@ -17,10 +16,7 @@ export function slugify(s) {
 
 export function buildPage({ spec, result, preset, typeName, settings = {} }) {
   const sketchy = (spec.style || settings.style) === 'sketchy';
-  const mark = watermarkOn(spec, settings);
-  const [vx, vy, vw, vh0] = result.viewBox.map((v) => Math.round(v));
-  // the watermark gets its own strip under the diagram, so it never covers content
-  const vh = mark ? vh0 + MARK.strip : vh0;
+  const [vx, vy, vw, vh] = result.viewBox.map((v) => Math.round(v));
   const slug = slugify(spec.title || spec.type);
   const title = spec.title || typeName;
   const desc = spec.subtitle || `${typeName} diagram${result.graph ? ` with ${result.graph.nodes.length} elements` : ''}.`;
@@ -29,7 +25,6 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
   const svg = el('svg', {
     class: `sc-svg${sketchy ? ' sc-sketchy' : ''}`,
     xmlns: 'http://www.w3.org/2000/svg',
-    'xmlns:xlink': mark ? 'http://www.w3.org/1999/xlink' : undefined,
     viewBox: `${vx} ${vy} ${vw} ${vh}`,
     role: 'img',
     'aria-labelledby': `${slug}-title ${slug}-desc`,
@@ -47,7 +42,6 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
     el('rect', { class: 'sc-bg', x: vx, y: vy, width: vw, height: vh }),
     sketchy ? `<style>.sc-sketchy .n-box,.sc-sketchy .e-line,.sc-sketchy .g-box,.sc-sketchy .e-head,.sc-sketchy .e-glyph,.sc-sketchy .lane-band,.sc-sketchy .c-bar,.sc-sketchy .sk-link,.sc-sketchy .venn-c,.sc-sketchy .q-frame,.sc-sketchy .tm-cell{filter:url(#${slug}-sketch)}.sc-sketchy .n-label,.sc-sketchy .venn-label{font-family:'Kalam','Comic Neue',cursive;font-weight:700}</style>` : '',
     result.body,
-    mark ? watermarkSvg([vx, vy, vw, vh], slug) : '',
   ]);
   const tokenNames = [...Object.keys(SKINS.light), 'font-serif', 'font-sans', 'font-mono'].map((k) => `--sc-${k}`).join(',');
   const bar = [
@@ -77,7 +71,6 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="SeeCode">
-<link rel="icon" type="image/png" href="${FAVICON()}">
 <title>${esc(title)}</title>
 <style id="sc-fonts">${localFontCss({ sketchy })}</style>
 <style>${skinCss({ skin: spec.skin || settings.skin || 'light', brand })}

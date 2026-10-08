@@ -22,4 +22,3 @@
 - Arrays of objects with `id` patch by id: `{"nodes":{"api":{"row":2},"old":null,"new":{"label":"New","row":0,"col":4}}}`.
 - Tuple arrays add or remove items: `{"edges":{"add":[["a","b","label"]],"remove":["c>d"]}}`. `remove` also accepts indexes.
 
-**Watermark:** every diagram carries the SeeCode logo in its bottom-right corner, in all formats. The lettering takes the diagram's text colour, so it stays visible on any background. Keep it unless the user asks to remove it; then set `"watermark": false` in the spec, or `SC config set watermark false` for all diagrams.

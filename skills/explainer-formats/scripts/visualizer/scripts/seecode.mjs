@@ -117,7 +117,7 @@ switch (cmd) {
   }
   case 'import': {
     const { importFile } = await import('./lib/importers/import.mjs');
-    if (!pos[0]) fail('usage: seecode.mjs import <file>');
+    if (!pos[0]) fail('usage: seecode.mjs import <file> (Mermaid or PlantUML; CSV/JSON rows for charts)');
     print(importFile(resolve(pos[0]), flags));
     break;
   }

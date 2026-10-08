@@ -5,18 +5,14 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { basename, extname, dirname, resolve, relative, join } from 'node:path';
 import { parseMermaid } from './mermaid.mjs';
-import { parseDot } from './dot.mjs';
 import { parsePlantUml } from './plantuml.mjs';
-import { parseD2 } from './d2.mjs';
-import { parseDrawio, parseExcalidraw, extractDrawioXml } from './canvas.mjs';
-import { parseStructurizr, parseBpmn, parseSql, parsePrisma, parseDbml, parseOpenApi } from './models.mjs';
 import { readTable } from '../data.mjs';
 import { clean } from './common.mjs';
 import { compactJson, renderSpec } from '../render.mjs';
 import { status as configStatus } from '../config/config.mjs';
 
 const MERMAID_HEADS = /^(flowchart|graph|sequenceDiagram|stateDiagram(-v2)?|erDiagram|classDiagram(-v2)?|gantt|pie|mindmap|journey|timeline|quadrantChart|sankey(-beta)?|xychart(-beta)?|gitGraph|block(-beta)?|architecture(-beta)?|C4\w+)\b/m;
-const FENCE = /```\s*(mermaid|dot|graphviz|plantuml|puml|d2)\s*\n([\s\S]*?)```/g;
+const FENCE = /```\s*(mermaid|plantuml|puml)\s*\n([\s\S]*?)```/g;
 
 export function detect(name, text) {
   const n = name.toLowerCase();
@@ -149,28 +145,18 @@ export function importFile(path, flags = {}) {
   let source = text;
   if (format === 'markdown') {
     const blocks = [...text.matchAll(FENCE)].map((m) => ({ lang: m[1], code: m[2] }));
-    if (!blocks.length) return { ok: false, error: 'no ```mermaid/dot/plantuml/d2 blocks in this markdown file' };
+    if (!blocks.length) return { ok: false, error: 'no ```mermaid/plantuml blocks in this markdown file' };
     const i = Number(flags.block || 0);
     if (blocks.length > 1) notes.push(`${blocks.length} diagram blocks found; imported #${i} (${blocks[i]?.lang}). Use --block N for others: ${blocks.map((b, k) => `${k}:${b.lang}`).join(' ')}`);
     const b = blocks[i];
     if (!b) return { ok: false, error: `no block #${i}` };
     source = b.code;
-    format = { mermaid: 'mermaid', dot: 'dot', graphviz: 'dot', plantuml: 'plantuml', puml: 'plantuml', d2: 'd2' }[b.lang];
+    format = { mermaid: 'mermaid', plantuml: 'plantuml', puml: 'plantuml' }[b.lang];
   }
   try {
     switch (format) {
       case 'mermaid': model = parseMermaid(source); break;
-      case 'dot': model = parseDot(source); break;
       case 'plantuml': model = parsePlantUml(source); break;
-      case 'd2': model = parseD2(source); break;
-      case 'drawio': model = parseDrawio(extractDrawioXml(buf, name)); break;
-      case 'excalidraw': model = parseExcalidraw(source); break;
-      case 'structurizr': model = parseStructurizr(source); break;
-      case 'bpmn': model = parseBpmn(source); break;
-      case 'sql': model = parseSql(source); break;
-      case 'prisma': model = parsePrisma(source); break;
-      case 'dbml': model = parseDbml(source); break;
-      case 'openapi': model = parseOpenApi(source); break;
       case 'data':
       case 'json': {
         let rows;
@@ -188,7 +174,7 @@ export function importFile(path, flags = {}) {
         notes.push(`data stays in ${rel} (${rows.length} rows); chart chosen because: ${r.why}`);
         return finish(r.spec, out, format, notes, flags);
       }
-      default: return { ok: false, error: `no importer for ${format}` };
+      default: return { ok: false, error: `${format} import is not bundled in this copy`, fix: 'only Mermaid and PlantUML (and CSV/JSON rows for charts) are; read the file yourself and write a spec by hand' };
     }
   } catch (e) {
     return { ok: false, error: `parse failed: ${String(e.message).split('\n')[0]}`, fix: 'read the file yourself and write a spec by hand (say no parser was used)' };

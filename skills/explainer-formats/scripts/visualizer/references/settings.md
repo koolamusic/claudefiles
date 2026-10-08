@@ -15,7 +15,6 @@
 | `duration` | `auto` | GIF/MP4 length: `auto` (reveal plus one token loop) or a number of seconds |
 | `outputDir` | `diagrams` | Where specs and HTML are written |
 | `profile` | `null` | A palette profile slug from `~/.seecode/profiles/<slug>.json` |
-| `watermark` | `true` | SeeCode logo in each diagram's bottom-right corner; `false` removes it (only when the user asks) |
 
 **Commands**
 - `SC config status`

@@ -18,4 +18,4 @@ Physical tables, with typed columns and foreign-key lines between them.
  "edges":[["invoices.account_id","accounts.id","","many-one"]]}
 ```
 
-From SQL, Prisma or DBML files: `SC import schema.sql` writes this spec for you.
+From a SQL, Prisma or DBML file: read it and write this spec by hand (those importers are not bundled).

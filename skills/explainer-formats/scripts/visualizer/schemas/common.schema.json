@@ -112,7 +112,7 @@
     },
     "watermark": {
       "type": "boolean",
-      "description": "SeeCode logo in the bottom-right corner (default true). Set false only when the user asks to remove it."
+      "description": "Accepted for compatibility with older specs and ignored: this copy draws no watermark."
     }
   }
 }

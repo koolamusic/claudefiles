@@ -73,7 +73,7 @@ Output format for `ste`: the rewritten text, then a short line naming the level 
 
 ## The `diagram` rung
 
-Read `references/diagram.md`. It routes between a Mermaid fence or inline SVG (figures that stay in chat or in an artifact page) and the visualizer (a diagram file, animation, export, a named type, or a redraw of an existing Mermaid, PlantUML, DOT, D2, SQL, OpenAPI or CSV source). The visualizer is driven through `bash scripts/diagram.sh <command>`; it needs Node 20 or newer, a Chrome-family browser for PNG, GIF and MP4 export, and ffmpeg for MP4 when the browser cannot encode H.264. It makes no network calls.
+Read `references/diagram.md`. It routes between a Mermaid fence or inline SVG (figures that stay in chat or in an artifact page) and the visualizer (a diagram file, animation, export, a named type, or a redraw of an existing Mermaid or PlantUML source). The visualizer is driven through `bash scripts/diagram.sh <command>`; it needs Node 20 or newer, a Chrome-family browser for PNG, GIF and MP4 export, and ffmpeg for MP4 when the browser cannot encode H.264. It makes no network calls.
 
 ## Machine check
 

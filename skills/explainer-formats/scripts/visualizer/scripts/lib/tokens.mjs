@@ -83,8 +83,6 @@ export function skinCss({ skin = 'light', brand = {} } = {}) {
 // page/viewer CSS so the SVG export can embed exactly this block.
 export const DIAGRAM_CSS = `
 .sc-svg{font-family:${FONT.sans};color:var(--sc-ink)}
-.sc-mark{opacity:.88;pointer-events:none}
-.sc-mark-word{fill:var(--sc-ink)}
 .sc-bg{fill:var(--sc-paper)}
 .n-mask{fill:var(--sc-paper)}
 .n-box{fill:var(--sc-node);stroke:var(--sc-ink);stroke-width:1}
