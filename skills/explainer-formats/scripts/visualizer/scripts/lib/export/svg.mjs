@@ -1,8 +1,7 @@
 // Browser-free SVG export: build the standalone SVG straight from a SeeCode
 // HTML page in Node. Works in sandboxes with no Chrome (e.g. Claude.ai).
 // Output is the settled end frame (motion off), theme variables resolved,
-// the diagram stylesheet inlined and, when the network allows, fonts embedded.
-import { embedFonts } from './fonts.mjs';
+// the diagram stylesheet inlined and the bundled fonts embedded.
 
 const pick = (html, re) => (html.match(re) || [])[1];
 
@@ -18,9 +17,6 @@ export function svgFromHtml(html, { theme = 'light' } = {}) {
   const css = pick(html, /<style id="sc-diagram-css">([\s\S]*?)<\/style>/) || '';
   // SeeCode's own faces are inlined in the page as data URIs; copy them as is
   const bundledFaces = pick(html, /<style id="sc-fonts">([\s\S]*?)<\/style>/) || '';
-  // a brand profile's fonts: extra Google Fonts stylesheets and self-hosted faces
-  const brandHrefs = [...html.matchAll(/<link class="sc-brand-fonts" rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
-  const brandFaces = pick(html, /<style id="sc-brand-faces">([\s\S]*?)<\/style>/) || '';
   const title = pick(html, /<h1 class="sc-title"[^>]*>([\s\S]*?)<\/h1>/) || 'Diagram';
   const titleId = pick(html, /<h1 class="sc-title" id="([^"]+)"/) || 'sc-title';
   const vb = pick(svg, /viewBox="([^"]+)"/).split(/\s+/).map(Number);
@@ -28,14 +24,11 @@ export function svgFromHtml(html, { theme = 'light' } = {}) {
     .replace(/^<svg class="sc-svg/, '<svg class="sc-svg sc-still')
     .replace(/ style="[^"]*"/, '') // motion vars + max-width
     .replace(/ data-sc-motion="[^"]*"/, '');
-  const imports = brandHrefs.filter(Boolean).map((h) => `@import url('${h.replace(/&/g, '&amp;')}');`).join('');
-  const head = `<title id="${titleId}">${title}</title><style>${imports}${bundledFaces}${brandFaces.replace(/&/g, '&amp;').replace(/</g, '&lt;')}:root{${vars}}${css.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</style>`;
+  const head = `<title id="${titleId}">${title}</title><style>${bundledFaces}:root{${vars}}${css.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</style>`;
   svg = svg.replace(/^(<svg[^>]*>)/, (m) => `${m.replace('<svg ', `<svg width="${vb[2]}" height="${vb[3]}" `)}${head}`);
   return svg;
 }
 
 export async function exportSvg(html, opts = {}) {
-  const svg = svgFromHtml(html, opts);
-  const embedded = await embedFonts(svg);
-  return { svg: embedded.svg, warning: embedded.ok ? null : `fonts not embedded (${embedded.error}); offline viewers fall back to system fonts` };
+  return { svg: svgFromHtml(html, opts), warning: null };
 }

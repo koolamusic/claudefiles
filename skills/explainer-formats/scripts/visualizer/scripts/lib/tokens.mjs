@@ -3,9 +3,6 @@ import { expandRoles, rgba } from './color.mjs';
 // Every renderer emits class names only; colors live here as CSS custom
 // properties so the light/dark toggle and skins never touch SVG markup.
 
-export const FONTS_HREF =
-  'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
-
 export const SKINS = {
   light: {
     paper: '#f6f5f1', 'paper-2': '#eceae4', ink: '#1d2433', 'ink-strong': '#0b0f19',

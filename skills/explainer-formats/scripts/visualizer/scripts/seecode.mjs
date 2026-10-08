@@ -104,24 +104,6 @@ switch (cmd) {
     }
     break;
   }
-  case 'brand': {
-    const { learnBrand } = await import('./lib/brand/brand.mjs');
-    const learned = await learnBrand(pos[0] && !/^https?:/i.test(pos[0]) ? resolve(pos[0]) : pos[0], { colors: flags.colors, fonts: flags.fonts });
-    if (!learned.ok || !flags.save) {
-      print(learned.ok ? { ...learned, next: `brand ${pos[0] ? pos[0] : `--colors "${flags.colors}"`} --save <name> --use` } : learned);
-      if (!learned.ok) process.exit(1);
-      break;
-    }
-    try {
-      const saved = config.saveProfile(String(flags.save), learned.light, { dark: learned.dark, fonts: learned.fonts, source: pos[0] || 'colour list' });
-      const cwd = flags.cwd ? resolve(flags.cwd) : process.cwd();
-      if (flags.use) config.set(cwd, 'profile', String(flags.save), { global: flags.global === true });
-      print({ ...learned, saved: saved.file, ...(flags.use ? { using: String(flags.save) } : {}) });
-    } catch (e) {
-      fail(e.message);
-    }
-    break;
-  }
   case 'scan': {
     const { scanRepo } = await import('./lib/scan/scan.mjs');
     print(scanRepo(resolve(pos[0] || '.'), { depth: Number(flags.depth || 2) }));
@@ -145,6 +127,6 @@ switch (cmd) {
     break;
   }
   default:
-    print({ ok: false, error: `unknown command "${cmd || ''}"`, commands: ['render', 'validate', 'types', 'config', 'brand', 'scan', 'import', 'export', 'doctor'] });
+    print({ ok: false, error: `unknown command "${cmd || ''}"`, commands: ['render', 'validate', 'types', 'config', 'scan', 'import', 'export', 'doctor'] });
     process.exit(1);
 }

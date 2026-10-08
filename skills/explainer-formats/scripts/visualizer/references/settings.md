@@ -14,7 +14,7 @@
 | `fps` | `30` | GIF/MP4 frame rate |
 | `duration` | `auto` | GIF/MP4 length: `auto` (reveal plus one token loop) or a number of seconds |
 | `outputDir` | `diagrams` | Where specs and HTML are written |
-| `profile` | `null` | A brand profile slug from `~/.seecode/profiles/<slug>.json` |
+| `profile` | `null` | A palette profile slug from `~/.seecode/profiles/<slug>.json` |
 | `watermark` | `true` | SeeCode logo in each diagram's bottom-right corner; `false` removes it (only when the user asks) |
 
 **Commands**
@@ -24,4 +24,4 @@
 
 **First run:** when `status` returns `state:"first-run"`, ask the user once, then run `init`.
 
-**Brand profile:** usually written by `SC brand … --save <name>` (see `onboarding.md`): `{"brand":{"paper","ink","accent","link"},"dark":{…},"source":"…"}`. With `paper` and `ink` set, all other surfaces are derived from them. Every key is optional.
+**Palette profile:** written by `SC config profile save <slug> --accent #hex [--link --paper --ink --muted] [--use]`: `{"brand":{"paper","ink","accent","link"},"dark":{…}}`. With `paper` and `ink` set, all other surfaces are derived from them. Every key is optional. Profiles hold colours only; typefaces are always the bundled ones.

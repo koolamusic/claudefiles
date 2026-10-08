@@ -27,12 +27,12 @@ through upstream's command files.
 ## Local patches
 
 Drew's rule for this repo: it deploys to every machine he owns, so the
-vendored engine makes no network calls at runtime. Upstream loads Google
-Fonts into every page, fetches them again to embed in SVG exports, and loads
-its GIF/MP4/WebM encoders from jsDelivr inside the page's Export menu. The
-patches below replace all of that with bundled files. The only runtime fetch
-left is `brand <url>` (user-initiated) and, when a brand profile names Google
-or self-hosted fonts, the fetch of those brand fonts (user-configured).
+vendored engine makes no network calls at runtime, none at all. Upstream
+loads Google Fonts into every page, fetches them again to embed in SVG
+exports, loads its GIF/MP4/WebM encoders from jsDelivr inside the page's
+Export menu, and has a `brand <url>` command that fetches a site and can save
+its fonts into a profile. The patches below replace the first three with
+bundled files and remove the brand feature outright.
 
 Each patch is a `git diff` against the pristine copy, stored as
 `patches/NN-<name>.patch`; apply them from the repo root with `git apply`.
@@ -43,7 +43,8 @@ Each patch is a `git diff` against the pristine copy, stored as
 | `02-page-embed-fonts-and-encoders` | `scripts/lib/page.mjs`, `pageHtml` | Drops the Google Fonts `<link rel="preconnect">` and `<link id="sc-fonts">`, emits `<style id="sc-fonts">` with the local faces instead (Kalam only when sketchy), and appends the encoder blocks before the viewer script. `FONTS_HREF` is no longer imported; `tokens.mjs` is untouched. |
 | `03-viewer-offline-export` | `scripts/lib/viewer/viewer.client.js`: `LIBS`/`lib()`, `embeddedFonts()`, `frameSvg()` | `lib()` evaluates the inline encoder block (or reuses a `window` global the CLI exporter injected) instead of `import()` from jsDelivr. `embeddedFonts()` starts from the `#sc-fonts` text and only fetches brand families from `link.sc-brand-fonts`. `frameSvg()` falls back to the inline CSS, not an `@import` of the link href. |
 | `04-svg-export-bundled-faces` | `scripts/lib/export/svg.mjs`, `svgFromHtml` | Copies the `#sc-fonts` rules into the SVG's `<style>`; `@import` lines are built from brand hrefs only. |
-| `05-fonts-embed-skip-bundled` | `scripts/lib/export/fonts.mjs`, `embedFonts` | "no font faces returned" is an error only when there were Google imports to resolve, so an SVG whose faces are already inline reports `ok: true`. |
+| `05-fonts-embed-skip-bundled` | `scripts/lib/export/fonts.mjs`, `embedFonts` | "no font faces returned" is an error only when there were Google imports to resolve, so an SVG whose faces are already inline reports `ok: true`. (Superseded by 06, which deletes the file; kept so the series applies in order.) |
+| `06-remove-brand` | `scripts/seecode.mjs` (`brand` case, command list); `scripts/lib/brand/brand.mjs` (deleted); `scripts/lib/export/fonts.mjs` (deleted); `scripts/lib/export/svg.mjs` (`svgFromHtml`, `exportSvg`); `scripts/lib/page.mjs` (`pageHtml`); `scripts/lib/render.mjs` (`renderSpec`); `scripts/lib/viewer/viewer.client.js` (`embeddedFonts`); `scripts/lib/config/config.mjs` (`cleanFonts` removed, `saveProfile`, `status`); `scripts/lib/tokens.mjs` (`FONTS_HREF` removed); `SKILL.md`, `references/settings.md`, `references/style-guide.md`, `references/onboarding.md` (deleted) | Removes the brand feature: the `brand` command, the site/CSS scraper, and every font path other than the bundled faces (no Google stylesheet links, no self-hosted `@font-face` passthrough, no width margin for brand typefaces). Palette profiles stay: `config profile save <slug> --accent #hex ...` writes colours only to `~/.seecode/profiles/`, reads nothing from the network, and profile `fonts` are no longer loaded. |
 
 What this adds to each generated page, measured on a 5-node architecture
 diagram: fonts as base64 about 228 KB, encoders about 166 KB; the page grew
@@ -83,5 +84,7 @@ with a weight range.
    regenerate the patch file.
 5. Run the upstream tests against the copy: mirror the upstream repo into a
    scratch directory, replace its `skills/seecode` with a symlink to
-   `scripts/visualizer`, and run `node --test test/*.test.mjs` there.
+   `scripts/visualizer`, delete `test/brand.test.mjs` and `test/brand-fixtures/`
+   (they exercise the removed brand feature), and run
+   `node --test test/*.test.mjs` there.
 6. Bump the commit hash and date at the top of this file and in `NOTICE.md`.

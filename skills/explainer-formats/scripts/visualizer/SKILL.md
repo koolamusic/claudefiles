@@ -12,9 +12,9 @@ You write a **compact JSON spec**; scripts do layout, styling, motion, checks, e
 
 `SC` = `node <this skill's folder>/scripts/seecode.mjs`; each command prints one JSON line.
 
-## 0. Settings + brand (once per project)
+## 0. Settings (once per project)
 `SC config status`. On `"state":"first-run"` ask its `ask` once, then `SC config init --use global|project`. Specs go in `settings.outputDir`.
-**Brand:** no `settings.profile` but a brand is known (site URL, CSS/theme tokens in the repo, colours named)? Run `SC brand <url|dir>` or `SC brand --colors "#hex,…"`, show the palette, rerun with `--save <name> --use`. No brand: keep the defaults. See `references/onboarding.md`.
+**Palette:** keep the defaults unless the user names colours; then `SC config profile save <slug> --accent #hex [--link --paper --ink --muted] --use`.
 
 ## 1. Where will it live? Then pick the type
 Settle destination, look, size, audience (`references/delivery.md`): infer; ask one question only if it matters.

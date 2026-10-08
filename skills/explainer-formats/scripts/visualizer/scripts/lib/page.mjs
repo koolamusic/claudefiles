@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { el, esc } from './svg.mjs';
 import { DIAGRAM_CSS, SKINS, skinCss } from './tokens.mjs';
 import { localFontCss, encoderScripts } from './fonts-local.mjs';
-import { cleanFonts } from './config/config.mjs';
 import { watermarkOn, watermarkSvg, MARK, FAVICON } from './mark.mjs';
 import { MOTION_CSS, motionVars } from './motion.mjs';
 import { VIEWER_CSS } from './viewer/viewer.css.mjs';
@@ -71,8 +70,7 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
         .join('')}</details>`
     : '';
   const brand = { ...(settings.brand || {}) };
-  if (brand.fonts) brand.fonts = cleanFonts(brand.fonts);
-  const brandFonts = brand.fonts || {};
+  delete brand.fonts;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -81,9 +79,7 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
 <meta name="generator" content="SeeCode">
 <link rel="icon" type="image/png" href="${FAVICON()}">
 <title>${esc(title)}</title>
-<style id="sc-fonts">${localFontCss({ sketchy })}</style>${(brandFonts.href || []).map((h) => `
-<link class="sc-brand-fonts" rel="stylesheet" href="${esc(h)}">`).join('')}${brandFonts.faces ? `
-<style id="sc-brand-faces">${brandFonts.faces}</style>` : ''}
+<style id="sc-fonts">${localFontCss({ sketchy })}</style>
 <style>${skinCss({ skin: spec.skin || settings.skin || 'light', brand })}
 :root{--sc-max:${SIZE_MAX[spec.size || 'auto'] || 1200}px}
 ${VIEWER_CSS}</style>

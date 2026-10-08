@@ -20,4 +20,4 @@ The renderer enforces most of these rules. These are the ones you control throug
   - Viewers can switch light and dark themselves.
 - **Style:** `"style":"sketchy"` gives a hand-drawn look for informal docs and talks.
 - **Size:** `size` is `auto` (≤ 1200px), `wide`, `slide` (16:9 decks) or `square` (social posts).
-- **Brand:** see `onboarding.md`. Keep the brand accent as the only accent.
+- **Palette:** a saved profile (`settings.md`) supplies the accent. Keep it as the only accent.

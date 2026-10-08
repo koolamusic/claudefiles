@@ -71,26 +71,7 @@ function cleanRoles(roles, label) {
   return clean;
 }
 
-// Fonts are stored as data, then sanitised: plain family names, Google Fonts
-// stylesheet URLs, and @font-face rules whose files are https URLs.
-export function cleanFonts(fonts) {
-  if (!fonts) return null;
-  const out = {};
-  for (const role of ['sans', 'serif', 'mono']) {
-    const f = fonts[role];
-    const family = f && String(f.family || f).replace(/["'<>;{}\\]/g, '').trim().slice(0, 60);
-    if (family) out[role] = { family, ...(f.source ? { source: String(f.source).slice(0, 60) } : {}) };
-  }
-  const href = [].concat(fonts.href || []).filter((h) => /^https:\/\/fonts\.googleapis\.com\/css2\?[\w+:;@.,&=%-]+$/.test(h)).slice(0, 4);
-  if (href.length) out.href = href;
-  const faces = (String(fonts.faces || '').match(/@font-face\s*\{[^{}<]*\}/g) || [])
-    .filter((f) => !/javascript:|expression\(|@import/i.test(f) && [...f.matchAll(/url\(\s*"?([^")]+)"?\s*\)/g)].every((m) => /^https:\/\//.test(m[1])))
-    .join('').slice(0, 20000);
-  if (faces) out.faces = faces;
-  return Object.keys(out).length ? out : null;
-}
-
-export function saveProfile(slug, brand, { dark, source, fonts } = {}) {
+export function saveProfile(slug, brand, { dark, source } = {}) {
   if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(slug)) throw new Error('profile slug must be lowercase letters, digits, dashes');
   const clean = cleanRoles(brand, '');
   if (!Object.keys(clean).length) throw new Error(`give at least one of --${BRAND_KEYS.join(', --')}`);
@@ -99,11 +80,9 @@ export function saveProfile(slug, brand, { dark, source, fonts } = {}) {
   const next = { ...prev, brand: { ...(prev.brand || {}), ...clean } };
   delete next.brand['accent-tint'];
   if (dark) next.dark = cleanRoles(dark, 'dark.');
-  const f = cleanFonts(fonts);
-  if (f) next.fonts = f;
   if (source) next.source = source;
   writeJson(file, next);
-  return { slug, file, brand: next.brand, ...(next.dark ? { dark: next.dark } : {}), ...(next.fonts ? { fonts: next.fonts } : {}) };
+  return { slug, file, brand: next.brand, ...(next.dark ? { dark: next.dark } : {}) };
 }
 
 export function listProfiles() {
@@ -123,7 +102,7 @@ export function status(cwd) {
   const settings = { ...DEFAULTS, ...(g || {}), ...(proj && proj.inherit !== 'global' ? proj : {}) };
   delete settings.inherit;
   const profile = loadProfile(settings.profile);
-  if (profile) settings.brand = { ...(profile.brand || {}), ...(profile.dark ? { dark: profile.dark } : {}), ...(profile.fonts ? { fonts: cleanFonts(profile.fonts) } : {}), ...(settings.brand || {}) };
+  if (profile) settings.brand = { ...(profile.brand || {}), ...(profile.dark ? { dark: profile.dark } : {}), ...(settings.brand || {}) };
   return { state, root: p.root, hasGlobal: !!g, settings };
 }
 

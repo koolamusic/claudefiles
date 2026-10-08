@@ -786,39 +786,10 @@
     return libCache[name];
   }
   // Fonts as data URLs so rasters and SVG files keep the real typefaces (an
-  // <img>-rendered SVG can't fetch fonts). SeeCode's own faces are already
-  // inlined in #sc-fonts; only a brand profile's Google families are fetched.
+  // <img>-rendered SVG can't fetch fonts). They are already inlined in #sc-fonts.
   let fontCss = null;
   function embeddedFonts() {
-    if (fontCss) return fontCss;
-    const chars = new Set(' 0123456789');
-    svg.querySelectorAll('text').forEach((t) => { for (const ch of t.textContent) { chars.add(ch); chars.add(ch.toUpperCase()); } });
-    const text = encodeURIComponent([...chars].join(''));
-    const bundled = (document.getElementById('sc-fonts') || {}).textContent || '';
-    const enc = (f) => encodeURIComponent(f).replace(/%20/g, '+').replace(/%3A/gi, ':').replace(/%40/g, '@').replace(/%3B/gi, ';').replace(/%2C/gi, ',');
-    const fams = [...new Set([...document.querySelectorAll('link.sc-brand-fonts')].flatMap((l) => { try { return new URL(l.href).searchParams.getAll('family'); } catch (e) { return []; } }))].map(enc);
-    const ownFaces = (document.getElementById('sc-brand-faces') || {}).textContent || '';
-    const toData = async (url) => {
-      const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
-      let bin = '';
-      for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
-      return `data:font/woff2;base64,${btoa(bin)}`;
-    };
-    fontCss = Promise.all(fams.map(async (f) => {
-      const css = await (await fetch(`https://fonts.googleapis.com/css2?family=${f}&text=${text}&display=swap`)).text();
-      const faces = css.match(/@font-face\s*{[^}]*}/g) || [];
-      return (await Promise.all(faces.map(async (face) => {
-        const url = (face.match(/url\(([^)]+)\)/) || [])[1];
-        return url ? face.replace(/url\([^)]+\)/, `url(${await toData(url)})`) : '';
-      }))).join('');
-    })).then(async (parts) => {
-      // a brand's self-hosted faces: inline when the site allows it, else keep the link
-      let own = ownFaces;
-      for (const m of ownFaces.matchAll(/url\("(https:[^"]+)"\)/g)) {
-        try { own = own.split(m[0]).join(`url(${await toData(m[1])})`); } catch (e) { /* blocked by the font's host */ }
-      }
-      return bundled + parts.join('') + own;
-    }).catch(() => bundled);
+    if (!fontCss) fontCss = Promise.resolve((document.getElementById('sc-fonts') || {}).textContent || '');
     return fontCss;
   }
   function frameSvg(clone, fonts) {

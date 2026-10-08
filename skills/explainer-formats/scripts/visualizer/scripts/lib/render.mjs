@@ -93,8 +93,7 @@ export function renderSpec(input, { specPath, settings = {} } = {}) {
   const motion = spec.motion || settings.motion || 'auto';
   const preset = resolvePreset(motion === 'auto' && info.defaultMotion ? info.defaultMotion : motion, info.family);
   let result;
-  const fonts = settings.brand && settings.brand.fonts;
-  const prevScale = setWidthScale(fonts && (fonts.sans || fonts.mono) ? 1.1 : 1);
+  const prevScale = setWidthScale(1);
   try {
     result = info.renderer.render(resolved, { preset, settings });
   } catch (e) {
