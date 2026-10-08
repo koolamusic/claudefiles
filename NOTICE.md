@@ -25,3 +25,14 @@ The `nit` skill is adapted from bug-hunt by Dan Peguine.
 
 Based on the adversarial bug hunting technique described by @systematicls:
 https://x.com/systematicls/status/2028814227004395561
+
+## SeeCode (explainer-formats visualizer)
+
+The diagram engine under `skills/explainer-formats/scripts/visualizer/` is a vendored copy of SeeCode by Aryan Utkarsh.
+
+**Source:** https://github.com/Aryanutkarsh/SeeCode
+**License:** MIT
+**Copyright:** Aryan Utkarsh
+**Vendored from:** commit `8c48bb8` (2026-10-03); local patches are listed in `skills/explainer-formats/scripts/visualizer/UPSTREAM.md`
+
+It bundles three MIT-licensed encoders (gifenc by Matt DesLauriers, mp4-muxer and webm-muxer by Vanilagy); their license texts are in `skills/explainer-formats/scripts/visualizer/scripts/vendor/LICENSES.md`.
