@@ -2,7 +2,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { el, esc } from './svg.mjs';
-import { FONTS_HREF, DIAGRAM_CSS, SKINS, skinCss } from './tokens.mjs';
+import { DIAGRAM_CSS, SKINS, skinCss } from './tokens.mjs';
+import { localFontCss, encoderScripts } from './fonts-local.mjs';
 import { cleanFonts } from './config/config.mjs';
 import { watermarkOn, watermarkSvg, MARK, FAVICON } from './mark.mjs';
 import { MOTION_CSS, motionVars } from './motion.mjs';
@@ -80,8 +81,7 @@ export function buildPage({ spec, result, preset, typeName, settings = {} }) {
 <meta name="generator" content="SeeCode">
 <link rel="icon" type="image/png" href="${FAVICON()}">
 <title>${esc(title)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="sc-fonts" rel="stylesheet" href="${esc(FONTS_HREF)}${sketchy ? '&amp;family=Kalam:wght@400;700' : ''}">${(brandFonts.href || []).map((h) => `
+<style id="sc-fonts">${localFontCss({ sketchy })}</style>${(brandFonts.href || []).map((h) => `
 <link class="sc-brand-fonts" rel="stylesheet" href="${esc(h)}">`).join('')}${brandFonts.faces ? `
 <style id="sc-brand-faces">${brandFonts.faces}</style>` : ''}
 <style>${skinCss({ skin: spec.skin || settings.skin || 'light', brand })}
@@ -111,6 +111,7 @@ ${spec.caption ? `<figcaption class="sc-caption">${esc(spec.caption)}</figcaptio
 <p class="sc-status" role="status" aria-live="polite"></p>
 ${evidence}
 </main>
+${encoderScripts()}
 <script>${CLIENT}</script>
 </body>
 </html>

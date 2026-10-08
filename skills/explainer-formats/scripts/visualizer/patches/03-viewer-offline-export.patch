@@ -1,0 +1,74 @@
+diff --git a/skills/explainer-formats/scripts/visualizer/scripts/lib/viewer/viewer.client.js b/skills/explainer-formats/scripts/visualizer/scripts/lib/viewer/viewer.client.js
+index 8d9f87d..0df9984 100644
+--- a/skills/explainer-formats/scripts/visualizer/scripts/lib/viewer/viewer.client.js
++++ b/skills/explainer-formats/scripts/visualizer/scripts/lib/viewer/viewer.client.js
+@@ -765,32 +765,38 @@
+       : null;
+     return { format, scale: Math.round(k * 1000) / 1000, width, height, fps, minTextPx, warn };
+   }
+-  const LIBS = {
+-    gifenc: 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js',
+-    mp4: 'https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.mjs',
+-    webm: 'https://cdn.jsdelivr.net/npm/webm-muxer@5.1.4/build/webm-muxer.mjs',
+-  };
++  // The encoders are carried in the page as inert <script type="text/plain">
++  // blocks (see fonts-local.mjs), so the Export menu never loads from a CDN.
++  const LIBS = { gifenc: 'gifenc', mp4: 'Mp4Muxer', webm: 'WebMMuxer' };
+   const libCache = {};
+   function lib(name) {
+     if (!libCache[name]) {
+-      libCache[name] = import(LIBS[name]).catch(() => {
++      libCache[name] = new Promise((resolve) => {
++        if (window[LIBS[name]]) return resolve(window[LIBS[name]]);
++        const src = (document.getElementById(`sc-lib-${name}`) || {}).textContent;
++        if (!src) throw new Error(`the ${name} encoder is not bundled in this page`);
++        resolve(name === 'gifenc'
++          ? new Function(`var exports={};var module={exports};${src};return module.exports&&Object.keys(module.exports).length?module.exports:exports;`)()
++          : new Function(`${src};return ${LIBS[name]};`)());
++      }).catch((e) => {
+         delete libCache[name];
+-        throw new Error(`could not load the ${name} encoder (needs internet once)`);
++        throw e;
+       });
+     }
+     return libCache[name];
+   }
+-  // Fonts as data URLs, subset to the characters drawn, so rasters and SVG
+-  // files keep the real typefaces (an <img>-rendered SVG can't fetch fonts).
++  // Fonts as data URLs so rasters and SVG files keep the real typefaces (an
++  // <img>-rendered SVG can't fetch fonts). SeeCode's own faces are already
++  // inlined in #sc-fonts; only a brand profile's Google families are fetched.
+   let fontCss = null;
+   function embeddedFonts() {
+     if (fontCss) return fontCss;
+     const chars = new Set(' 0123456789');
+     svg.querySelectorAll('text').forEach((t) => { for (const ch of t.textContent) { chars.add(ch); chars.add(ch.toUpperCase()); } });
+     const text = encodeURIComponent([...chars].join(''));
+-    // every family the page loads: SeeCode's own plus any brand fonts
++    const bundled = (document.getElementById('sc-fonts') || {}).textContent || '';
+     const enc = (f) => encodeURIComponent(f).replace(/%20/g, '+').replace(/%3A/gi, ':').replace(/%40/g, '@').replace(/%3B/gi, ';').replace(/%2C/gi, ',');
+-    const fams = [...new Set([...document.querySelectorAll('#sc-fonts, link.sc-brand-fonts')].flatMap((l) => { try { return new URL(l.href).searchParams.getAll('family'); } catch (e) { return []; } }))].map(enc);
++    const fams = [...new Set([...document.querySelectorAll('link.sc-brand-fonts')].flatMap((l) => { try { return new URL(l.href).searchParams.getAll('family'); } catch (e) { return []; } }))].map(enc);
+     const ownFaces = (document.getElementById('sc-brand-faces') || {}).textContent || '';
+     const toData = async (url) => {
+       const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+@@ -811,8 +817,8 @@
+       for (const m of ownFaces.matchAll(/url\("(https:[^"]+)"\)/g)) {
+         try { own = own.split(m[0]).join(`url(${await toData(m[1])})`); } catch (e) { /* blocked by the font's host */ }
+       }
+-      return parts.join('') + own;
+-    }).catch(() => '');
++      return bundled + parts.join('') + own;
++    }).catch(() => bundled);
+     return fontCss;
+   }
+   function frameSvg(clone, fonts) {
+@@ -821,7 +827,7 @@
+     const vars = names.map((n) => `${n}:${cs.getPropertyValue(n).trim()}`).join(';');
+     const css = document.getElementById('sc-diagram-css').textContent;
+     const style = document.createElementNS(NS, 'style');
+-    const fontRule = fonts || `@import url('${document.getElementById('sc-fonts').href}');`;
++    const fontRule = fonts || (document.getElementById('sc-fonts') || {}).textContent || '';
+     style.textContent = `${fontRule}:root{${vars}}${css}`;
+     clone.insertBefore(style, clone.firstChild);
+     const h1 = document.querySelector('.sc-title');

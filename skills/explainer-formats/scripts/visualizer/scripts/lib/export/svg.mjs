@@ -16,7 +16,8 @@ export function svgFromHtml(html, { theme = 'light' } = {}) {
   const dark = pick(skin, /:root\[data-theme="dark"\]\{([^}]*)\}/);
   const vars = theme === 'dark' && dark ? dark : light;
   const css = pick(html, /<style id="sc-diagram-css">([\s\S]*?)<\/style>/) || '';
-  const fontsHref = (pick(html, /<link id="sc-fonts" rel="stylesheet" href="([^"]+)"/) || '').replace(/&amp;/g, '&');
+  // SeeCode's own faces are inlined in the page as data URIs; copy them as is
+  const bundledFaces = pick(html, /<style id="sc-fonts">([\s\S]*?)<\/style>/) || '';
   // a brand profile's fonts: extra Google Fonts stylesheets and self-hosted faces
   const brandHrefs = [...html.matchAll(/<link class="sc-brand-fonts" rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
   const brandFaces = pick(html, /<style id="sc-brand-faces">([\s\S]*?)<\/style>/) || '';
@@ -27,8 +28,8 @@ export function svgFromHtml(html, { theme = 'light' } = {}) {
     .replace(/^<svg class="sc-svg/, '<svg class="sc-svg sc-still')
     .replace(/ style="[^"]*"/, '') // motion vars + max-width
     .replace(/ data-sc-motion="[^"]*"/, '');
-  const imports = [fontsHref, ...brandHrefs].filter(Boolean).map((h) => `@import url('${h.replace(/&/g, '&amp;')}');`).join('');
-  const head = `<title id="${titleId}">${title}</title><style>${imports}${brandFaces.replace(/&/g, '&amp;').replace(/</g, '&lt;')}:root{${vars}}${css.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</style>`;
+  const imports = brandHrefs.filter(Boolean).map((h) => `@import url('${h.replace(/&/g, '&amp;')}');`).join('');
+  const head = `<title id="${titleId}">${title}</title><style>${imports}${bundledFaces}${brandFaces.replace(/&/g, '&amp;').replace(/</g, '&lt;')}:root{${vars}}${css.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</style>`;
   svg = svg.replace(/^(<svg[^>]*>)/, (m) => `${m.replace('<svg ', `<svg width="${vb[2]}" height="${vb[3]}" `)}${head}`);
   return svg;
 }
