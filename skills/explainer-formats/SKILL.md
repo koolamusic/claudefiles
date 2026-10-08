@@ -1,6 +1,6 @@
 ---
 name: explainer-formats
-description: Use when asked to explain a topic, codebase, process, or document in a specific output format — plain language or Simplified Technical English (STE, in the style of ASD-STE100 with its controlled vocabulary and short procedural sentences), a diagram, a standalone HTML page, or a narrated video explainer. Triggers on "explain", "explainer", "simplified technical english", "STE", "plain language", "rewrite this so a technician can follow it", "diagram", "html page", "video explainer", or the /explain command. Picks the lowest format that answers the question and offers the next one.
+description: Use when asked to explain a topic, codebase, process, or document in a specific output format — plain language or Simplified Technical English (STE, in the style of ASD-STE100 with its controlled vocabulary and short procedural sentences), a diagram (Mermaid, SVG, or an animated diagram file in 42 types from a bundled visualizer), a standalone HTML page, or a narrated video explainer. Triggers on "explain", "explainer", "simplified technical english", "STE", "plain language", "rewrite this so a technician can follow it", "diagram", "animated diagram", "export a diagram as SVG, PNG, GIF or MP4", "redraw this Mermaid or PlantUML file", "html page", "video explainer", "explain <topic> as <format>", "what formats can you explain as", or the /explain command. Picks the lowest format that answers the question and offers the next one.
 ---
 
 # Explainer formats
@@ -10,7 +10,7 @@ One command, four output formats (rungs), ordered from cheapest to most expensiv
 | Rung | Output | Reference to load | Status |
 |------|--------|-------------------|--------|
 | `ste` | Prose rewritten in Simplified Technical English at a chosen strictness | `references/ste-rules.md`; `references/ste-dictionary.md` at strict (and for substitutions at 80%) | ready |
-| `diagram` | A Mermaid or SVG diagram of the mechanism, with an STE caption | `references/diagram.md` | ready |
+| `diagram` | A Mermaid or SVG figure in chat, or an animated diagram file from the visualizer (42 types, exportable to SVG, PNG, GIF, MP4), with an STE caption | `references/diagram.md` | ready |
 | `html` | A standalone explainer page, published as an artifact or a public page | `references/html.md` | ready |
 | `video` | A narrated Manim video, one scene per beat, published as an artifact player page | `references/video.md`; `scripts/` pipeline run as `uv run --project scripts python scripts/<file>.py` | ready |
 
@@ -18,11 +18,18 @@ If a rung's reference file does not exist yet, say so in one line and fall back 
 
 ## Invocation
 
+Both forms mean the same thing:
+
 ```
-/explain <topic> [--as ste|diagram|html|video] [--level strict|80|light]
+/explain <topic> [--as <format>] [--level strict|80|light]
+explain <topic> as <format>
 ```
 
-`/explain` is the `explain` command in `~/.claude/commands/`; it loads this skill and passes its arguments through. Defaults: `--as ste`, `--level light`. `<topic>` is anything the reader points at: a question, a pasted paragraph, a file path, a function name, a feature. When the topic is a file or symbol, read it first and explain what is there, not what it is named.
+`/explain` is the `explain` command in `~/.claude/commands/`; it loads this skill and passes its arguments through. The natural form ("explain the checkout flow as a sequence diagram", "explain this as STE") is parsed the same way: the last `as <format>` names the format, the rest is the topic. Defaults: `--as ste`, `--level light`. `<topic>` is anything the reader points at: a question, a pasted paragraph, a file path, a function name, a feature. When the topic is a file or symbol, read it first and explain what is there, not what it is named.
+
+`<format>` is a rung (`ste`, `diagram`, `html`, `video`) or any visualizer type name (`architecture`, `sequence`, `sankey`, `flowchart`, `er`, `timeline`, ... all 42 are in `references/formats.md`). A type name routes to the `diagram` rung with that type fixed, so "explain X as sankey" means a visualizer sankey of X. `mermaid` and `svg` are accepted too and keep the figure in chat.
+
+`/explain formats`, "what formats can you explain as", or "list the explain formats": print `references/formats.md` as is and stop. No topic, no escalation line.
 
 ## Escalation rule
 
@@ -64,10 +71,16 @@ Why this is strict: a published test of a prompt that said only "write this in A
 
 Output format for `ste`: the rewritten text, then a short line naming the level used and any technical names declared, then the escalation line.
 
+## The `diagram` rung
+
+Read `references/diagram.md`. It routes between a Mermaid fence or inline SVG (figures that stay in chat or in an artifact page) and the visualizer (a diagram file, animation, export, a named type, or a redraw of an existing Mermaid, PlantUML, DOT, D2, SQL, OpenAPI or CSV source). The visualizer is driven through `bash scripts/diagram.sh <command>`; it needs Node 20 or newer, a Chrome-family browser for PNG, GIF and MP4 export, and ffmpeg for MP4 when the browser cannot encode H.264. It makes no network calls.
+
 ## Machine check
 
-`bash scripts/doctor.sh` prints what the video rung needs on this machine (Python, uv and its 3.12, ffmpeg, manim, kokoro-onnx and its model files, espeak-ng, LaTeX, an ElevenLabs key by name only). It installs nothing; it writes only `machine.toml` (gitignored) in the skill root. `bash scripts/setup.sh` is the one script that installs; run doctor first, then setup, before the first `video`.
+`bash scripts/doctor.sh` prints what the video and diagram rungs need on this machine (Python, uv and its 3.12, ffmpeg, manim, kokoro-onnx and its model files, espeak-ng, LaTeX, an ElevenLabs key by name only, Node 20+, a Chrome or Chromium binary, and the visualizer's own doctor line). It installs nothing; it writes only `machine.toml` (gitignored) in the skill root. `bash scripts/setup.sh` is the one script that installs; run doctor first, then setup, before the first `video`.
 
 ## Not affiliated
 
 The STE references summarize the public outline of ASD-STE100 Issue 9 (January 2025) and a seminar reference sheet. This skill is unofficial and is not affiliated with or endorsed by ASD. ASD-STE100 is free of charge but copyright ASD; the bundled dictionary is partial and the full word list is not redistributed here.
+
+The visualizer in `scripts/visualizer/` is a vendored copy of SeeCode (MIT); see `scripts/visualizer/UPSTREAM.md` and the repository `NOTICE.md`.

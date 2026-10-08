@@ -39,6 +39,32 @@ for tool in ffmpeg espeak-ng latex; do
     add "$tool" missing "-"
   fi
 done
+
+# The diagram rung: Node 20+, a Chrome-family browser for PNG/GIF/MP4 export, and the engine's own doctor.
+if command -v node >/dev/null 2>&1; then
+  node_major="$(node -p 'process.versions.node.split(".")[0]')"
+  if [ "$node_major" -ge 20 ]; then add node present "$(node --version)"; else add node missing "$(node --version) is older than 20"; fi
+else
+  add node missing "-"
+fi
+chrome_bin="$(command -v google-chrome chromium chromium-browser 2>/dev/null | head -1)"
+pw_chrome="$(ls -d "$HOME"/.cache/ms-playwright/chromium-*/ 2>/dev/null | sort -V | tail -1)"
+if [ -n "${SEECODE_CHROME:-}" ]; then
+  add chrome present "SEECODE_CHROME=$SEECODE_CHROME"
+elif [ -n "$chrome_bin" ]; then
+  add chrome present "$chrome_bin"
+elif [ -n "$pw_chrome" ]; then
+  add chrome present "Playwright ${pw_chrome%/}; diagram.sh sets SEECODE_CHROME=$here/chromium.sh"
+else
+  add chrome missing "install Chrome or Chromium, or set SEECODE_CHROME"
+fi
+if command -v node >/dev/null 2>&1 && [ -f "$here/visualizer/scripts/seecode.mjs" ]; then
+  vis="$(bash "$here/diagram.sh" doctor 2>/dev/null)"
+  vis_ok="$(printf '%s' "$vis" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);console.log((j.ok?"present":"partial")+"|"+Object.entries(j.checks).map(([k,v])=>k+": "+v).join("; "))}catch{console.log("missing|no doctor output")}})')"
+  add visualizer "${vis_ok%%|*}" "${vis_ok#*|}"
+else
+  add visualizer missing "needs node and scripts/visualizer"
+fi
 if [ -x "$venv/bin/manim" ]; then add manim present "scripts/.venv"; else add manim missing "bash scripts/setup.sh"; fi
 
 if [ -x "$venv/bin/python" ]; then
