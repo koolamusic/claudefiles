@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Read-only check of what the explainer-formats rungs need on this machine.
 # Prints a table. Installs nothing; writes only machine.toml (gitignored) in the skill root.
+# The visualizer's own doctor runs with a throwaway SEECODE_HOME so it cannot create config files.
 set -u
 
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -59,7 +60,9 @@ else
   add chrome missing "install Chrome or Chromium, or set SEECODE_CHROME"
 fi
 if command -v node >/dev/null 2>&1 && [ -f "$here/visualizer/scripts/seecode.mjs" ]; then
-  vis="$(bash "$here/diagram.sh" doctor 2>/dev/null)"
+  vis_home="$(mktemp -d)"
+  vis="$(SEECODE_HOME="$vis_home" bash "$here/diagram.sh" doctor 2>/dev/null)"
+  rm -rf "$vis_home"
   vis_ok="$(printf '%s' "$vis" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);console.log((j.ok?"present":"partial")+"|"+Object.entries(j.checks).map(([k,v])=>k+": "+v).join("; "))}catch{console.log("missing|no doctor output")}})')"
   add visualizer "${vis_ok%%|*}" "${vis_ok#*|}"
 else

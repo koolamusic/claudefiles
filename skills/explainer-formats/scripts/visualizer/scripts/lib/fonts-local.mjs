@@ -28,6 +28,6 @@ const VENDOR = fileURLToPath(new URL('../vendor/', import.meta.url));
 export const ENCODER_BLOCKS = { gifenc: 'gifenc.js', mp4: 'mp4-muxer.js', webm: 'webm-muxer.js' };
 export function encoderScripts() {
   return Object.entries(ENCODER_BLOCKS)
-    .map(([name, file]) => `<script type="text/plain" id="sc-lib-${name}">${readFileSync(VENDOR + file, 'utf8')}</script>`)
+    .map(([name, file]) => `<script type="text/plain" id="sc-lib-${name}">${readFileSync(VENDOR + file, 'utf8').replace(/<\/script/gi, '<\\/script')}</script>`)
     .join('\n');
 }

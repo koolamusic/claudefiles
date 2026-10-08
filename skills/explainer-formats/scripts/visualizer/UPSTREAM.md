@@ -45,10 +45,10 @@ reverse-applies cleanly at HEAD. To verify the stack reproduces HEAD:
 ```
 tmp=$(mktemp -d) && git archive a1d40ee skills/explainer-formats/scripts/visualizer | tar -x -C "$tmp" \
   && for p in skills/explainer-formats/scripts/visualizer/patches/*.patch; do git -C "$tmp" apply "$(pwd)/$p" || echo "FAILED $p"; done \
-  && diff -r --exclude=UPSTREAM.md --exclude=patches --exclude=fonts "$tmp/skills/explainer-formats/scripts/visualizer" skills/explainer-formats/scripts/visualizer && echo "stack reproduces HEAD"
+  && diff -r --exclude=UPSTREAM.md --exclude=patches --exclude=assets "$tmp/skills/explainer-formats/scripts/visualizer" skills/explainer-formats/scripts/visualizer && echo "stack reproduces HEAD"
 ```
 
-(`assets/fonts/` is copied, not patched: the woff2 files are binary.)
+(`assets/` is excluded because `assets/fonts/` is copied, not patched: the woff2 files are binary. A patch that only touches a file no later patch changes may also reverse-apply at HEAD; the stack order is what matters.)
 
 | Patch | File, function | What it does |
 |---|---|---|
@@ -59,6 +59,7 @@ tmp=$(mktemp -d) && git archive a1d40ee skills/explainer-formats/scripts/visuali
 | `05-fonts-embed-skip-bundled` | `scripts/lib/export/fonts.mjs`, `embedFonts` | "no font faces returned" is an error only when there were Google imports to resolve, so an SVG whose faces are already inline reports `ok: true`. (Superseded by 06, which deletes the file; kept so the series applies in order.) |
 | `06-remove-brand` | `scripts/seecode.mjs` (`brand` case, command list); `scripts/lib/brand/brand.mjs` (deleted); `scripts/lib/export/fonts.mjs` (deleted); `scripts/lib/export/svg.mjs` (`svgFromHtml`, `exportSvg`); `scripts/lib/page.mjs` (`pageHtml`); `scripts/lib/render.mjs` (`renderSpec`); `scripts/lib/viewer/viewer.client.js` (`embeddedFonts`); `scripts/lib/config/config.mjs` (`cleanFonts` removed, `saveProfile`, `status`); `scripts/lib/tokens.mjs` (`FONTS_HREF` removed); `SKILL.md`, `references/settings.md`, `references/style-guide.md`, `references/onboarding.md` (deleted) | Removes the brand feature: the `brand` command, the site/CSS scraper, and every font path other than the bundled faces (no Google stylesheet links, no self-hosted `@font-face` passthrough, no width margin for brand typefaces). Palette profiles stay: `config profile save <slug> --accent #hex ...` writes colours only to `~/.seecode/profiles/`, reads nothing from the network, and profile `fonts` are no longer loaded. |
 | `07-prune-to-core` | `scripts/lib/mark.mjs` (deleted), `assets/favicon.png`, `assets/mark-symbol.png`, `assets/mark-word.png` (deleted); `scripts/lib/page.mjs` (`buildPage`); `scripts/lib/tokens.mjs` (`.sc-mark` rules); `scripts/lib/config/config.mjs` (`watermark` default); `schemas/common.schema.json` (`watermark` description); `scripts/lib/importers/{d2,dot,canvas,models}.mjs` (deleted); `scripts/lib/importers/import.mjs` (imports, `FENCE`, dispatch); `scripts/seecode.mjs` (import usage); `SKILL.md`, `references/delivery.md` (deleted); `references/import.md`, `references/spec.md`, `references/settings.md`, `references/types/db-schema.md` | Prunes to what the explain skill uses. The watermark is gone: no mark strip, no favicon, no `watermark` setting; the spec key stays accepted by the schema and is ignored, because the graph schema has `additionalProperties: false` and older specs may still carry it. Importers are Mermaid and PlantUML only (plus the CSV/JSON row path that lives in `import.mjs` itself); every other detected format returns `ok:false, "<format> import is not bundled in this copy"`. Upstream's `SKILL.md` and `references/delivery.md` are dropped; the explain skill's own `SKILL.md` and `references/diagram.md` are the entry points, and nothing in the engine reads them at runtime. |
+| `08-escape-encoder-text` | `scripts/lib/fonts-local.mjs`, `encoderScripts` | Escapes `</script` inside the inlined encoder text so a future encoder bump cannot end the `<script type="text/plain">` block early and truncate the page. |
 
 What this adds to each generated page, measured on a 5-node architecture
 diagram: fonts as base64 about 228 KB, encoders about 166 KB; the page grew
@@ -69,7 +70,7 @@ An exported SVG grew from 95 KB (no fonts, offline) to 322 KB.
 
 `assets/fonts/` holds the latin subset of each face, downloaded once from
 Google Fonts on 2026-10-08; `manifest.json` records family, style, weight,
-unicode range, byte size and the exact source URL of each file. Google serves
+unicode range, byte size, sha256 and the exact source URL of each file. Google serves
 one variable file for several requested weights, so those are stored once
 with a weight range.
 
