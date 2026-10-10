@@ -70,6 +70,7 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | docx | Word document creation and editing | [anthropics/skills](https://github.com/anthropics/skills) |
 | explainer-formats | Explain a topic as Simplified Technical English prose, a diagram, an HTML page, or a video; `/explain` with a strictness dial | original |
 | golang-best-practices | Go concurrency, microservices, gRPC, generics | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
+| localframe | Record silent product demos — paced Playwright browser walkthroughs and scripted asciinema terminal sessions — to mp4 with stills, gated on key revocation and an artefact grep | original |
 | nestjs-best-practices | NestJS architecture and patterns | [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) |
 | pdf | PDF processing and manipulation | [anthropics/skills](https://github.com/anthropics/skills) |
 | pptx | PowerPoint creation | [anthropics/skills](https://github.com/anthropics/skills) |
