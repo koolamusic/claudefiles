@@ -1,0 +1,4 @@
+# Short names: <label> <port>, one per line.
+# These take priority over port numbers and computed two-letter ports.
+# Labels are lowercase letters, digits and hyphens. After editing, run:
+#   sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy

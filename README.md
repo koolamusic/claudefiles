@@ -76,6 +76,7 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | react-best-practices | React/Next.js performance patterns | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) |
 | rust-best-practices | Idiomatic Rust, ownership, error handling, testing | [apollographql/skills](https://github.com/apollographql/skills) |
 | skill-creator | Create and test new skills (TDD methodology) | [anthropics/skills](https://github.com/anthropics/skills) + [obra/superpowers](https://github.com/obra/superpowers) |
+| wildcard-proxy | Caddy setup that routes `https://<port>.<domain>/` and two-letter or named labels to loopback ports, with gated on-demand TLS | original |
 | xlsx | Excel spreadsheet processing | [anthropics/skills](https://github.com/anthropics/skills) |
 
 ### Commands
