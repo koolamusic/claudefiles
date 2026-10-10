@@ -1,0 +1,95 @@
+# wildcard-proxy: <label>.{{DOMAIN}} -> 127.0.0.1:<port>
+#
+# A label resolves to a port in this order:
+#   1. a short name listed in wildcard-proxy.names    ui -> 4001
+#   2. a port number in the allowed ranges            4012 -> 4012
+#   3. any two letters, as 1 + letter positions       ab -> 10001, zz -> 12525
+# Anything else gets no certificate and no route.
+#
+# The main Caddyfile imports this file and sets, in its global options:
+#   on_demand_tls {
+#       ask http://127.0.0.1:{{ASK_PORT}}/ask
+#   }
+
+# Quoted on purpose: map turns bare numbers into integers, so 01 would become 1.
+(wp_alphabet) {
+	a "00"
+	b "01"
+	c "02"
+	d "03"
+	e "04"
+	f "05"
+	g "06"
+	h "07"
+	i "08"
+	j "09"
+	k "10"
+	l "11"
+	m "12"
+	n "13"
+	o "14"
+	p "15"
+	q "16"
+	r "17"
+	s "18"
+	t "19"
+	u "20"
+	v "21"
+	w "22"
+	x "23"
+	y "24"
+	z "25"
+}
+
+# Resolves a hostname. A short name or port number sets {wp_port}; two
+# letters set {wp_da} and {wp_db}, the digits of the computed port. Map
+# outputs don't expand placeholders, so the computed port is assembled
+# where it's used: 1{wp_da}{wp_db}. The ask endpoint and the proxy share
+# this, so a hostname gets a certificate only if it also has a route.
+(wp_resolve) {
+	map {args[0]} {wp_label} {
+		~^([a-z0-9-]+)\.{{DOMAIN_RE}}$ ${1}
+		default ""
+	}
+	map {wp_label} {wp_port} {
+		import wildcard-proxy.names
+		~^({{PORT_RE}})$ ${1}
+		default ""
+	}
+	map {wp_label} {wp_a} {wp_b} {
+		~^([a-z])([a-z])$ ${1} ${2}
+		default "" ""
+	}
+	map {wp_a} {wp_da} {
+		import wp_alphabet
+		default ""
+	}
+	map {wp_b} {wp_db} {
+		import wp_alphabet
+		default ""
+	}
+}
+
+http://127.0.0.1:{{ASK_PORT}} {
+	bind 127.0.0.1
+	import wp_resolve {query.domain}
+	@routed expression `{wp_port} != "" || {wp_da} != ""`
+	respond @routed 200
+	respond 403
+}
+
+*.{{DOMAIN}} {
+	tls {
+		on_demand
+	}
+	import wp_resolve {host}
+	@named expression `{wp_port} != ""`
+	handle @named {
+		reverse_proxy 127.0.0.1:{wp_port}
+	}
+	@letters expression `{wp_da} != ""`
+	handle @letters {
+		reverse_proxy 127.0.0.1:1{wp_da}{wp_db}
+	}
+	respond "No service on this hostname" 404
+}

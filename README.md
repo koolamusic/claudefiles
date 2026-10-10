@@ -70,12 +70,14 @@ The command reads `claudefiles.yaml` (the manifest) and:
 | docx | Word document creation and editing | [anthropics/skills](https://github.com/anthropics/skills) |
 | explainer-formats | Explain a topic as Simplified Technical English prose, a diagram, an HTML page, or a video; `/explain` with a strictness dial | original |
 | golang-best-practices | Go concurrency, microservices, gRPC, generics | [Jeffallan/claude-skills](https://github.com/Jeffallan/claude-skills) |
+| localframe | Record silent product demos — paced Playwright browser walkthroughs and scripted asciinema terminal sessions — to mp4 with stills, gated on key revocation and an artefact grep | original |
 | nestjs-best-practices | NestJS architecture and patterns | [Kadajett/agent-nestjs-skills](https://github.com/Kadajett/agent-nestjs-skills) |
 | pdf | PDF processing and manipulation | [anthropics/skills](https://github.com/anthropics/skills) |
 | pptx | PowerPoint creation | [anthropics/skills](https://github.com/anthropics/skills) |
 | react-best-practices | React/Next.js performance patterns | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) |
 | rust-best-practices | Idiomatic Rust, ownership, error handling, testing | [apollographql/skills](https://github.com/apollographql/skills) |
 | skill-creator | Create and test new skills (TDD methodology) | [anthropics/skills](https://github.com/anthropics/skills) + [obra/superpowers](https://github.com/obra/superpowers) |
+| wildcard-proxy | Caddy setup that routes `https://<port>.<domain>/` and two-letter or named labels to loopback ports, with gated on-demand TLS | original |
 | xlsx | Excel spreadsheet processing | [anthropics/skills](https://github.com/anthropics/skills) |
 
 ### Commands
