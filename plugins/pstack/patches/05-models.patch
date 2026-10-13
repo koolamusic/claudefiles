@@ -1,0 +1,267 @@
+diff --git a/plugins/pstack/skills/architect/SKILL.md b/plugins/pstack/skills/architect/SKILL.md
+index 88e23ca..2093356 100644
+--- a/plugins/pstack/skills/architect/SKILL.md
++++ b/plugins/pstack/skills/architect/SKILL.md
+@@ -28,7 +28,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
+ 
+ Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt.
+ 
+-Take the runners from the `architect runners` line in the `pstack-models.mdc` rule, in place of the `arena runners` line. If the rule or that line is missing, use `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. Alias and rejected entries follow the runner rules in the **arena** skill's Phase A.
++Take the runners from the `architect runners` row of the model table in the `poteto-mode` skill, in place of the `arena runners` row: one seat each on `opus` and `sonnet`.
+ 
+ Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
+ 
+diff --git a/plugins/pstack/skills/arena/SKILL.md b/plugins/pstack/skills/arena/SKILL.md
+index 58ae9d9..5323365 100644
+--- a/plugins/pstack/skills/arena/SKILL.md
++++ b/plugins/pstack/skills/arena/SKILL.md
+@@ -14,7 +14,7 @@ Every candidate gets the same prompt, so the prompt is the contract.
+ 
+ 1. State the artifact each candidate is producing.
+ 2. Derive the rubric, 3-6 concrete gradeable criteria for what success looks like on *this* task. It is the picker's tool in Phase D. Candidates only see the task.
+-3. Pick the runners. Use the `arena runners` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, default to one each on `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. An `auto` or `inherit-parent` entry in this line or the cross-judge line means the parent model, so omit `model` for it. If the Task tool rejects a configured entry, run that seat on its family's default and say so. Families go by prefix: `claude-*` and `grok-*`. With no family match, use `claude-opus-5-5-xhigh`. If it rejects a default, use the closest valid slug of the same family from its error message. Spawn more runners when the arena covers multiple design directions. Use the same model N times when the work is generation-bound rather than judgment-sensitive.
++3. Pick the runners. The `arena runners` row of the model table in the `poteto-mode` skill gives one seat each on `opus` and `sonnet`. Spawn more runners when the arena covers multiple design directions. Use the same model N times when the work is generation-bound rather than judgment-sensitive.
+ 4. Give each candidate its own output location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
+ 
+ ## Phase B: Fan out
+@@ -25,7 +25,7 @@ If a candidate produces no output, proceed with N-1 and note the dropout.
+ 
+ ## Phase C: Cross-judge
+ 
+-After all Phase B candidates complete, choose one model from the `arena cross-judge pool` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, choose from `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. Prefer a different model family from the parent's. Spawn one readonly judge subagent on that model. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with your reading in Phase D. Don't spawn it while candidates are still writing.
++After all Phase B candidates complete, choose one model from the `arena cross-judge pool` row of the model table in the `poteto-mode` skill, `opus` or `sonnet`. Prefer a different tier from the parent's. Spawn one judge subagent on that model, told to write nothing. It sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with your reading in Phase D. Don't spawn it while candidates are still writing.
+ 
+ ## Phase D: Pick a base
+ 
+diff --git a/plugins/pstack/skills/how/SKILL.md b/plugins/pstack/skills/how/SKILL.md
+index 8134632..fe8e6ab 100644
+--- a/plugins/pstack/skills/how/SKILL.md
++++ b/plugins/pstack/skills/how/SKILL.md
+@@ -8,7 +8,7 @@ disable-model-invocation: true
+ 
+ Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
+ 
+-Every spawn is an Agent tool subagent with `subagent_type: "general-purpose"`, told to write nothing. Explorers use the `how explorer` line in the `pstack-models.mdc` rule (default `grok-4.7-xhigh-fast`), and every explainer uses the `how explainer` line (default `claude-opus-5-5-xhigh`). Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
++Every spawn is an Agent tool subagent with `subagent_type: "general-purpose"`, told to write nothing. Explorers run on `model: "sonnet"` (the `how explorer` role). Explainers omit `model` and inherit the parent (the `how explainer` role).
+ 
+ ## 1. Assess complexity
+ 
+diff --git a/plugins/pstack/skills/interrogate/SKILL.md b/plugins/pstack/skills/interrogate/SKILL.md
+index 48f0dc6..cf50167 100644
+--- a/plugins/pstack/skills/interrogate/SKILL.md
++++ b/plugins/pstack/skills/interrogate/SKILL.md
+@@ -1,12 +1,12 @@
+ ---
+ name: interrogate
+-description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
++description: "Use for \"interrogate\", \"adversarial review\", \"cross-tier review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
+ disable-model-invocation: true
+ ---
+ 
+ # Interrogate
+ 
+-Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from model diversity, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
++Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from the cross-tier reviewers, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
+ 
+ ## Step 1, Scope
+ 
+@@ -24,16 +24,14 @@ Before spawning reviewers, state the intent in one clear paragraph from the user
+ 
+ ## Step 3, Spawn Reviewers
+ 
+-Launch all reviewers in a single message with the Agent tool, one per entry on the `interrogate reviewers` line in `~/.cursor/rules/pstack-models.mdc`, labeled Reviewer A, B, and so on to match the entry count. If the rule or that line is missing, use the table defaults.
++Launch all reviewers in a single message with the Agent tool, one per entry on the `interrogate reviewers` row of the model table in the `poteto-mode` skill, labeled Reviewer A, B, and so on to match the entry count.
+ 
+-| Subagent | Default model |
+-|----------|---------------|
+-| Reviewer A | `claude-opus-5-5-xhigh` |
+-| Reviewer B | `grok-4.7-xhigh-fast` |
++| Subagent | `model` |
++|----------|---------|
++| Reviewer A | `opus` |
++| Reviewer B | `sonnet` |
+ 
+-Each reviewer gets `subagent_type: generalPurpose`, `readonly: true`, and `model` set to its configured entry, or its table default when there is no configured line. Omit `model` for an `auto` or `inherit-parent` entry, so that reviewer runs on the parent model.
+-
+-If the Task tool rejects a configured entry, run that reviewer on its family's table default and say so. Families go by prefix: `claude-*` and `grok-*`. With no family match, use Reviewer A's default. If it rejects a table default, spawn with the closest equivalent from the valid slugs in its error message (prefer the same family and reasoning tier), and open a separate PR to update the default table. Do not block the review on the slug issue. Never treat an alias entry as a rejected slug or apply either fallback to it.
++Each reviewer gets `subagent_type: "general-purpose"`, its `model` from the table, and an instruction to write nothing. The adversarial signal comes from the tier difference, so keep both seats.
+ 
+ Read `references/reviewer-prompt.md` and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from `references/rubric.md`, and the code-quality lens from `references/code-quality-review.md`.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/SKILL.md b/plugins/pstack/skills/poteto-mode/SKILL.md
+index 9887489..5e71fca 100644
+--- a/plugins/pstack/skills/poteto-mode/SKILL.md
++++ b/plugins/pstack/skills/poteto-mode/SKILL.md
+@@ -88,9 +88,16 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
+ 
+ ## Subagents
+ 
+-**Use `subagent_type: "pstack:poteto-agent"` for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The chat that receives `/poteto-mode` runs the playbook. Never spawn a `pstack:poteto-agent` to run the playbook itself. `/poteto-mode` and `pstack:poteto-agent` route through the same wrapper. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `subagent_type` for diverse-model review. Respect what the skill prescribes, don't override to `poteto-agent`.
++**Use `subagent_type: "pstack:poteto-agent"` for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The chat that receives `/poteto-mode` runs the playbook. Never spawn a `pstack:poteto-agent` to run the playbook itself. `/poteto-mode` and `pstack:poteto-agent` route through the same wrapper. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `subagent_type` for cross-tier review. Respect what the skill prescribes, don't override to `poteto-agent`.
+ 
+-**Defaults for every `Task` call.** `run_in_background: true`, agent mode (readonly strips MCP), file pointers not inlined context, explicit model per role (configurable via `/setup-pstack`. Defaults `grok-4.7-xhigh-fast` for code, `claude-opus-5-5-xhigh` for prose and judgment). Code delegates tier by difficulty. The hardest changes (cross-cutting design, gnarly concurrency, subtle algorithms) go to your strongest judgment model (`claude-opus-5-5-xhigh`), whether the task needs judgment on vague intent or is a precisely specified sequence of steps to execute to the letter. Trivial mechanical edits go to your fast code model. Per-role lines in the `/setup-pstack` rule override these defaults and the model choices in the routed skills (`how`, `why`, `arena`, `swarm`, `architect`, `interrogate`, `reflect`). A role with no line keeps its default, and a role line of `inherit-parent` or `auto` runs that role on the parent chat model (omit Task `model`). Each code playbook's configured model comes from its line (`feature, refactoring`, `bug-fix`, `perf-issue`, or `hillclimb`), and the hardest changes read `hardest tasks`. Prose and judgment read `judgment and prose`.
++**Defaults for every Agent tool call.** `run_in_background: true`, file pointers not inlined context, and the model per role from the table below. The Agent tool accepts `sonnet`, `opus`, `haiku`, and `fable`. Omitting `model` inherits the chat model. Code delegates tier by difficulty. The hardest changes (cross-cutting design, gnarly concurrency, subtle algorithms) go to `fable`, whether the task needs judgment on vague intent or is a precisely specified sequence of steps to execute to the letter. Trivial mechanical edits go to `sonnet`. The routed skills (`how`, `why`, `arena`, `swarm`, `architect`, `interrogate`, `reflect`) take their roles from this same table. Each code playbook reads its row (`feature and refactoring`, `bug-fix`, `perf-issue`, or `hillclimb`), the hardest changes read `hardest tasks`, and prose and judgment read `judgment and prose`.
++
++| Role | `model` |
++|---|---|
++| feature and refactoring, bug-fix, perf-issue, hillclimb, how explorer, why investigators, reflect tooling, swarm workers | `sonnet` |
++| judgment and prose, how explainer, why synthesizer, reflect judgment, divergent, synthesizer | inherit the parent (omit `model`) |
++| hardest tasks | `fable` |
++| arena runners, arena cross-judge pool, architect runners, interrogate reviewers | `opus` and `sonnet`, one subagent per entry |
+ 
+ You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. A second opinion is the same prompt against a different model. Agreement is high-signal.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md b/plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md
+index eeebc42..7f68e7e 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/bug-fix.md
+@@ -6,7 +6,7 @@ Be scientific. Every shipped line traces to runtime evidence. Belt-and-suspender
+ 
+ 1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables), even when a debug or instrumentation protocol says to ask the user to reproduce. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. If it won't reproduce directly, synthesize the trigger, tighten conditions, or instrument until it fires.
+ 2. Binary-search the cause. Form the candidate hypotheses, then rule them out until one survives. Seed them with `how` over the affected subsystem and the **why** skill for regression history. Each pass, take the split that cuts the most remaining problem space, get runtime evidence, eliminate. When program state is unclear, add instrumentation or logging and read it as the code runs. Don't guess. Drive a long or stubborn hunt with Cursor's `/loop` command. Confirm the surviving *mechanism* with runtime evidence before the step-3 architect/interrogate fan-out.
+-3. Plan the fix. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent using your configured bug-fix model (default `grok-4.7-xhigh-fast`) with a specific scope.
++3. Plan the fix. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent with `model: "sonnet"` (the `bug-fix` role) with a specific scope.
+ 4. Verify on the same surface. The original repro now passes. "Inconclusive" or wrong-surface is not a pass. Flag it. Unit tests show branch behavior, not bug absence.
+ 5. Stage the commits so the failing repro lands before the fix in git history. See the **tdd** skill for the failing-test-first cadence when the bug has a cheap local test path. Skip it when the test would be expensive, integration-heavy, or unclear.
+    This is the canonical **sequence-verifiable-units** principle skill, the failing test first and the fix on top.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/feature.md b/plugins/pstack/skills/poteto-mode/playbooks/feature.md
+index 79a6bbb..a387816 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/feature.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/feature.md
+@@ -9,7 +9,7 @@
+    - **Independent workstreams.** Disjoint files, services, or layers parallelize. Shared writes serialize.
+    - **Shared mutable state.** Default to splitting the target (the **separate-before-serializing-shared-state** principle skill). Serialize only for real invariants.
+    - **Smallest safe decomposition.** If one worker is best, name why.
+-4. Delegate code-writing to a subagent using your configured feature model (default `grok-4.7-xhigh-fast`) with a specific scope (file paths, named data shape and its organizing structure per **principle-model-the-domain**, a state machine over scattered booleans, a table/registry over branching, a typed model over repeated shape assumptions, chosen before the delegate writes logic, and success criteria). When the implementation admits multiple valid shapes (error handling, abstraction layer, test structure), delegate via the **arena** skill instead so the runners surface the alternatives and the cross-judge guards the pick. Mandatory: no skip-with-reason escape, and Laziness Protocol does not override it (the gain is review separation, not lines saved). A subagent forbidden to spawn satisfies this by owning the diff directly with the same review separation. No "standing by" reply that waits on a nested agent. Comments per **Comments**. Surgical edits, re-ground against the source for upstream-derived files. Port shared-primitive improvements to all consumers and verify each. Commit liberally.
++4. Delegate code-writing to a subagent with `model: "sonnet"` (the `feature and refactoring` role) with a specific scope (file paths, named data shape and its organizing structure per **principle-model-the-domain**, a state machine over scattered booleans, a table/registry over branching, a typed model over repeated shape assumptions, chosen before the delegate writes logic, and success criteria). When the implementation admits multiple valid shapes (error handling, abstraction layer, test structure), delegate via the **arena** skill instead so the runners surface the alternatives and the cross-judge guards the pick. Mandatory: no skip-with-reason escape, and Laziness Protocol does not override it (the gain is review separation, not lines saved). A subagent forbidden to spawn satisfies this by owning the diff directly with the same review separation. No "standing by" reply that waits on a nested agent. Comments per **Comments**. Surgical edits, re-ground against the source for upstream-derived files. Port shared-primitive improvements to all consumers and verify each. Commit liberally.
+ 5. Verify on the matching surface. "Inconclusive" or wrong-surface is not a pass. Flag it.
+ 6. Rebase into small, ordered commits. Stack follow-ups.
+    Use the **sequence-verifiable-units** principle skill, building, verifying, and committing each small unit before the next.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/hillclimb.md b/plugins/pstack/skills/poteto-mode/playbooks/hillclimb.md
+index c6441b9..e9b27da 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/hillclimb.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/hillclimb.md
+@@ -9,7 +9,7 @@ Core discipline: one change, one measurement, keep or revert. Never stack untest
+ 3. Open the decision log via the **show-me-your-work** skill. A `decision.tsv`, one row per attempt: id, hypothesis, change, before, after, delta, tests, verdict (kept or reverted), note. Read it before each attempt. Keep it out of the tree (gitignored).
+ 4. Ground each hypothesis in the architecture model from step 1, so it names a specific mechanism ("defer X off the boot path because it blocks first paint"), not "try memoizing something". For a perf metric, order hypotheses by the performance mantras in step 2 of the Perf issue playbook (`playbooks/perf-issue.md`). Borrow only their order, not that step's stop rule.
+ 5. Loop, one hypothesis per iteration:
+-   - Hand the change to a subagent using your configured hillclimb model (default `grok-4.7-xhigh-fast`) with a tight scope. Supervise and review the diff rather than typing it (the **guard-the-context-window** principle skill). When several independent hypotheses are live, fan them to parallel subagents, each in its own worktree (the **separate-before-serializing-shared-state** principle skill).
++   - Hand the change to a subagent with `model: "sonnet"` (the `hillclimb` role) with a tight scope. Supervise and review the diff rather than typing it (the **guard-the-context-window** principle skill). When several independent hypotheses are live, fan them to parallel subagents, each in its own worktree (the **separate-before-serializing-shared-state** principle skill).
+    - Measure before and after with the frozen harness, and run the regression gate.
+    - Accept only when the metric moves past noise and the gate stays green. Otherwise revert the change in full. A tweak that "might help" is not kept.
+    - One commit per accepted fix, staging only the files you changed (`git add <files>`, never `-A`). Log the row either way, kept or reverted.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+index c1e89c5..e0fb06f 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+@@ -10,7 +10,7 @@
+ 6. Run `node ${CLAUDE_PLUGIN_ROOT}/skills/poteto-mode/scripts/check-plan.mjs <plan.md>` and fix every line it prints (the **encode-lessons-in-structure** principle skill).
+ 7. Hand back. Post the plan path and the script's output, then stop. Execution starts on the operator's explicit go, under the execution playbook the plan names.
+ 
+-**Verification.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked (the **prove-it-works** principle skill). That sentence is the verification rule. Every verification block opens with it. The live block is mandatory. Ten lanes at the PR head drive the real surface through its control skill, per the **swarm** skill, on the `swarm workers` model (default `grok-4.7-xhigh-fast`). Each lane is one box with a concrete scenario, the screenshot it saves, and its pass predicate. One lane is the **Regression lane against trunk.** It runs the same load-bearing scenario on trunk and head. If trunk does not have the feature, the lane records that fact and gates the behavior the diff adds plus the end state the user waits for instead of inventing a trunk result. The perf gate is dual-sided. Trunk and head must both produce the named metric. If trunk lacks the feature, also isolate the work the diff adds and set an absolute budget for that work plus the end-to-end state the user waits for. Do not claim a ratio between unlike scenarios. The perf block names the metric, the interleaved probe, the trunk baseline measured first, and the rule with the number that fails. A PR that changes an interaction is review-gated. The operator reviews it in chat with screenshots and a video before merge. A PR that changes no interaction writes `**Review gate.** None. <PR id> is not review-gated.` and no boxes under it.
++**Verification.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked (the **prove-it-works** principle skill). That sentence is the verification rule. Every verification block opens with it. The live block is mandatory. Ten lanes at the PR head drive the real surface through its control skill, per the **swarm** skill, on the `swarm workers` model (`sonnet`). Each lane is one box with a concrete scenario, the screenshot it saves, and its pass predicate. One lane is the **Regression lane against trunk.** It runs the same load-bearing scenario on trunk and head. If trunk does not have the feature, the lane records that fact and gates the behavior the diff adds plus the end state the user waits for instead of inventing a trunk result. The perf gate is dual-sided. Trunk and head must both produce the named metric. If trunk lacks the feature, also isolate the work the diff adds and set an absolute budget for that work plus the end-to-end state the user waits for. Do not claim a ratio between unlike scenarios. The perf block names the metric, the interleaved probe, the trunk baseline measured first, and the rule with the number that fails. A PR that changes an interaction is review-gated. The operator reviews it in chat with screenshots and a video before merge. A PR that changes no interaction writes `**Review gate.** None. <PR id> is not review-gated.` and no boxes under it.
+ 
+ **Control skill.** Pick it by surface. Browser, Electron, and web UIs use `control-ui` from `cursor-team-kit`. CLIs and TUIs use `control-cli` from `cursor-team-kit`. Native mobile uses whatever simulator-driving skill the repo has. A PR that touches two surfaces gets lanes on both. A surface with no control skill is a risk in Appendix C, and its live block still names how each lane drives it.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/perf-issue.md b/plugins/pstack/skills/poteto-mode/playbooks/perf-issue.md
+index 405c7a4..b27421e 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/perf-issue.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/perf-issue.md
+@@ -14,7 +14,7 @@
+    7. Do it cheaper.
+ 
+    When an earlier mantra meets the target, stop.
+-3. Plan the fix from the trace. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent using your configured perf-issue model (default `grok-4.7-xhigh-fast`). Review the diff. Capture a post-fix trace.
++3. Plan the fix from the trace. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent with `model: "sonnet"` (the `perf-issue` role). Review the diff. Capture a post-fix trace.
+    Apply the **sequence-verifiable-units** principle skill, verifying each attempt before trying the next.
+ 4. Parse and compare the artifacts (JSON to sqlite, diff). "Inconclusive" or wrong-surface is not a pass. Flag it.
+ 5. Cite the measurement in the PR.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/refactoring.md b/plugins/pstack/skills/poteto-mode/playbooks/refactoring.md
+index df2a863..4c61540 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/refactoring.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/refactoring.md
+@@ -8,7 +8,7 @@ If the cleanup reveals a missing feature or a real bug, split it out and ship th
+ 2. Name the structure the code is missing per **principle-model-the-domain**. Boring code stays when the shape is already clear and local. The reshape must delete branches or invalid states, not add indirection.
+ 3. Name the target shape. State what the module layout, types, and call graph should be if built today (**principle-foundational-thinking**, **principle-redesign-from-first-principles**). If the target crosses a function boundary, run the **architect** skill for parallel design exploration of the shape before the move.
+ 4. Subtract before you add. Delete dead code, collapse one-caller wrappers, drop redundant validators, and remove orphan references before introducing the new shape (**principle-subtract-before-you-add**). The smallest change that reaches the target shape ships (**principle-laziness-protocol**). A speculative cleanup that "might help" gets reverted.
+-5. Move in small behavior-preserving steps, each keeping the pin green. For API reshapes, migrate every caller and delete the old API in the same wave (**principle-migrate-callers-then-delete-legacy-apis**). No compatibility shims, no parallel old-and-new paths. Spot-check every rename against the actual files. Renames silently miss usages in strings, prose, and back-references. Delegate the mechanical edits to a subagent using your configured refactoring model (default `grok-4.7-xhigh-fast`) with a specific scope (file paths, the names being moved, the behavior to hold).
++5. Move in small behavior-preserving steps, each keeping the pin green. For API reshapes, migrate every caller and delete the old API in the same wave (**principle-migrate-callers-then-delete-legacy-apis**). No compatibility shims, no parallel old-and-new paths. Spot-check every rename against the actual files. Renames silently miss usages in strings, prose, and back-references. Delegate the mechanical edits to a subagent with `model: "sonnet"` (the `feature and refactoring` role) with a specific scope (file paths, the names being moved, the behavior to hold).
+ 6. Prove behavior is unchanged on the real artifact, not "it compiles" (**principle-prove-it-works**). For larger reshapes, run an equivalence check: a script that diffs old-vs-new outputs, a recorded baseline replayed against the new code, or a smoke run on the matching surface via the relevant control skill.
+ 7. Confirm the change is worth keeping. The success measure is reduced reader load (**principle-minimize-reader-load**). If the diff does not lower reader load somewhere, revert it.
+ 8. Rebase into small ordered commits. A subtraction commit, then the reshape, then any follow-on cleanup. Shape them with the **sequence-verifiable-units** principle skill, so each behavior-preserving slice stays green before the next. Run **Opening a PR**.
+diff --git a/plugins/pstack/skills/reflect/SKILL.md b/plugins/pstack/skills/reflect/SKILL.md
+index 8ba9aa2..d2b4c45 100644
+--- a/plugins/pstack/skills/reflect/SKILL.md
++++ b/plugins/pstack/skills/reflect/SKILL.md
+@@ -24,13 +24,13 @@ That covers the session (`<id>.jsonl`) and subagent (`<parent>/subagents/agent-<
+ 
+ One message, three Agent tool calls, `subagent_type: "general-purpose"`. Reviewers need MCP access to look up the tickets, chat threads, and observability traces the transcript references, and the general-purpose agent keeps it.
+ 
+-Each reviewer and the synthesizer name a role line in the `pstack-models.mdc` rule and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
++Each reviewer and the synthesizer name a role from the model table in the `poteto-mode` skill.
+ 
+-| Lens | Role line | Default `model` | Prompt template |
++| Lens | Role | `model` | Prompt template |
+ |---|---|---|---|
+-| Judgment | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5-xhigh` | `references/judgment-reviewer.md` |
+-| Tooling | `reflect tooling` | `grok-4.7-xhigh-fast` | `references/tooling-reviewer.md` |
+-| Divergent | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5-xhigh` | `references/divergent-reviewer.md` |
++| Judgment | `reflect judgment, divergent, synthesizer` | inherit the parent (omit) | `references/judgment-reviewer.md` |
++| Tooling | `reflect tooling` | `sonnet` | `references/tooling-reviewer.md` |
++| Divergent | `reflect judgment, divergent, synthesizer` | inherit the parent (omit) | `references/divergent-reviewer.md` |
+ 
+ Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in their final report.
+ 
+diff --git a/plugins/pstack/skills/swarm/SKILL.md b/plugins/pstack/skills/swarm/SKILL.md
+index db22b87..366ddd0 100644
+--- a/plugins/pstack/skills/swarm/SKILL.md
++++ b/plugins/pstack/skills/swarm/SKILL.md
+@@ -22,14 +22,14 @@ Open a todolist with one entry per phase before launching anything.
+ 1. State the done predicate and the artifact or report the swarm must return.
+ 2. Choose the shape. Partition into slices, race N workers on identical briefs, or mix both. For a race or mixed shape, declare `first pass`, `rank all`, or `best-of` before spawning.
+ 3. Set N from the user or derive it from the shape. N is total workers, not the cloud concurrency limit.
+-4. Pick the worker model from the `swarm workers` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, use `grok-4.7-xhigh-fast`. For `auto` or `inherit-parent`, omit `model` so the workers run on the parent model. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message. For a model race, name each arm's model up front.
++4. The worker model is `sonnet` (the `swarm workers` row of the model table in the `poteto-mode` skill). For a model race, name each arm's model up front from `sonnet`, `opus`, `haiku`, and `fable`.
+ 5. Give each worker its own writable output when it writes. When workers verify or measure commits, each brief names the exact SHAs. A measurement brief also names the method (sample count, what one sample is, order). The worker records both in its result.
+ 
+ ## Phase B: Fan out
+ 
+-Spawn all N workers in one message with `subagent_type: generalPurpose`, `environment: "cloud"`, `run_in_background: true`, and the step 4 model, left unset for `auto` or `inherit-parent`. Use `environment: "local"` only when the worker needs access to something on the user's computer.
++Spawn all N workers in one message with `subagent_type: "general-purpose"`, `run_in_background: true`, `isolation: "worktree"` when a worker writes, and the step 4 model.
+ 
+-When a worker must start from a non-default pushed branch, pass `cloud_base_branch`.
++When a worker must start from a non-default pushed branch, tell it the branch in the brief and have it check that branch out in its worktree first.
+ 
+ Every brief stands alone. Include the goal, scope, exact slice or race arm, how to verify, and what to report. Reports use `PASS`, `ISSUES`, or `BLOCKED` with evidence. A worker that can prove a defect reports `ISSUES` and lists every issue it can prove, not only the first.
+ 
+diff --git a/plugins/pstack/skills/why/SKILL.md b/plugins/pstack/skills/why/SKILL.md
+index 0e5c708..1e7ce7c 100644
+--- a/plugins/pstack/skills/why/SKILL.md
++++ b/plugins/pstack/skills/why/SKILL.md
+@@ -8,7 +8,7 @@ disable-model-invocation: true
+ 
+ Investigate the motivation and intent behind code. The companion `how` skill answers what the code does and how it works. `why` answers what forces led to its shape.
+ 
+-Each spawn below names a role line in the `pstack-models.mdc` rule and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
++Each spawn below names its role from the model table in the `poteto-mode` skill.
+ 
+ Every spawn is `subagent_type: "general-purpose"`, which keeps MCP access for the MCP-backed investigators and the synthesizer's citation spot-checks. Investigators still shouldn't write anything.
+ 
+@@ -46,7 +46,7 @@ Map each available MCP to one evidence category:
+ 
+ Source control is always available through git and `gh`. For the other six, classify using the MCP name, server instructions, tool names, and resource descriptors. If an MCP could fit more than one category, choose the one matching its primary evidence. Record ambiguous cases in the coverage map.
+ 
+-Spawn one investigator per category that has a matching MCP, all in a single message so they run concurrently, each owning exactly one tool or MCP. Don't ask one agent to cover multiple MCPs. `model`: the `why investigators` line, default `grok-4.7-xhigh-fast`.
++Spawn one investigator per category that has a matching MCP, all in a single message so they run concurrently, each owning exactly one tool or MCP. Don't ask one agent to cover multiple MCPs. `model: "sonnet"` (the `why investigators` role).
+ 
+ Each investigator's prompt is `references/investigator-prompt.md` filled in, plus:
+ - the category playbook `references/sources/<source>.md` for the selected MCP, adapted from the examples in `references/source-playbook.md`
+@@ -76,7 +76,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
+ 
+ ## Step 4. Synthesize
+ 
+-Spawn one synthesizer. `model`: the `why synthesizer` line, default `claude-opus-5-5-xhigh`. It gets:
++Spawn one synthesizer with no `model` (the `why synthesizer` role inherits the parent). It gets:
+ 1. The investigator findings, including any null results and any categories skipped with justification
+ 2. The code anchor
+ 3. The user's original question

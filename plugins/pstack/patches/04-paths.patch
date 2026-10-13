@@ -1,0 +1,243 @@
+diff --git a/plugins/pstack/skills/automate-me/SKILL.md b/plugins/pstack/skills/automate-me/SKILL.md
+index 9da20ca..c936060 100644
+--- a/plugins/pstack/skills/automate-me/SKILL.md
++++ b/plugins/pstack/skills/automate-me/SKILL.md
+@@ -14,7 +14,7 @@ This skill orchestrates three others: an inline mining pass (see step 1), Cursor
+ 
+ ### 0. Check for an existing skill
+ 
+-Look recursively for `.cursor/skills/**/*-mode/SKILL.md` and `~/.cursor/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.cursor/skills/<handle>/`), not only at the top level. If one exists, confirm intent with `AskUserQuestion` (unless they already said "update my skill" or similar):
++Look recursively for `.claude/skills/**/*-mode/SKILL.md` and `~/.claude/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.claude/skills/<handle>/`), not only at the top level. If one exists, confirm intent with `AskUserQuestion` (unless they already said "update my skill" or similar):
+ 
+ - Update the existing skill (default for repeat runs)
+ - Start fresh (rare, ask why before doing it)
+@@ -26,7 +26,7 @@ Update mode changes the rest of the flow:
+ 
+ ### 1. Mine their history
+ 
+-Locate the active workspace's transcripts before fanning out. The system prompt names the workspace's `agent-transcripts/` directory. Use only that path. Don't glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
++Locate the active workspace's transcripts before fanning out. They live under `~/.claude/projects/<slug>/`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`). Use only that path. Don't glob across `~/.claude/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+ 
+ Survey recent agent conversations within that scope for recurring patterns. Run multiple parallel subagents across slices of history (e.g. last 2-4 weeks, split into 3 slices so each has enough material). Each slice mining subagent reads transcripts from the workspace-scoped path the parent provides, looks for the signals below, and returns a short structured list of patterns it saw with evidence pointers. Default signals worth hunting:
+ 
+@@ -66,7 +66,7 @@ The **poteto-mode** skill shows the shape. Read it for granularity. Don't copy i
+ 
+ Use Cursor's built-in `create-skill` skill to author the skill. Placement:
+ 
+-- Path: preserve an existing mode skill's category. For a new mode, use `.cursor/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.cursor/skills/<handle>-mode/SKILL.md` in the project (or `~/.cursor/skills/<handle>-mode/` if the user prefers a personal skill).
++- Path: preserve an existing mode skill's category. For a new mode, use `.claude/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.claude/skills/<handle>-mode/SKILL.md` in the project (or `~/.claude/skills/<handle>-mode/` if the user prefers a personal skill).
+ - Handle: the user's first name or chosen identifier.
+ - Frontmatter `description`: trigger on their name + `/<handle>-mode` + "work in their style", not on generic keywords like "write code" or "review PR".
+ - Frontmatter formatting: follow `create-skill`'s YAML rules. Keep `description` as one YAML scalar. Quote it or use `description: >-` with indented continuation lines when punctuation or wrapping requires it.
+diff --git a/plugins/pstack/skills/create-verification-skill/SKILL.md b/plugins/pstack/skills/create-verification-skill/SKILL.md
+index 140d033..c63d5ac 100644
+--- a/plugins/pstack/skills/create-verification-skill/SKILL.md
++++ b/plugins/pstack/skills/create-verification-skill/SKILL.md
+@@ -6,7 +6,7 @@ disable-model-invocation: true
+ 
+ # Create a verification skill
+ 
+-Every serious project needs a scripted way to drive the real app and prove behavior: launch it, exercise a feature the way a user would, and capture evidence. This skill generates that as a project-local skill (`.cursor/skills/verify-<app>/`) tailored to the repo. You write the generator's output for the next agent, not for a human: it will be read cold, mid-task, by an agent that has never seen the app.
++Every serious project needs a scripted way to drive the real app and prove behavior: launch it, exercise a feature the way a user would, and capture evidence. This skill generates that as a project-local skill (`.claude/skills/verify-<app>/`) tailored to the repo. You write the generator's output for the next agent, not for a human: it will be read cold, mid-task, by an agent that has never seen the app.
+ 
+ ## 1. Interview the repo, not the user
+ 
+@@ -22,7 +22,7 @@ If the checkout doesn't build or start as-is, fix that first (or report it preci
+ 
+ ## 2. Generate the skill
+ 
+-Write `.cursor/skills/verify-<app>/SKILL.md` with YAML frontmatter (`name: verify-<app>` and a `description` that names the app, the surface, and when to reach for it — without frontmatter the skill never registers) and these sections, each grounded in what the interview actually found (no placeholders left):
++Write `.claude/skills/verify-<app>/SKILL.md` with YAML frontmatter (`name: verify-<app>` and a `description` that names the app, the surface, and when to reach for it — without frontmatter the skill never registers) and these sections, each grounded in what the interview actually found (no placeholders left):
+ 
+ - **Launch:** the exact command that starts the app for verification, and how to tell it's ready (a log line, a prompt). Launch must reach a usable state from an empty data dir, including any migrations and seed data. Ready means usable, not just that a process answers. A database health check can pass while its init scripts are still running. Include teardown. For a short-lived CLI or TUI there is no server to keep alive: launch means build the binary (or install deps) once, then start each drive in its own isolated PTY or tmux session.
+ - **Doctor:** one read-only check that answers "is this instance worth driving?" — process up, right version/build, port owned by us, auth valid. An agent runs this first whenever anything looks off.
+@@ -33,7 +33,7 @@ Write `.cursor/skills/verify-<app>/SKILL.md` with YAML frontmatter (`name: verif
+ 
+ ## 3. Seed the feature map
+ 
+-Create `.cursor/skills/verify-<app>/features/README.md` plus one file per user-facing feature you can identify (aim for the top 3-5 to start, from routes, commands, menus, or docs). Follow the shape in [`references/feature-map-example/`](references/feature-map-example/), with a README index and one file per feature. Each file answers, from the user's point of view: what the feature is, how to reach it, how to drive it with the harness, and what observable end state proves it works. The four H2s are `Sub-features`, `How to get to it (user POV)`, `Driving it with <harness>`, and `Gotchas`. If the seed data lacks a precondition that a journey needs, the journey reports a failure and the reason goes in that feature's `Gotchas`. Never weaken the journey to make it pass. The map is the repo's maintained verification source; a proof that drives one convenient entry point is incomplete when the map lists others.
++Create `.claude/skills/verify-<app>/features/README.md` plus one file per user-facing feature you can identify (aim for the top 3-5 to start, from routes, commands, menus, or docs). Follow the shape in [`references/feature-map-example/`](references/feature-map-example/), with a README index and one file per feature. Each file answers, from the user's point of view: what the feature is, how to reach it, how to drive it with the harness, and what observable end state proves it works. The four H2s are `Sub-features`, `How to get to it (user POV)`, `Driving it with <harness>`, and `Gotchas`. If the seed data lacks a precondition that a journey needs, the journey reports a failure and the reason goes in that feature's `Gotchas`. Never weaken the journey to make it pass. The map is the repo's maintained verification source; a proof that drives one convenient entry point is incomplete when the map lists others.
+ 
+ ## 4. Prove the generated skill before handing it over
+ 
+diff --git a/plugins/pstack/skills/maintain-verification-skill/SKILL.md b/plugins/pstack/skills/maintain-verification-skill/SKILL.md
+index a2680b9..fc22fa6 100644
+--- a/plugins/pstack/skills/maintain-verification-skill/SKILL.md
++++ b/plugins/pstack/skills/maintain-verification-skill/SKILL.md
+@@ -22,7 +22,7 @@ Only edit the verification skill's own directory (its SKILL.md, features/, and a
+ 
+ ## Pass
+ 
+-0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.cursor/skills/verify-*/`). Several candidates → ask which one; none → stop and point at `/create-verification-skill` instead of inventing a target.
++0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.claude/skills/verify-*/`). Several candidates → ask which one; none → stop and point at `/create-verification-skill` instead of inventing a target.
+ 
+ 1. **Index hygiene.** Read the feature map README and glob its sibling files. Fix missing, extra, duplicate, or dead entries. Lightweight; no generated inventory.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/eval.md b/plugins/pstack/skills/poteto-mode/playbooks/eval.md
+index 3dae34e..4294e32 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/eval.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/eval.md
+@@ -19,7 +19,7 @@
+ 3. **Author one organic prompt.** What a user would type. No leakage of what's being measured.
+ 4. **Spawn N parallel candidates** on different models per the **arena** skill's Phase B. Each works in its own sanitized dir. Same prompt to each.
+ 5. **Spawn one blinded judge** on a different model family per the **arena** skill's Phase C. Judge sees outputs by sanitized label and the rubric, never a model name.
+-6. **Verify the chain from transcripts, not self-report.** Read each candidate's local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names this path). Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects. Look at which files each candidate actually opened. Grade chain-following from the files it really read plus the shape of the code, never from the candidate's own claims.
++6. **Verify the chain from transcripts, not self-report.** Read each candidate's local transcript under `~/.claude/projects/<slug>/`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`). Do not glob across `~/.claude/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects. Look at which files each candidate actually opened. Grade chain-following from the files it really read plus the shape of the code, never from the candidate's own claims.
+ 7. **Read every candidate output yourself** end to end. Compare to the judge's verdict. Disagreement means a model is biased or the rubric is ambiguous. Synthesize.
+ 
+ **Reply:** variant under test, rubric, per-candidate notes, judge's verdict, your synthesis, and a recommendation for whether to promote the variant.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+index c9f009d..c1e89c5 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+@@ -5,9 +5,9 @@
+ 1. When the change is one or two files with an obvious approach, skip the plan. Say so and stop.
+ 2. Settle open questions by prototype before you write. Run `playbooks/prototype.md` for each. Keep the branch, the SHA, and the screenshots for Appendix A. Ask the operator only about a product or preference call that no run can settle. Give options (the **never-block-on-the-human** principle skill).
+ 3. Explore in subagents with `subagent_type: "pstack:poteto-agent"` and an explicit model per the Subagents section (the **guard-the-context-window** principle skill). Each returns file pointers, conventions, test commands, and entry points. No inlined dumps.
+-4. Copy the skeleton below into the plan file and fill every placeholder. Unless the operator names a path, write the file under the agent store's `docs/`. Keep every heading and every sub-block in the order shown. One section per PR. One PR is one change with its own evidence (the **sequence-verifiable-units** principle skill). Name the execution playbook in **How to read this**. Pick between `playbooks/autopilot-full.md` and `playbooks/autopilot-stack.md` per the rule at the end of `playbooks/autopilot-stack.md`. A standing program takes `playbooks/orchestrate.md`.
++4. Copy the skeleton below into the plan file and fill every placeholder. Unless the operator names a path, write the file under the repo's `docs/plans/`. Keep every heading and every sub-block in the order shown. One section per PR. One PR is one change with its own evidence (the **sequence-verifiable-units** principle skill). Name the execution playbook in **How to read this**. Pick between `playbooks/autopilot-full.md` and `playbooks/autopilot-stack.md` per the rule at the end of `playbooks/autopilot-stack.md`. A standing program takes `playbooks/orchestrate.md`.
+ 5. Write under `/technical-writing` in full, then `/unslop`. The body is one Diátaxis mode, how-to. Appendices hold explanation and reference. Each heading states the task or the finding. No long dashes. No mid-sentence colons.
+-6. Run `node pstack/skills/poteto-mode/scripts/check-plan.mjs <plan.md>` and fix every line it prints (the **encode-lessons-in-structure** principle skill).
++6. Run `node ${CLAUDE_PLUGIN_ROOT}/skills/poteto-mode/scripts/check-plan.mjs <plan.md>` and fix every line it prints (the **encode-lessons-in-structure** principle skill).
+ 7. Hand back. Post the plan path and the script's output, then stop. Execution starts on the operator's explicit go, under the execution playbook the plan names.
+ 
+ **Verification.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked (the **prove-it-works** principle skill). That sentence is the verification rule. Every verification block opens with it. The live block is mandatory. Ten lanes at the PR head drive the real surface through its control skill, per the **swarm** skill, on the `swarm workers` model (default `grok-4.7-xhigh-fast`). Each lane is one box with a concrete scenario, the screenshot it saves, and its pass predicate. One lane is the **Regression lane against trunk.** It runs the same load-bearing scenario on trunk and head. If trunk does not have the feature, the lane records that fact and gates the behavior the diff adds plus the end state the user waits for instead of inventing a trunk result. The perf gate is dual-sided. Trunk and head must both produce the named metric. If trunk lacks the feature, also isolate the work the diff adds and set an absolute budget for that work plus the end-to-end state the user waits for. Do not claim a ratio between unlike scenarios. The perf block names the metric, the interleaved probe, the trunk baseline measured first, and the rule with the number that fails. A PR that changes an interaction is review-gated. The operator reviews it in chat with screenshots and a video before merge. A PR that changes no interaction writes `**Review gate.** None. <PR id> is not review-gated.` and no boxes under it.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/session-pickup.md b/plugins/pstack/skills/poteto-mode/playbooks/session-pickup.md
+index 9b2ed06..b92baa2 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/session-pickup.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/session-pickup.md
+@@ -2,7 +2,7 @@
+ 
+ **You own the resume point. Read the prior trail, don't redo it.**
+ 
+-1. Locate the prior trail. A local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path. Do not glob across `~/.cursor/projects/*/`, that crosses workspace boundaries and reads private chats from unrelated projects), a cloud-agent URL, or a pushed branch. Read the metadata overview and last messages first, then scan back for the decision points. Parse a long transcript in a subagent and keep the reduced timeline in the main thread (the **principle-guard-the-context-window** skill).
++1. Locate the prior trail. A local transcript under `~/.claude/projects/<slug>/`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`) (do not glob across `~/.claude/projects/*/`, that crosses workspace boundaries and reads private chats from unrelated projects), or a pushed branch. Read the metadata overview and last messages first, then scan back for the decision points. Parse a long transcript in a subagent and keep the reduced timeline in the main thread (the **principle-guard-the-context-window** skill).
+ 2. Reconstruct operational state. The branch and worktree, what already landed (`git log`, `git diff` against the base), the open todos, the decisions made. The prior trail is authoritative input. Resist the bias to re-derive it.
+ 3. Diff done vs pending. Compare what shipped against what was planned, name the resume point, do not re-run the prior repro or redo completed work. A "let me verify from scratch" pass means you're treating the trail as untrustworthy when it's authoritative.
+ 4. Route the remaining work to the matching playbook and pick the verdict: continue the execution, ship a finished recommendation, ratify or override a prior conclusion, or postmortem a failed run. The pickup playbook ends here. The routed playbook owns the rest.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/worktree-cleanup.md b/plugins/pstack/skills/poteto-mode/playbooks/worktree-cleanup.md
+index c767ac0..1301e7f 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/worktree-cleanup.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/worktree-cleanup.md
+@@ -1,11 +1,11 @@
+ ### Worktree and simulator cleanup
+ 
+-1. Snapshot and audit. Record `df -h /`, then run `scripts/worktree-audit.sh [-b <pr-base-ref>] [repo-path]` (principle-build-the-lever). Without `-b` it checks `MERGED` against `origin/HEAD`, so pass `-b origin/<branch>` when PRs target another branch. It reads paths from `git worktree list`, never hand-typed, since a hand-typed `myrepo-worktrees/x` misses one that lives at `.cursor/worktrees/myrepo/x` (principle-encode-lessons-in-structure). It classifies each worktree by size, age, merge state, uncommitted work, PR state, and the newest chat that touched it, then suggests a bucket. The transcript scan is slow, so background it.
++1. Snapshot and audit. Record `df -h /`, then run `scripts/worktree-audit.sh [-b <pr-base-ref>] [repo-path]` (principle-build-the-lever). Without `-b` it checks `MERGED` against `origin/HEAD`, so pass `-b origin/<branch>` when PRs target another branch. It reads paths from `git worktree list`, never hand-typed, since a hand-typed `myrepo-worktrees/x` misses one that lives at `.claude/worktrees/myrepo/x` (principle-encode-lessons-in-structure). It classifies each worktree by size, age, merge state, uncommitted work, PR state, and the newest chat that touched it, then suggests a bucket. The transcript scan is slow, so background it.
+ 2. The bucket is advice, not permission. The pinned and active chats are the real artifact (principle-prove-it-works). Get that set from the user or sidebar and cross-check every candidate. The lever has marked `safe` a worktree the user had pinned, so the pinned set wins.
+ 3. Verify usage before deleting. For every `verify-recent-chat` row, or anything you doubt, fan subagents out to read the transcripts and report whether the chat is pinned or ongoing and which worktrees it touches (principle-guard-the-context-window, transcripts are bulk). A pinned chat spawns arena and repro trees into sibling worktrees via background subagents, and those are in use even when their names never hit the sidebar.
+ 4. Pause on irreversible loss. `wip:N` is N tracked uncommitted edits. Show the diff and get a decision first, since removing a clean worktree is recoverable from its branch but uncommitted work is gone. `scratch:N` is untracked throwaway, safe to drop, but name the files. Per Autonomy, clean and merged and not-in-use proceeds. `wip` and in-use pause.
+ 5. Prune the confirmed set. Per path, `git worktree remove --force <path>`. If the dir survives on ignored build artifacts, `rm -rf` it, then `git worktree prune`. Branch refs survive, so no commits are lost. Confirm with `df -h /` and re-list.
+-6. Simulators and other reclaimers. Simulators are usually the next-biggest win. `xcrun simctl --set testing delete all` (XCTestDevices clones), `xcrun simctl delete unavailable`, and `xcrun simctl runtime list` then `runtime delete <id>` for old runtimes. More when needed: Xcode `DerivedData` and `iOS DeviceSupport`, `~/Library/Application Support/Cursor` (`state.vscdb.backup`, and `snapshots/roots/<root>` where a `<root>` named for a folder you opened as a workspace balloons), package caches (pnpm, uv, brew, yarn). Clear only caches the user has not said to keep.
++6. Simulators and other reclaimers. Simulators are usually the next-biggest win. `xcrun simctl --set testing delete all` (XCTestDevices clones), `xcrun simctl delete unavailable`, and `xcrun simctl runtime list` then `runtime delete <id>` for old runtimes. More when needed: Xcode `DerivedData` and `iOS DeviceSupport`, package caches (pnpm, uv, brew, yarn). Clear only caches the user has not said to keep.
+ 
+ This is the one playbook that deletes user state with no code review to catch a slip, so the gates above are the review.
+ 
+diff --git a/plugins/pstack/skills/recall/SKILL.md b/plugins/pstack/skills/recall/SKILL.md
+index a70062a..c3fcbda 100644
+--- a/plugins/pstack/skills/recall/SKILL.md
++++ b/plugins/pstack/skills/recall/SKILL.md
+@@ -12,7 +12,7 @@ Keep it tight and on-topic. Read only what the in-scope threads need, then stop.
+ 
+ Your context lives in two records. Your own chat history holds what you did and decided. The shared record holds everything that happened around the same code under other names: the symptoms users keep reporting, the fixes that shipped and got reverted, the errors still firing in prod. That second record is what the **why** skill searches, across source control, the issue tracker, chat and issue channels, long-form docs, and error tracking. A feature with a long bug tail keeps most of its story there, so don't reconstruct it from your transcripts alone.
+ 
+-Transcripts live at `~/.cursor/projects/<slug>/agent-transcripts/<uuid>/<uuid>.jsonl`, where `<slug>` is the workspace path with the leading slash dropped and each "/" turned into "-" (so `/Users/you/proj` becomes `Users-you-proj`). Every line is one chat message.
++Transcripts live at `~/.claude/projects/<slug>/<session-id>.jsonl`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`). Subagent transcripts sit beside the session at `<session-id>/subagents/agent-<id>.jsonl`. Every line is one chat message.
+ 
+ 1. Classify, then route. One specific prior chat to resume is the `session-pickup` playbook, not this. Turning habits into a durable skill is `automate-me`. A human-readable summary of your work is a different task. Recall loads working context across recent chats before you act. If the user already gave you a full state capsule (paths, branch, the change), use it and skip the mining.
+ 2. Lock the scope before searching. Pin the window ("recent" is a real range, default the last 7 days), the topic if named, and the workspace (default the active one. Never read another project's transcripts without being asked). State the scope back. Never quietly turn "all" into "recent N".
+diff --git a/plugins/pstack/skills/reflect/SKILL.md b/plugins/pstack/skills/reflect/SKILL.md
+index 3b040ff..8ba9aa2 100644
+--- a/plugins/pstack/skills/reflect/SKILL.md
++++ b/plugins/pstack/skills/reflect/SKILL.md
+@@ -12,13 +12,13 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
+ 
+ ## 1. Locate the active transcript
+ 
+-Before fanning out, find this conversation's transcript in the `agent-transcripts/` directory the system prompt names. Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
++Before fanning out, find this conversation's transcript under `~/.claude/projects/<slug>/`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`). Do not glob across `~/.claude/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+ 
+ ```bash
+-ls -t <agent-transcripts>/*.jsonl <agent-transcripts>/*/*.jsonl <agent-transcripts>/*/subagents/*.jsonl 2>/dev/null | head -10
++ls -t ~/.claude/projects/<slug>/*.jsonl ~/.claude/projects/<slug>/*/subagents/*.jsonl 2>/dev/null | head -10
+ ```
+ 
+-That covers the legacy flat (`<id>.jsonl`), current nested (`<id>/<id>.jsonl`), and subagent (`<parent>/subagents/<child>.jsonl`) layouts. For each candidate, read the first JSONL line. Take the file whose `message.content[0].text` contains the conversation's opening user prompt. If none matches, pass a tight digest of the session instead.
++That covers the session (`<id>.jsonl`) and subagent (`<parent>/subagents/agent-<child>.jsonl`) layouts. For each candidate, read the first JSONL line. Take the file whose `message.content[0].text` contains the conversation's opening user prompt. If none matches, pass a tight digest of the session instead.
+ 
+ ## 2. Spawn three reviewers in parallel
+ 
+diff --git a/plugins/pstack/skills/reflect/references/divergent-reviewer.md b/plugins/pstack/skills/reflect/references/divergent-reviewer.md
+index 873e452..4ad257c 100644
+--- a/plugins/pstack/skills/reflect/references/divergent-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/divergent-reviewer.md
+@@ -18,7 +18,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.claude/skills/`, `~/.claude/skills/`, or `~/.claude/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/reflect/references/judgment-reviewer.md b/plugins/pstack/skills/reflect/references/judgment-reviewer.md
+index da6c1a2..afa9cce 100644
+--- a/plugins/pstack/skills/reflect/references/judgment-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/judgment-reviewer.md
+@@ -17,7 +17,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.claude/skills/`, `~/.claude/skills/`, or `~/.claude/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/reflect/references/tooling-reviewer.md b/plugins/pstack/skills/reflect/references/tooling-reviewer.md
+index baae72b..041c426 100644
+--- a/plugins/pstack/skills/reflect/references/tooling-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/tooling-reviewer.md
+@@ -28,7 +28,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.claude/skills/`, `~/.claude/skills/`, or `~/.claude/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/show-me-your-work/SKILL.md b/plugins/pstack/skills/show-me-your-work/SKILL.md
+index d350a15..dc4477b 100644
+--- a/plugins/pstack/skills/show-me-your-work/SKILL.md
++++ b/plugins/pstack/skills/show-me-your-work/SKILL.md
+@@ -54,7 +54,7 @@ Commit it only when the work is ambitious enough that a reviewer needs the trail
+ 
+ ## Audit the log against the transcript
+ 
+-At the end of the run, before handing back, check the log told the truth. Read this run's transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path). Don't glob across `~/.cursor/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
++At the end of the run, before handing back, check the log told the truth. Read this run's transcript under `~/.claude/projects/<slug>/`, where `<slug>` is the workspace's absolute path with every `/` and `.` turned into `-` (so `/home/you/proj` becomes `-home-you-proj`). Don't glob across `~/.claude/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
+ 
+ - Check that every row maps to a real decision or action.
+ - Check that each row's evidence resolves and shows what the row claims.
+diff --git a/plugins/pstack/skills/why/SKILL.md b/plugins/pstack/skills/why/SKILL.md
+index 241a4c3..0e5c708 100644
+--- a/plugins/pstack/skills/why/SKILL.md
++++ b/plugins/pstack/skills/why/SKILL.md
+@@ -20,7 +20,7 @@ Operate as a **careful, cautious, and precise investigator**. Be honest about wh
+ 
+ The **target** is usually a chunk of code, a pattern, a feature, or a named design decision. The **question** is usually a design rationale, a tradeoff, a motivating edge case, an external constraint, dead code, or a broad history sweep.
+ 
+-If the target is vague ("why do we do it this way?" with no clear referent), make your best guess from conversation context (open files, recent edits, cursor location, what was just discussed). State your interpretation briefly so the user can redirect if you're off, then proceed.
++If the target is vague ("why do we do it this way?" with no clear referent), make your best guess from conversation context (open files, recent edits, caret position, what was just discussed). State your interpretation briefly so the user can redirect if you're off, then proceed.
+ 
+ ## Step 2. Establish the Code Anchor
+ 
+@@ -32,7 +32,7 @@ Before spawning investigators, build the seed context inline: file paths and lin
+ 
+ ### Discovery
+ 
+-Before spawning investigators, list the available MCPs from the Cursor environment. Use the available-tools map when present. Otherwise inspect the `mcps/` directory Cursor exposes for enabled MCP servers.
++Before spawning investigators, list the available MCP servers: the `mcp__<server>__*` tools in this session, or `claude mcp list`.
+ 
+ Map each available MCP to one evidence category:
+ 
