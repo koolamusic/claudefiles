@@ -1,0 +1,52 @@
+diff --git a/plugins/pstack/skills/poteto-help/SKILL.md b/plugins/pstack/skills/poteto-help/SKILL.md
+index b37b935..cbba45e 100644
+--- a/plugins/pstack/skills/poteto-help/SKILL.md
++++ b/plugins/pstack/skills/poteto-help/SKILL.md
+@@ -36,7 +36,7 @@ Installing changes nothing until the user invokes a skill. The plugin's `README.
+ 
+ If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Roles that inherit the parent run on the chat's model, which saves tokens when the chat runs on a cheaper model. Save `/poteto-mode` for work that needs rigor.
+ 
+-This is a port of pstack from the Cursor plugins repository. Skills refer to themselves by bare name (`/poteto-mode`, `/how`); the installed commands carry the `pstack:` prefix (`/pstack:poteto-mode`, `/pstack:how`).
++This is a port of pstack by Lauren Tan (the plugin's `README.md` names the upstream). Skills refer to themselves by bare name (`/poteto-mode`, `/how`); the installed commands carry the `pstack:` prefix (`/pstack:poteto-mode`, `/pstack:how`).
+ 
+ ## Start a task with `/poteto-mode`
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/SKILL.md b/plugins/pstack/skills/poteto-mode/SKILL.md
+index 77268ae..666a08c 100644
+--- a/plugins/pstack/skills/poteto-mode/SKILL.md
++++ b/plugins/pstack/skills/poteto-mode/SKILL.md
+@@ -145,7 +145,7 @@ A large or cross-cutting effort (a migration across many call sites, an ambitiou
+ - **Orchestrate.** A standing project handed to one coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, minimal human turns ("run this whole project", "own this migration until it lands"). Distinct from Autonomous run, which drives one task to a predicate. Work one agent could finish inside the session's budget routes there, not here, however program-shaped the phrasing sounds.
+ - **Autopilot-full.** A queue of independent PRs run to merged with full autonomy. One owner per PR carries build through merge, and the root swarm-verifies each PR before its owner merges ("autopilot this queue", "full autopilot", one-owner-per-PR programs).
+ - **Autopilot-stack.** A queue of changes built and verified with full autonomy, delivered as one linear reviewed base-branch stack the operator lands ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it").
+-- **Session pickup.** Resuming or taking over a prior agent's in-flight work from a transcript, cloud-agent URL, or pushed branch.
++- **Session pickup.** Resuming or taking over a prior agent's in-flight work from a transcript or pushed branch.
+ - **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a Claude Code restart, or imminent context compaction. The complement to Session pickup.
+ - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. File: `playbooks/multi-phase-plan.md`.
+ - **Worktree and simulator cleanup.** Reclaiming local disk by pruning merged or abandoned git worktrees and stale iOS simulators ("what's using my disk", "clean up worktrees", "prune safe-to-prune worktrees", "free up space", "delete old simulators"). File: `playbooks/worktree-cleanup.md`.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+index 395405a..b82ba70 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+@@ -75,7 +75,7 @@ Each live lane runs in its own git worktree at the PR head. Drive through the pr
+ - [ ] <Deliver input only through the control skill's commands. Name the read-only diagnostics.>
+ - [ ] Save every screenshot to `/tmp/swarm-<pr-id>/worker-<n>/<slug>.png` and return the paths with the report.
+ 
+-## <Task as a verb phrase> (<PR id>)
++## <PR task as a verb phrase> (<PR id>)
+ 
+ **Depends on.** <PR id, or None.>
+ 
+diff --git a/plugins/pstack/skills/why/SKILL.md b/plugins/pstack/skills/why/SKILL.md
+index 1e7ce7c..2423c1c 100644
+--- a/plugins/pstack/skills/why/SKILL.md
++++ b/plugins/pstack/skills/why/SKILL.md
+@@ -91,7 +91,7 @@ Present the synthesizer's output to the user. You may lightly edit for clarity o
+ 
+ The structure is the one in `references/synthesizer-prompt.md`: The Question, The Code in Question, What We Found, What We Can Reasonably Infer, Competing Hypotheses, What We Don't Know, Sources Consulted, Confidence Summary. Adapt as needed, but keep the confidence separation intact, and keep Sources Consulted as one line per investigator, including the ones that returned nothing or were skipped, with the reason.
+ 
+-After Sources Consulted, if the user's `why` question is a precursor to changing this code, convert the lineage findings into a Preserve / Change / Avoid / Risk constraint set for planning the change.
++After Sources Consulted, if the user's `why` question is a prelude to changing this code, convert the lineage findings into a Preserve / Change / Avoid / Risk constraint set for planning the change.
+ 
+ ## Common Failure Modes to Avoid
+ 

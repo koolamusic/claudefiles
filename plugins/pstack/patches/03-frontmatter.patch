@@ -1,0 +1,27 @@
+diff --git a/plugins/pstack/agents/poteto-agent.md b/plugins/pstack/agents/poteto-agent.md
+index 43de92b..d44fa4f 100644
+--- a/plugins/pstack/agents/poteto-agent.md
++++ b/plugins/pstack/agents/poteto-agent.md
+@@ -1,7 +1,6 @@
+ ---
+ name: poteto-agent
+ description: Delegate subagent for code-writing and helper tasks spawned during a `/poteto-mode` run. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-agent` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `general-purpose` skips that read and drifts.
+-is_background: true
+ ---
+ 
+ # Poteto subagent
+diff --git a/plugins/pstack/skills/poteto-mode/SKILL.md b/plugins/pstack/skills/poteto-mode/SKILL.md
+index 00b22fc..9887489 100644
+--- a/plugins/pstack/skills/poteto-mode/SKILL.md
++++ b/plugins/pstack/skills/poteto-mode/SKILL.md
+@@ -2,10 +2,6 @@
+ name: Poteto Mode
+ description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style.
+ disable-model-invocation: true
+-mode: true
+-icon: crown
+-color: yellow
+-reminder: New task? Playbook match or rigor needed -> apply /poteto-mode. Casual turn or user opts out -> don't.
+ ---
+ 
+ # Poteto mode

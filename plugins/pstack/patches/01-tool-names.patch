@@ -1,0 +1,210 @@
+diff --git a/plugins/pstack/agents/poteto-agent.md b/plugins/pstack/agents/poteto-agent.md
+index c5515f5..27ed578 100644
+--- a/plugins/pstack/agents/poteto-agent.md
++++ b/plugins/pstack/agents/poteto-agent.md
+@@ -1,9 +1,9 @@
+ ---
+ name: poteto-agent
+-description: Delegate subagent for code-writing and helper tasks spawned during a `/poteto-mode` run. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-agent` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `generalPurpose` skips that read and drifts.
++description: Delegate subagent for code-writing and helper tasks spawned during a `/poteto-mode` run. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-agent` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `general-purpose` skips that read and drifts.
+ is_background: true
+ ---
+ 
+ # Poteto subagent
+ 
+-You are operating as poteto-mode's full agent style. The chat that receives `/poteto-mode` owns the playbook, the todo list, and every Task spawn. You are one of its delegates. Read the `poteto-mode` skill's `SKILL.md` in full before doing any work, including its inline Principles index. Use the absolute path your parent gave you. Navigate to a leaf `principle-*` skill whenever you apply that principle.
++You are operating as poteto-mode's full agent style. The chat that receives `/poteto-mode` owns the playbook, the todo list, and every Agent tool spawn. You are one of its delegates. Read the `poteto-mode` skill's `SKILL.md` in full before doing any work, including its inline Principles index. Use the absolute path your parent gave you. Navigate to a leaf `principle-*` skill whenever you apply that principle.
+diff --git a/plugins/pstack/skills/automate-me/SKILL.md b/plugins/pstack/skills/automate-me/SKILL.md
+index cd3636e..9da20ca 100644
+--- a/plugins/pstack/skills/automate-me/SKILL.md
++++ b/plugins/pstack/skills/automate-me/SKILL.md
+@@ -14,7 +14,7 @@ This skill orchestrates three others: an inline mining pass (see step 1), Cursor
+ 
+ ### 0. Check for an existing skill
+ 
+-Look recursively for `.cursor/skills/**/*-mode/SKILL.md` and `~/.cursor/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.cursor/skills/<handle>/`), not only at the top level. If one exists, confirm intent with `AskQuestion` (unless they already said "update my skill" or similar):
++Look recursively for `.cursor/skills/**/*-mode/SKILL.md` and `~/.cursor/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.cursor/skills/<handle>/`), not only at the top level. If one exists, confirm intent with `AskUserQuestion` (unless they already said "update my skill" or similar):
+ 
+ - Update the existing skill (default for repeat runs)
+ - Start fresh (rare, ask why before doing it)
+@@ -41,7 +41,7 @@ Cross-check across slices before elevating a signal. Patterns seen in 2+ slices
+ 
+ ### 2. Ask the user directly
+ 
+-Mining misses intent that hasn't come up yet. Use the `AskQuestion` tool (structured multi-choice) rather than asking the user to type from scratch.
++Mining misses intent that hasn't come up yet. Use the `AskUserQuestion` tool (structured multi-choice) rather than asking the user to type from scratch.
+ 
+ Shape: one or two questions with 4-6 options each, `allow_multiple: true` for category questions. Start broad ("Which areas matter most?"), then follow up on selected areas with specific options. After the structured rounds, one free-form chat question catches anything the options missed.
+ 
+diff --git a/plugins/pstack/skills/how/SKILL.md b/plugins/pstack/skills/how/SKILL.md
+index 775d292..8134632 100644
+--- a/plugins/pstack/skills/how/SKILL.md
++++ b/plugins/pstack/skills/how/SKILL.md
+@@ -8,7 +8,7 @@ disable-model-invocation: true
+ 
+ Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
+ 
+-Every spawn is a Task subagent with `subagent_type: generalPurpose` and `readonly: true`. Explorers use the `how explorer` line in the `pstack-models.mdc` rule (default `grok-4.7-xhigh-fast`), and every explainer uses the `how explainer` line (default `claude-opus-5-5-xhigh`). Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
++Every spawn is an Agent tool subagent with `subagent_type: "general-purpose"`, told to write nothing. Explorers use the `how explorer` line in the `pstack-models.mdc` rule (default `grok-4.7-xhigh-fast`), and every explainer uses the `how explainer` line (default `claude-opus-5-5-xhigh`). Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
+ 
+ ## 1. Assess complexity
+ 
+diff --git a/plugins/pstack/skills/interrogate/SKILL.md b/plugins/pstack/skills/interrogate/SKILL.md
+index 9e3b99a..48f0dc6 100644
+--- a/plugins/pstack/skills/interrogate/SKILL.md
++++ b/plugins/pstack/skills/interrogate/SKILL.md
+@@ -24,7 +24,7 @@ Before spawning reviewers, state the intent in one clear paragraph from the user
+ 
+ ## Step 3, Spawn Reviewers
+ 
+-Launch all reviewers in a single message with the Task tool, one per entry on the `interrogate reviewers` line in `~/.cursor/rules/pstack-models.mdc`, labeled Reviewer A, B, and so on to match the entry count. If the rule or that line is missing, use the table defaults.
++Launch all reviewers in a single message with the Agent tool, one per entry on the `interrogate reviewers` line in `~/.cursor/rules/pstack-models.mdc`, labeled Reviewer A, B, and so on to match the entry count. If the rule or that line is missing, use the table defaults.
+ 
+ | Subagent | Default model |
+ |----------|---------------|
+diff --git a/plugins/pstack/skills/no-comments/SKILL.md b/plugins/pstack/skills/no-comments/SKILL.md
+index 4b608af..609dd2c 100644
+--- a/plugins/pstack/skills/no-comments/SKILL.md
++++ b/plugins/pstack/skills/no-comments/SKILL.md
+@@ -16,7 +16,7 @@ Use the caller's files or diff. Otherwise use the current diff against the base
+ 
+ ## Steps
+ 
+-1. Spawn `Task` with `subagent_type: "comment-sicko"`. Pass the scope. Do not restate its rules.
++1. Spawn an Agent tool subagent with `subagent_type: "pstack:comment-sicko"`. Pass the scope. Do not restate its rules.
+ 2. Inspect its report and diff. Reject application-code edits, scope escapes, exception-protected deletions, misstated `MUST KILL` reasons, and flags that treat kept intentional code as guilty. Reshape flags on our-code surprises stay actionable. Do not restore those comments. A keep survives only with proof it is about something we cannot change. Audit missed scoped lint and TypeScript suppressions. Correctness or safety suppressions stay actionable `MUST KILL`s. Restore deletions only with exact exceptions and scoped proof. Before accepting thin `IMPORTANT` or `do not remove` kills or keeps, run `/how` or `/why` on their symbol. If a kill is ambiguous, do not restore. If a keep is refuted or still ambiguous, delete it. Revert and rerun one rejected report with the failure named. Reject a second, report it open, and fail `/no-comments`.
+ 3. Fix trivial accepted flags directly by deleting a dead path, dropping a parameter, or using the real API. If any fix needs a shape, run `/architect` once for the accepted set and surrounding code. Stop at the sketch. Architect shapes. Step 4 implements.
+ 4. Implement the smallest root-cause fix in scope. Remove every named workaround. If the root cause is out of scope, land the smallest in-scope fix and report the rest open. The **principle-fix-root-causes** and **principle-redesign-from-first-principles** skills guide intent only. Neither authorizes widening the fence nor fixing instances outside it. Never bolt on symptom guards.
+diff --git a/plugins/pstack/skills/poteto-mode/SKILL.md b/plugins/pstack/skills/poteto-mode/SKILL.md
+index d5be8a1..337e1f1 100644
+--- a/plugins/pstack/skills/poteto-mode/SKILL.md
++++ b/plugins/pstack/skills/poteto-mode/SKILL.md
+@@ -19,7 +19,7 @@ The Principles section below grounds every trigger. In your reply, name each pri
+ Remaining triggers:
+ 
+ - Nontrivial change, architecture decision, or "are we sure?" → the **how** skill.
+-- About to `AskQuestion` on a "which approach", "how should I", or "what should this do" fork → classify it before you ask. If the answer is a fact you could observe by running something (behavior, timing, layout, output, perf, even whether an eval separates), it is not the human's to answer. Sketch it via the Prototype playbook (`playbooks/prototype.md`) and let the result decide. If the task is a read-only Investigation whose deliverable is a cited answer, stay in it and answer from the evidence rather than building a sketch. Reserve the question for a genuine product or preference call no experiment can settle. Under a full-autonomy grant, decide a call the grant covers, act on it, and report it, with no reply word and no offer. Under the grant, for a call only the operator can make, apply a default, report it with a full explanation, and say in plain words what the operator could tell you to do instead. The operator answers in their own words. Never give a shorthand token to type back. Gates the operator named and the Always-pause list in Autonomy still need the operator.
++- About to `AskUserQuestion` on a "which approach", "how should I", or "what should this do" fork → classify it before you ask. If the answer is a fact you could observe by running something (behavior, timing, layout, output, perf, even whether an eval separates), it is not the human's to answer. Sketch it via the Prototype playbook (`playbooks/prototype.md`) and let the result decide. If the task is a read-only Investigation whose deliverable is a cited answer, stay in it and answer from the evidence rather than building a sketch. Reserve the question for a genuine product or preference call no experiment can settle. Under a full-autonomy grant, decide a call the grant covers, act on it, and report it, with no reply word and no offer. Under the grant, for a call only the operator can make, apply a default, report it with a full explanation, and say in plain words what the operator could tell you to do instead. The operator answers in their own words. Never give a shorthand token to type back. Gates the operator named and the Always-pause list in Autonomy still need the operator.
+ - Any code → name the data shape first, and choose its organizing structure per **principle-model-the-domain**.
+ - Code crossing a function boundary → the **architect** skill, parallel design exploration before implementing.
+ - Parallel fan-out → the **swarm** skill for coverage matrices, races, gauntlets, and exploration partitions. Use **arena** for design or code bakeoffs with base selection and grafting.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/autonomous-run.md b/plugins/pstack/skills/poteto-mode/playbooks/autonomous-run.md
+index 12c3a7d..7229b4d 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/autonomous-run.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/autonomous-run.md
+@@ -6,7 +6,7 @@
+ 2. Pick the wake mechanism using Cursor's `/loop` command (a built-in, not a pstack skill). An event to watch (CI, a merge, a ref advancing) gets a watcher subagent that wakes you on the event, with a long time-based heartbeat as fallback. No event gets a fixed-interval heartbeat sized to when the result is worth re-checking.
+ 3. Each iteration makes the smallest change the evidence justifies, verifies it against the predicate, commits if it advanced, discards changes that didn't help. Belt-and-suspenders that "might help" gets reverted, not left to ride.
+    Sequence the work via the **sequence-verifiable-units** principle skill, verifying each unit before the next instead of batching checks at the end.
+-4. Mid-run discoveries are yours. Address broken skills, related bugs, flaky verifiers, review noise, tooling failures, orphaned follow-ups, and fixable drift yourself via poteto-mode. Put out-of-band fixes in their own PR. Do not park reversible work for the human or use `AskQuestion`. Surface only irreversible actions, genuine product or preference calls no experiment can settle, or a real dead end. Keep the predicate as the main drive, and return to it after each side fix.
++4. Mid-run discoveries are yours. Address broken skills, related bugs, flaky verifiers, review noise, tooling failures, orphaned follow-ups, and fixable drift yourself via poteto-mode. Put out-of-band fixes in their own PR. Do not park reversible work for the human or use `AskUserQuestion`. Surface only irreversible actions, genuine product or preference calls no experiment can settle, or a real dead end. Keep the predicate as the main drive, and return to it after each side fix.
+ 5. Checkpoint every iteration via the **show-me-your-work** skill, a row for what changed and whether the predicate moved.
+ 6. Stop when the predicate is met. A plateau is not a stop, so keep going and pivot your approach to push past it. Surface a genuine dead end rather than spinning, and never relax the predicate to declare victory.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md b/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
+index fcd0052..cdf1fd4 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
+@@ -2,7 +2,7 @@
+ 
+ Invoked at the end of every other playbook.
+ 
+-**Worktree.** Work from a git worktree off main. Subagents inherit it. Multiple `Task` calls on the same branch each get their own worktree, or `git fetch && git reset --hard origin/<branch>` between them. Dirty branch with unrelated work: patch out, fresh worktree, apply. Snarled worktree: reset from main, redo minimally.
++**Worktree.** Work from a git worktree off main. Subagents inherit it. Multiple Agent tool calls on the same branch each get their own worktree, or `git fetch && git reset --hard origin/<branch>` between them. Dirty branch with unrelated work: patch out, fresh worktree, apply. Snarled worktree: reset from main, redo minimally.
+ 
+ **Commits.** Commit liberally. Rebase into small, ordered commits before opening PRs. Each commit is a future PR: landable, ordered to tell the story. Amend when the fix belongs in a just-made commit. New commit when separable. Commit bodies don't restate the subject.
+ 
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/orchestrate.md b/plugins/pstack/skills/poteto-mode/playbooks/orchestrate.md
+index d5b6d00..01c2bf9 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/orchestrate.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/orchestrate.md
+@@ -12,8 +12,8 @@ Three rules carry the rest.
+ 
+ #### Roles and placement
+ 
+-- **Coordinator (this chat).** Local. Frames, authors briefs, drains the inbox, owns the human report, makes judgment calls. It never authors or edits code. Conflicted merges, restacks, and code changes are always tasks. Mechanically landing a verified unit (fast-forward or clean cherry-pick of a worker's commit, then push) is bookkeeping the coordinator may do itself on repos where local git is cheap. Queueing finished work behind an idle stacker is how a deadline harvests nothing. The loop is agentic end to end. Agents are spawned, resumed, and drained only through the Task tool. State reads and writes go through `scripts/orch/orch.ts` at drain points, one command in and one line out. The CLI never spawns, waits, or wakes anything.
+-- **Sub-coordinator.** Always local, durable, one per track, and only when the program exceeds what one coordinator's drains can manage. A track the coordinator can drain itself needs no middle layer. Each nested layer re-pays a full orientation preamble, and a blocking sub-coordinator hides its children while the parent idles. Owns its track's units and boards, authors its workers' briefs, spawns its own workers and verifiers (nesting works to depth 3, and a nested spawn has the full Task schema including `environment`). Rolls up aggregates at wave boundaries. Never forwards raw child reports. Cap in-flight children at what one drain can process, roughly ten, as a rolling window. Never as blocking batches, which cost the slowest child of every batch.
++- **Coordinator (this chat).** Local. Frames, authors briefs, drains the inbox, owns the human report, makes judgment calls. It never authors or edits code. Conflicted merges, restacks, and code changes are always tasks. Mechanically landing a verified unit (fast-forward or clean cherry-pick of a worker's commit, then push) is bookkeeping the coordinator may do itself on repos where local git is cheap. Queueing finished work behind an idle stacker is how a deadline harvests nothing. The loop is agentic end to end. Agents are spawned and drained only through the Agent tool. State reads and writes edit the store files directly at drain points.
++- **Sub-coordinator.** Always local, durable, one per track, and only when the program exceeds what one coordinator's drains can manage. A track the coordinator can drain itself needs no middle layer. Each nested layer re-pays a full orientation preamble, and a blocking sub-coordinator hides its children while the parent idles. Owns its track's units and boards, authors its workers' briefs, spawns its own workers and verifiers (nesting works to depth 3, and a nested spawn has the full Agent tool schema including `isolation`). Rolls up aggregates at wave boundaries. Never forwards raw child reports. Cap in-flight children at what one drain can process, roughly ten, as a rolling window. Never as blocking batches, which cost the slowest child of every batch.
+ - **Worker / verifier.** Always `environment: "cloud"` unless the task needs this machine: `control-ui` or `control-cli` runtime verification (from `cursor-team-kit`). Reading local transcripts under `agent-transcripts/`. Simulators and local IDE state. Auth that exists only here. Cloud agents cannot read the local store, so their briefs inline what they need or point at repo paths. Prefer fewer, broader workers. One writer per worktree or branch (principle-separate-before-serializing-shared-state). Run a unit's verifier on a different model family from its worker.
+ 
+ Depth stays at coordinator, track, worker. Author the track decomposition per project (build, landing, and verification are common cuts, not a required shape). Hard-coded swarm trees were tried and parked as too rigid.
+diff --git a/plugins/pstack/skills/reflect/SKILL.md b/plugins/pstack/skills/reflect/SKILL.md
+index b6bd41a..3b040ff 100644
+--- a/plugins/pstack/skills/reflect/SKILL.md
++++ b/plugins/pstack/skills/reflect/SKILL.md
+@@ -22,7 +22,7 @@ That covers the legacy flat (`<id>.jsonl`), current nested (`<id>/<id>.jsonl`),
+ 
+ ## 2. Spawn three reviewers in parallel
+ 
+-One message, three `Task` calls, `subagent_type: generalPurpose`, agent mode (`readonly: false`). Reviewers need MCP access to look up the tickets, chat threads, and observability traces the transcript references, and readonly strips MCPs.
++One message, three Agent tool calls, `subagent_type: "general-purpose"`. Reviewers need MCP access to look up the tickets, chat threads, and observability traces the transcript references, and the general-purpose agent keeps it.
+ 
+ Each reviewer and the synthesizer name a role line in the `pstack-models.mdc` rule and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
+ 
+@@ -32,11 +32,11 @@ Each reviewer and the synthesizer name a role line in the `pstack-models.mdc` ru
+ | Tooling | `reflect tooling` | `grok-4.7-xhigh-fast` | `references/tooling-reviewer.md` |
+ | Divergent | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5-xhigh` | `references/divergent-reviewer.md` |
+ 
+-Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Task` response body.
++Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in their final report.
+ 
+ ## 3. Synthesize
+ 
+-One `Task` call, `subagent_type: generalPurpose`, `model` from the `reflect judgment, divergent, synthesizer` line (default `claude-opus-5-5-xhigh`), agent mode (`readonly: false`). It spot-verifies citations through MCP, and readonly strips MCPs. Pass `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
++One Agent tool call, `subagent_type: "general-purpose"`, no `model` (the `reflect judgment, divergent, synthesizer` role inherits the parent). It spot-verifies citations through MCP. Pass `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
+ 
+ ## 4. Structural enforcement check
+ 
+diff --git a/plugins/pstack/skills/reflect/references/divergent-reviewer.md b/plugins/pstack/skills/reflect/references/divergent-reviewer.md
+index 1e070a2..873e452 100644
+--- a/plugins/pstack/skills/reflect/references/divergent-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/divergent-reviewer.md
+@@ -18,7 +18,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), a `Task` prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/reflect/references/judgment-reviewer.md b/plugins/pstack/skills/reflect/references/judgment-reviewer.md
+index 61d15d7..da6c1a2 100644
+--- a/plugins/pstack/skills/reflect/references/judgment-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/judgment-reviewer.md
+@@ -17,7 +17,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), a `Task` prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/reflect/references/tooling-reviewer.md b/plugins/pstack/skills/reflect/references/tooling-reviewer.md
+index a839db4..baae72b 100644
+--- a/plugins/pstack/skills/reflect/references/tooling-reviewer.md
++++ b/plugins/pstack/skills/reflect/references/tooling-reviewer.md
+@@ -28,7 +28,7 @@ Scan for:
+ 
+ ## Scope to skills and tools the session actually used
+ 
+-Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), a `Task` prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
++Route findings only to skills, tools, or MCPs this transcript used. A skill counts as used when the transcript shows a `Read` of its `SKILL.md` (under `.cursor/skills/`, `~/.cursor/skills/`, or `~/.cursor/plugins/`), an Agent tool prompt naming its path, or a tool call (Shell, Grep, MCP, etc.) matching its documented commands. Speculative routings to skills the parent never opened do not count.
+ 
+ Two finding shapes are valid:
+ - The parent invoked the skill and you found a real gap in its body. Route to the skill's relevant section.
+diff --git a/plugins/pstack/skills/why/SKILL.md b/plugins/pstack/skills/why/SKILL.md
+index bc2a3eb..241a4c3 100644
+--- a/plugins/pstack/skills/why/SKILL.md
++++ b/plugins/pstack/skills/why/SKILL.md
+@@ -10,7 +10,7 @@ Investigate the motivation and intent behind code. The companion `how` skill ans
+ 
+ Each spawn below names a role line in the `pstack-models.mdc` rule and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message.
+ 
+-Every spawn is `generalPurpose` with `readonly: false` (agent mode). **Do not use readonly/Ask mode.** It strips MCP access, which disables the MCP-backed investigators and the synthesizer's citation spot-checks. Investigators still shouldn't write anything.
++Every spawn is `subagent_type: "general-purpose"`, which keeps MCP access for the MCP-backed investigators and the synthesizer's citation spot-checks. Investigators still shouldn't write anything.
+ 
+ ## Operating Posture
+ 
