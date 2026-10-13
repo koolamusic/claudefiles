@@ -109,6 +109,7 @@ Installed by Claude Code from the `claudefiles` marketplace on the first startup
 | jira | Sprint workflow — research, plan, execute, review. The primary workflow; see `plugins/jira/README.md`. |
 | warden | Acceptance-test playbook; see `plugins/warden/README.md` |
 | studio | Per-project workflow workspace — keeps `.project/`, `.jira/`, `.uat/` state as symlinks into a private `~/.studio/` git repo. Clone or create `~/.studio/` before running `/studio:setup`; see `plugins/studio/README.md`. |
+| pstack | Rigorous agent workflows and the default rigor mode: `/pstack:poteto-mode` matches a task to a playbook and routes through `how`, `why`, `architect`, `arena`, `swarm`, `interrogate`, `unslop` and 24 principle skills. Ported from [cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan; see `plugins/pstack/README.md`. |
 
 ### Experimental features
 
@@ -119,6 +120,7 @@ Opt-in during `/setup`; declared under `experimental.features` in `claudefiles.y
 | trust-monitor | Per-session trust ladder that gates tools by level and adds a trust bar to the statusline. `/trust` awards and deducts. | `jq` |
 | tower | Runs the `orchestrator` skill's war room on visible [Herdr](https://herdr.dev) panes so you can watch every child agent work. `tower on`, `tower off`, `tower status`. Installs the `tower` skill only when enabled. | `herdr` on PATH and a session inside a Herdr-managed pane; the `orchestrator` skill (installed by default) |
 | raydr | Hear your sessions: [raydr](https://www.npmjs.com/package/@tensorkit/raydr) speaks replies, permission prompts, and notifications on your phone. Nothing is copied from this repo; opting in runs `raydr hooks install`, which writes the `/raydr` command and its hooks into `~/.claude/` and keeps them current with the CLI. Quickstart: `npm i -g @tensorkit/raydr`, then `raydr init`.<br>Using the CLI: `raydr init` picks providers, writes `~/.config/raydr/env`, and generates the access key (`--force` re-picks and keeps keys); `raydr start` runs the server; `raydr doctor` checks node, the env file, providers, hooks, and the server; `/raydr` in a session opts it in. Full command table on the [npm page](https://www.npmjs.com/package/@tensorkit/raydr). | `raydr` on PATH (`npm i -g @tensorkit/raydr`, Node 24 or newer) |
+| gsd | Legacy spec-driven workflow ([get-shit-done](https://github.com/gsd-build/get-shit-done)). Nothing is copied from this repo; opting in runs the npm installer, which writes `gsd-*` skills, agents, hooks and `~/.claude/get-shit-done/` and adds hook entries to `settings.json`. `/gsd-update` refreshes it; remove with `npx -y get-shit-done-cc --claude --global --uninstall`. | `npx` ([Node](https://nodejs.org)) |
 
 ### Sounds
 

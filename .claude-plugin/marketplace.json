@@ -41,6 +41,15 @@
       },
       "source": "./plugins/warden",
       "category": "workflow"
+    },
+    {
+      "name": "pstack",
+      "description": "Rigorous agent workflows ported from Lauren Tan's pstack (github.com/cursor/plugins). /pstack:poteto-mode matches a task to a playbook and routes through how, why, architect, arena, swarm, interrogate, unslop and 24 principle skills.",
+      "author": {
+        "name": "Lauren Tan (upstream), ported for Claude Code by koolamusic"
+      },
+      "source": "./plugins/pstack",
+      "category": "workflow"
     }
   ]
 }

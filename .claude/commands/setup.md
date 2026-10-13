@@ -50,6 +50,7 @@ OPT_IN_SKILLS="<experimental.features[].skills, space-separated>"
 for src in skills/*/; do
   name=$(basename "$src")
   case " $OPT_IN_SKILLS " in *" $name "*) continue ;; esac
+  case "$name" in prune_*) continue ;; esac   # marked for deletion, never installed
   cp -R "$src" <target>/skills/
 done
 
@@ -164,7 +165,7 @@ For each feature the user opts into, apply the feature's declared effects. A fea
 4. **If the feature has a `run:` list**: execute each command in order, from the repo root, after the `requires:` check has passed. These are the external tool's own installers, so they may write outside `<target>` (for `raydr`: `~/.claude/commands/raydr.md` and hook entries in `~/.claude/settings.json`, backed up first). Print each command before running it. If one exits non-zero, stop the list, do not run the remaining commands, and record the feature as failed for the summary with the command that failed. Run this after Step 8 has written `settings.json`, so an installer that edits the file is not overwritten.
 5. **If the feature declares several keys**: run each action independently (e.g. deep-merge the settings fragment AND add the plugin to `enabledPlugins`). No cross-interference.
 6. **If the feature has none of these keys**: record the feature name for the summary but do not mutate `settings.json`. This is a legal shape (useful for documentation-only experimental flags).
-7. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name; if `skills:` was set, the skill names; if `run:` was set, the commands run) for the final summary in Step 11.
+7. In all cases, record the enabled feature name (and, if `enablePlugin` was set, the plugin name; if `skills:` was set, the skill names; if `run:` was set, the commands run) for the final summary in Step 10.
 
 If the user opts into none (or the list is empty), proceed with base settings only. Do NOT prompt if `experimental.features` is absent or `[]`.
 
@@ -186,21 +187,7 @@ Read the `env` section from `claudefiles.yaml`. For each variable declared:
 grep -q 'export MY_VAR=' ~/.zshrc || echo 'export MY_VAR="value"' >> ~/.zshrc
 ```
 
-### Step 10: Install external dependencies
-
-Install GSD (get-shit-done) — a spec-driven development system for Claude Code.
-
-Determine the install flag based on the user's target choice:
-- **Global** → `--global`
-- **Local** → `--local`
-
-```bash
-npx get-shit-done-cc@latest --claude --global  # or --local
-```
-
-If the install fails, warn the user but continue — GSD is optional and can be installed separately later.
-
-### Step 11: Print summary
+### Step 10: Print summary
 
 List what was installed:
 - Number of skills copied
@@ -216,11 +203,10 @@ List what was installed:
 - Plugins enabled via `enabledPlugins` and `extraKnownMarketplaces` (list each)
 - Experimental features enabled (list each, or "none" if user declined). For each opted-in feature, show `<name>`; if the feature declared `enablePlugin:`, annotate with `(plugin: <plugin-name>)`; if it declared `skills:`, annotate with `(skill: <name>)`; if it declared `run:`, annotate with `(ran: <commands>)`. Example lines: `- trust-monitor`, `- tower (skill: tower)`, `- raydr (ran: raydr hooks install)`. For `raydr`, also print the next steps: `raydr init` once per machine, `raydr start`, then `raydr doctor`.
 - Experimental features skipped because a prerequisite was missing (e.g. `- tower — herdr not on PATH, see https://herdr.dev`, `- raydr — raydr not on PATH, see npm i -g @tensorkit/raydr`) or because a `run:` command failed (name the command), or omit the line if none.
-- GSD install status (success or skipped)
 - Environment variables set (or already present)
 
 **Remind the user**: Restart Claude Code for plugins and settings to take effect. Claude Code will auto-install plugins from the `claudefiles` marketplace on next startup. Once restarted:
 
 - **`/jira:init`** in any git repo bootstraps a sprint workspace (`.jira/` with `STATE.md`, `sprints/`, `.gitignore`). This is the primary workflow.
-- **`/gsd:help`** still works if you want the legacy GSD commands — kept available but no longer the default path.
+- **`/pstack:poteto-mode`** is the default rigor mode for non-trivial tasks (the `pstack` plugin). GSD is opt-in through the `gsd` experimental feature in Step 8.5; it is no longer installed here. If it was enabled, `/gsd-help` lists its commands.
 - **`/help`** lists everything currently registered.

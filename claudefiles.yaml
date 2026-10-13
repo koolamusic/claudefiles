@@ -46,6 +46,7 @@ settings:
     - jira@claudefiles                    # primary sprint workflow — see plugins/jira/README.md
     - warden@claudefiles                  # acceptance test playbook, see plugins/warden/README.md
     - studio@claudefiles                  # per-project workflow workspace — clone or create ~/.studio/ before /studio:setup, see plugins/studio/README.md
+    - pstack@claudefiles                  # default rigor mode — /pstack:poteto-mode, see plugins/pstack/README.md
   extraKnownMarketplaces:
     claudefiles:
       source:
@@ -161,6 +162,20 @@ experimental:
           install: npm i -g @tensorkit/raydr
       run:
         - raydr hooks install
+    - name: gsd
+      description: >
+        Legacy spec-driven workflow (get-shit-done). Nothing is copied from this
+        repo: the npm installer writes gsd-* skills, agents, hooks and
+        ~/.claude/get-shit-done/, and adds hook entries to settings.json.
+        /gsd-update refreshes it. Remove with
+        `npx -y get-shit-done-cc --claude --global --uninstall`. The run line
+        installs globally; for a Local install target run the same command
+        with `--local` by hand, since `run:` lines take no per-target flag.
+      requires:
+        - command: npx
+          install: https://nodejs.org
+      run:
+        - npx -y get-shit-done-cc@latest --claude --global
 
 cleanup:
   # Files/dirs to remove after extraction is done (in the repo itself during development)
