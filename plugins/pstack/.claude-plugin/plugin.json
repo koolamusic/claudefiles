@@ -1,0 +1,9 @@
+{
+  "name": "pstack",
+  "description": "Rigorous agent workflows from Lauren Tan's pstack, ported to Claude Code. /pstack:poteto-mode matches a task to a playbook and routes through how, why, architect, arena, swarm, interrogate, unslop and 24 principle skills; subagents run as pstack:poteto-agent.",
+  "version": "0.15.21-claude.1",
+  "author": {
+    "name": "Lauren Tan (upstream), ported for Claude Code by koolamusic"
+  },
+  "license": "MIT"
+}
