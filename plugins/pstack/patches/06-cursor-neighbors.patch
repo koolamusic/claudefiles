@@ -214,7 +214,7 @@ index 7f68e7e..74f78cf 100644
  4. Verify on the same surface. The original repro now passes. "Inconclusive" or wrong-surface is not a pass. Flag it. Unit tests show branch behavior, not bug absence.
  5. Stage the commits so the failing repro lands before the fix in git history. See the **tdd** skill for the failing-test-first cadence when the bug has a cheap local test path. Skip it when the test would be expensive, integration-heavy, or unclear.
 diff --git a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
-index e0fb06f..b82ca33 100644
+index e0fb06f..380ef21 100644
 --- a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
 +++ b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
 @@ -10,9 +10,9 @@
@@ -229,9 +229,14 @@ index e0fb06f..b82ca33 100644
  
  ````markdown
  # <Program> plan
-@@ -56,8 +56,8 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
- - [ ] Resolve the forge once. Default to `gh`; if `command -v origin` succeeds and Origin can resolve the repository, use `origin pr` for every PR operation. Record any fallback to `gh`. Never require `gt`.
- - [ ] Open the PR ready, never draft, per **Opening a PR**. Use the run's built-in PR tool when it has one, else `origin pr create --status open --base <base-branch>` or `gh pr create --base <base-branch>` according to the resolved forge. A stack child targets its parent branch.
+@@ -53,11 +53,11 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
+ 
+ ### PR mechanics, for every PR
+ 
+-- [ ] Resolve the forge once. Default to `gh`; if `command -v origin` succeeds and Origin can resolve the repository, use `origin pr` for every PR operation. Record any fallback to `gh`. Never require `gt`.
+-- [ ] Open the PR ready, never draft, per **Opening a PR**. Use the run's built-in PR tool when it has one, else `origin pr create --status open --base <base-branch>` or `gh pr create --base <base-branch>` according to the resolved forge. A stack child targets its parent branch.
++- [ ] Use `gh` for every PR operation. Never require `gt`.
++- [ ] Open the PR ready, never draft, per **Opening a PR**. Use the run's built-in PR tool when it has one, else `gh pr create --base <base-branch>`. A stack child targets its parent branch.
  - [ ] Run the repo's lint and typecheck once before the PR-facing push. Push with hooks on.
 -- [ ] Run `/deslop` before each commit and `/no-comments` before review.
 -- [ ] Triage every Bugbot and security-reviewer comment per `../references/bugbot-triage.md`.
@@ -250,7 +255,7 @@ index e0fb06f..b82ca33 100644
  - [ ] <The owner squash-merges its own PR, or the root appends it to the base-branch stack and the operator lands it bottom-up.>
  
 diff --git a/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md b/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
-index cdf1fd4..00c4cd9 100644
+index cdf1fd4..19d03d3 100644
 --- a/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
 +++ b/plugins/pstack/skills/poteto-mode/playbooks/opening-a-pr.md
 @@ -6,7 +6,7 @@ Invoked at the end of every other playbook.
@@ -261,6 +266,23 @@ index cdf1fd4..00c4cd9 100644
 +**PRs.** Run `/unslop` over the diff's comments and messages before commit and `/no-comments` before review. Write every PR title, description, and commit body with `/technical-writing` (every layer except Diátaxis, and apply the STE vocabulary rules: one word per action, keep articles, a plain verb over `-ing` where one works), then apply `/unslop`.
  
  **Titles.** Conventional Commits `type(scope): subject`, no trailing period. Type such as `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, or `perf`. Scope is the area, such as `pstack` or `poteto-mode`. Subject is short, imperative, and names a real symbol when one carries the change, for example `fix(pstack): retarget opening-a-pr babysit trigger`.
+ 
+@@ -21,13 +21,13 @@ Invoked at the end of every other playbook.
+ 
+ After the sections, attach videos or screenshots when they prove a claim. Full SHAs, swarm or arena lane recitals, lever-correction essays, file-by-file checklists, and "CLEAN" verdicts go in a linked artifact, not the body.
+ 
+-**Forge.** Resolve the forge before the first PR operation and keep that choice for create, edit, view, watch, and merge. GitHub CLI (`gh`) is the default. If `command -v origin` succeeds and Origin can resolve the repository, prefer `origin pr ...`. If Origin is absent or cannot resolve the repository, stay on `gh` and record the fallback. Do not require Graphite (`gt`).
++**Forge.** Use the GitHub CLI (`gh`) for create, edit, view, watch, and merge. Do not require Graphite (`gt`).
+ 
+ **Built-in PR tool.** When the run provides a built-in PR tool, create, edit, retarget, and mark ready through it, never through a forge CLI. A CLI-made PR misses what the tool tracks. Use the resolved forge for everything the tool does not cover, and for every PR operation when the run has no such tool.
+ 
+-**Size and stacks.** Prefer five narrow PRs to one large PR. A stack is a base-branch chain. The root PR targets trunk. Each child branch rebases onto its parent's exact tip and its PR targets the parent branch. Without a built-in PR tool, per the resolved forge, create a child with `origin pr create --status open --base <parent-branch>` or `gh pr create --base <parent-branch>`, and retarget one with `origin pr edit <pr> --base <parent-branch>` or `gh pr edit <pr> --base <parent-branch>`. Branch from trunk only for independent work. Rebase on trunk before substantial stack work.
++**Size and stacks.** Prefer five narrow PRs to one large PR. A stack is a base-branch chain. The root PR targets trunk. Each child branch rebases onto its parent's exact tip and its PR targets the parent branch. Without a built-in PR tool, create a child with `gh pr create --base <parent-branch>`, and retarget one with `gh pr edit <pr> --base <parent-branch>`. Branch from trunk only for independent work. Rebase on trunk before substantial stack work.
+ 
+-**Readiness.** Open every PR ready, never as a draft. A built-in PR tool can default to draft, so set `draft: false` on every creation call through it. With Origin, pass `--status open`. With `gh`, omit `--draft`. If a PR still opens as a draft, mark it ready through the PR tool, or run `origin pr ready <number>` or `gh pr ready <number>` according to the resolved forge. Run `origin pr view <number>` or `gh pr view <number>` before you refer to PR status.
++**Readiness.** Open every PR ready, never as a draft. A built-in PR tool can default to draft, so set `draft: false` on every creation call through it. With `gh`, omit `--draft`. If a PR still opens as a draft, mark it ready through the PR tool, or run `gh pr ready <number>`. Run `gh pr view <number>` before you refer to PR status.
+ 
+ **Babysit.** Opening a PR does not start a babysit. Post the URL and keep building. Finish the phase or stack first. Run a separate babysit pass only when the user asks for one after the whole stack exists. A babysit for each new PR stalls the build and spends checks on commits later waves restart. Push back when feedback drifts from intent.
  
 diff --git a/plugins/pstack/skills/poteto-mode/playbooks/shipping.md b/plugins/pstack/skills/poteto-mode/playbooks/shipping.md
 index 0f1d41f..52f8096 100644

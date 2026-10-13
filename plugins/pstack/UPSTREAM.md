@@ -28,12 +28,12 @@ Each patch in `patches/` is a diff against the post-cut copy from commit `feat(p
 - `01-tool-names.patch`: 19 edits
 - `02-agent-names.patch`: 5 edits
 - `03-frontmatter.patch`: 2 edits
-- `04-paths.patch`: 23 edits
-- `05-models.patch`: 22 edits
-- `06-cursor-neighbors.patch`: 55 edits
-- `07-cloud-playbooks.patch`: 26 edits
+- `04-paths.patch`: 25 edits
+- `05-models.patch`: 23 edits
+- `06-cursor-neighbors.patch`: 60 edits
+- `07-cloud-playbooks.patch`: 30 edits
 - `08-poteto-help.patch`: 19 edits
-- `09-wording.patch`: 3 edits
+- `09-wording.patch`: 4 edits
 
 Line numbers are in the file as it stood before that patch. Snippets are truncated; the patch files carry the full hunks. `skills/poteto-mode/references/bugbot-triage.md` was dropped in the port commit because nothing referenced it after the Cursor-neighbor strip (the file is renamed with a `prune_` prefix until the owner prunes it).
 
@@ -88,6 +88,8 @@ Line numbers are in the file as it stood before that patch. Snippets are truncat
 | 04-paths | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 8 | Unless the operator names a path, write the file under the agent store's `docs/`. | Unless the operator names a path, write the file under the repo's `docs/plans/`. |
 | 04-paths | `skills/why/SKILL.md` | 23 | (open files, recent edits, cursor location, what was just discussed) | (open files, recent edits, caret position, what was just discussed) |
 | 04-paths | `skills/why/SKILL.md` | 35 | Before spawning investigators, list the available MCPs from the Cursor environment. Use t… | Before spawning investigators, list the available MCP servers: the `mcp__<server>__*` too… |
+| 04-paths | `skills/poteto-mode/scripts/worktree-audit.sh` | 55 | # Transcripts dir: ~/.cursor/projects/<slugified-repo-path>/agent-transcripts. / slug=$(p… | # Transcripts dir: ~/.claude/projects/<slugified-repo-path>, one <session>.jsonl per / # … |
+| 04-paths | `skills/poteto-mode/scripts/worktree-audit.sh` | 100 | f=$(rg -l -e "${wt}/" -e "${wt}\"" "$transcripts" 2>/dev/null \ | f=$(rg -l -g '*.jsonl' -e "${wt}/" -e "${wt}\"" "$transcripts" 2>/dev/null \ |
 | 05-models | `skills/poteto-mode/SKILL.md` | 91 | Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `s… | Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `s… |
 | 05-models | `skills/poteto-mode/SKILL.md` | 93 | **Defaults for every `Task` call.** `run_in_background: true`, agent mode (readonly strip… | **Defaults for every Agent tool call.** `run_in_background: true`, file pointers not inli… |
 | 05-models | `skills/poteto-mode/playbooks/feature.md` | 12 | using your configured feature model (default `grok-4.7-xhigh-fast`) | with `model: "sonnet"` (the `feature and refactoring` role) |
@@ -110,6 +112,7 @@ Line numbers are in the file as it stood before that patch. Snippets are truncat
 | 05-models | `skills/architect/SKILL.md` | 31 | Take the runners from the `architect runners` line in the `pstack-models.mdc` rule, in pl… | Take the runners from the `architect runners` row of the model table in the `poteto-mode`… |
 | 05-models | `skills/swarm/SKILL.md` | 25 | 4. Pick the worker model from the `swarm workers` line in `~/.cursor/rules/pstack-models.… | 4. The worker model is `sonnet` (the `swarm workers` row of the model table in the `potet… |
 | 05-models | `skills/swarm/SKILL.md` | 30 | Spawn all N workers in one message with `subagent_type: generalPurpose`, `environment: "c… | Spawn all N workers in one message with `subagent_type: "general-purpose"`, `run_in_backg… |
+| 05-models | `skills/interrogate/SKILL.md` | 9 | Spawn one reviewer per configured model to adversarially review code changes. | Spawn one reviewer per entry on the `interrogate reviewers` row to adversarially review c… |
 | 06-cursor-neighbors | `skills/poteto-mode/SKILL.md` | 24 | Agent-facing prose also follows the **create-skill** skill (Cursor's built-in for authori… | Agent-facing prose also follows the `skill-creator` skill for authoring SKILL.md files. |
 | 06-cursor-neighbors | `skills/poteto-mode/SKILL.md` | 26 | - Before commit → the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`). | - Before commit → the **unslop** skill over every comment, docstring, and commit message … |
 | 06-cursor-neighbors | `skills/poteto-mode/SKILL.md` | 28 | - Shipping UI / IDE / CLI → the matching control skill. `cursor-team-kit` publishes `cont… | - Shipping UI / IDE / CLI → the project's verification skill, the `verify-<app>` skill th… |
@@ -165,6 +168,11 @@ Line numbers are in the file as it stood before that patch. Snippets are truncat
 | 06-cursor-neighbors | `skills/automate-me/SKILL.md` | 77 | Apply the **unslop** skill and `create-skill`'s writing guidelines to every line. | Apply the **unslop** skill and `skill-creator`'s writing guidelines to every line. |
 | 06-cursor-neighbors | `skills/automate-me/SKILL.md` | 96 | A `create-skill`-style test/iterate benchmark loop isn't useful here. | A `skill-creator`-style test/iterate benchmark loop isn't useful here. |
 | 06-cursor-neighbors | `skills/automate-me/SKILL.md` | 102 | - User wants a task-specific skill (not working conventions): `create-skill` alone, no mi… | - User wants a task-specific skill (not working conventions): `skill-creator` alone, no m… |
+| 06-cursor-neighbors | `skills/poteto-mode/playbooks/opening-a-pr.md` | 24 | **Forge.** Resolve the forge before the first PR operation and keep that choice for creat… | **Forge.** Use the GitHub CLI (`gh`) for create, edit, view, watch, and merge. Do not req… |
+| 06-cursor-neighbors | `skills/poteto-mode/playbooks/opening-a-pr.md` | 28 | Without a built-in PR tool, per the resolved forge, create a child with `origin pr create… | Without a built-in PR tool, create a child with `gh pr create --base <parent-branch>`, an… |
+| 06-cursor-neighbors | `skills/poteto-mode/playbooks/opening-a-pr.md` | 30 | With Origin, pass `--status open`. With `gh`, omit `--draft`. If a PR still opens as a dr… | With `gh`, omit `--draft`. If a PR still opens as a draft, mark it ready through the PR t… |
+| 06-cursor-neighbors | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 56 | - [ ] Resolve the forge once. Default to `gh`; if `command -v origin` succeeds and Origin… | - [ ] Use `gh` for every PR operation. Never require `gt`. |
+| 06-cursor-neighbors | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 57 | else `origin pr create --status open --base <base-branch>` or `gh pr create --base <base-… | else `gh pr create --base <base-branch>`. |
 | 07-cloud-playbooks | `skills/poteto-mode/playbooks/orchestrate.md` | 17 | - **Worker / verifier.** Always `environment: "cloud"` unless the task needs this machine… | - **Worker / verifier.** A background Agent tool subagent (`run_in_background: true`) in … |
 | 07-cloud-playbooks | `skills/poteto-mode/playbooks/orchestrate.md` | 19 | Depth stays at coordinator, track, worker. Author the track decomposition per project (bu… | Depth stays at coordinator, track, worker. Author the track decomposition per project (bu… |
 | 07-cloud-playbooks | `skills/poteto-mode/playbooks/orchestrate.md` | 25 | Create `orchestrate/<project-slug>/` in the current agent's store (path in the system pro… | Create `~/.claude/orchestrate/<project-slug>/`. Every file has exactly one writer. Owners… |
@@ -191,6 +199,10 @@ Line numbers are in the file as it stood before that patch. Snippets are truncat
 | 07-cloud-playbooks | `skills/swarm/SKILL.md` | 24 | N is total workers, not the cloud concurrency limit. | N is total workers, not a concurrency limit. |
 | 07-cloud-playbooks | `skills/swarm/SKILL.md` | 36 | If a worker drops out, proceed with N-1 and note it. | If a worker drops out, proceed with N-1 and note it. /  / For fan-out that also plans the… |
 | 07-cloud-playbooks | `skills/poteto-help/SKILL.md` | 74 | \| Run parallel checks over slices, or race workers, as cloud agents \| | \| Run parallel checks over slices, or race workers, as background subagents \| |
+| 07-cloud-playbooks | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 26 | The program runs `pstack/skills/poteto-mode/playbooks/<execution playbook>.md`. | The program runs `${CLAUDE_PLUGIN_ROOT}/skills/poteto-mode/playbooks/<execution playbook>… |
+| 07-cloud-playbooks | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 36 | - [ ] `git show origin/main:pstack/skills/poteto-mode/playbooks/<execution playbook>.md` … | - [ ] `cat ${CLAUDE_PLUGIN_ROOT}/skills/poteto-mode/playbooks/<execution playbook>.md` / … |
+| 07-cloud-playbooks | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 65 | run the swarm per `pstack/skills/swarm/SKILL.md`. | run the swarm per `${CLAUDE_PLUGIN_ROOT}/skills/swarm/SKILL.md`. |
+| 07-cloud-playbooks | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 152 | Which PRs get `pstack/skills/how/SKILL.md` and `pstack/skills/interrogate/SKILL.md`. The … | Which PRs get `${CLAUDE_PLUGIN_ROOT}/skills/how/SKILL.md` and `${CLAUDE_PLUGIN_ROOT}/skil… |
 | 08-poteto-help | `skills/poteto-help/SKILL.md` | 11 | do the work under it, and mention once that a Custom Mode keeps it on. | do the work under it, and mention once that starting each task with it keeps the style on. |
 | 08-poteto-help | `skills/poteto-help/SKILL.md` | 13 | The links here point into the installed plugin, which the user may not be able to open, s… | The links here point into the installed plugin, so give the user the file's absolute path… |
 | 08-poteto-help | `skills/poteto-help/SKILL.md` | 27 | - No `~/.cursor/rules/pstack-models.mdc` means `/setup-pstack` hasn't run for this user, … | (removed) |
@@ -213,11 +225,12 @@ Line numbers are in the file as it stood before that patch. Snippets are truncat
 | 09-wording | `skills/poteto-help/SKILL.md` | 39 | This is a port of pstack from the Cursor plugins repository. Skills refer | This is a port of pstack by Lauren Tan (the plugin's `README.md` names the upstream). Ski… |
 | 09-wording | `skills/why/SKILL.md` | 94 | if the user's `why` question is a precursor to changing this code, | if the user's `why` question is a prelude to changing this code, |
 | 09-wording | `skills/poteto-mode/SKILL.md` | 148 | from a transcript, cloud-agent URL, or pushed branch. | from a transcript or pushed branch. |
+| 09-wording | `skills/poteto-mode/playbooks/multi-phase-plan.md` | 78 | ## <Task as a verb phrase> (<PR id>) | ## <PR task as a verb phrase> (<PR id>) |
 
 ## Re-vendor
 
 1. Clone the upstream at the new commit: `git clone --depth 1 https://github.com/cursor/plugins /tmp/cursor-plugins && git -C /tmp/cursor-plugins log -1 --format=%H`.
 2. Copy `pstack/` into a scratch dir with the cuts above applied (the Cut table is the list; copy the kept paths one by one rather than copying everything and deleting).
-3. Reapply the patches in order: `git apply --directory=plugins/pstack patches/*.patch`. A patch that fails to apply means the upstream line changed; reread the upstream file, redo that patch by hand, and regenerate it with `git diff` against the fresh copy.
+3. Reapply the patches in order from the repo root: `git apply plugins/pstack/patches/*.patch` (the patches carry the `plugins/pstack/` prefix). A patch that fails to apply means the upstream line changed; reread the upstream file, redo that patch by hand, and regenerate it with `git diff` against the fresh copy.
 4. Diff the result against the current tree (`git diff --stat`) and reread every hunk that touches a `model:`, `subagent_type`, or path. Rerun the verification grep from the port commit message.
 5. Update the Commit, Date, and Version rows above and bump the `-claude.N` suffix in `.claude-plugin/plugin.json`.

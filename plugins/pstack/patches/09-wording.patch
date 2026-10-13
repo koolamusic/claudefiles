@@ -24,6 +24,19 @@ index 77268ae..666a08c 100644
  - **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a Claude Code restart, or imminent context compaction. The complement to Session pickup.
  - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. File: `playbooks/multi-phase-plan.md`.
  - **Worktree and simulator cleanup.** Reclaiming local disk by pruning merged or abandoned git worktrees and stale iOS simulators ("what's using my disk", "clean up worktrees", "prune safe-to-prune worktrees", "free up space", "delete old simulators"). File: `playbooks/worktree-cleanup.md`.
+diff --git a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+index 395405a..b82ba70 100644
+--- a/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
++++ b/plugins/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
+@@ -75,7 +75,7 @@ Each live lane runs in its own git worktree at the PR head. Drive through the pr
+ - [ ] <Deliver input only through the control skill's commands. Name the read-only diagnostics.>
+ - [ ] Save every screenshot to `/tmp/swarm-<pr-id>/worker-<n>/<slug>.png` and return the paths with the report.
+ 
+-## <Task as a verb phrase> (<PR id>)
++## <PR task as a verb phrase> (<PR id>)
+ 
+ **Depends on.** <PR id, or None.>
+ 
 diff --git a/plugins/pstack/skills/why/SKILL.md b/plugins/pstack/skills/why/SKILL.md
 index 1e7ce7c..2423c1c 100644
 --- a/plugins/pstack/skills/why/SKILL.md

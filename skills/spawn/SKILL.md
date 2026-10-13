@@ -1,6 +1,6 @@
 ---
 name: spawn
-description: "Fan out work to parallel sub-agents with worktree isolation. Reads a plan, scope list, or inline description, breaks it into waves of independently-dispatchable units, and orchestrates execution. The orchestrator never implements — it coordinates. Use when user says 'spawn', 'fan out', 'parallelize', 'dispatch waves', or has multiple independent tasks to dispatch."
+description: "Fan out work to parallel sub-agents with worktree isolation. Reads a plan, scope list, or inline description, breaks it into waves of independently-dispatchable units, and coordinates execution. The coordinator never implements — it dispatches. Use when user says 'spawn', 'fan out', 'parallelize', 'dispatch waves', or has multiple independent tasks to dispatch."
 argument-hint: "<plan path, scope description, or 'auto' to read active sprint>"
 ---
 

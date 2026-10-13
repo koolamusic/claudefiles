@@ -47,7 +47,7 @@ index 8134632..fe8e6ab 100644
  ## 1. Assess complexity
  
 diff --git a/plugins/pstack/skills/interrogate/SKILL.md b/plugins/pstack/skills/interrogate/SKILL.md
-index 48f0dc6..cf50167 100644
+index 48f0dc6..89a97e0 100644
 --- a/plugins/pstack/skills/interrogate/SKILL.md
 +++ b/plugins/pstack/skills/interrogate/SKILL.md
 @@ -1,12 +1,12 @@
@@ -61,7 +61,7 @@ index 48f0dc6..cf50167 100644
  # Interrogate
  
 -Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from model diversity, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
-+Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from the cross-tier reviewers, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
++Spawn one reviewer per entry on the `interrogate reviewers` row to adversarially review code changes. The adversarial signal comes from the cross-tier reviewers, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
  
  ## Step 1, Scope
  

@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Interrogate
 
-Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from the cross-tier reviewers, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
+Spawn one reviewer per entry on the `interrogate reviewers` row to adversarially review code changes. The adversarial signal comes from the cross-tier reviewers, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 
 ## Step 1, Scope
 
